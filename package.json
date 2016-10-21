@@ -23,6 +23,7 @@
     "jshint": "^2.9.3",
     "mongo": "^0.1.0",
     "mongoose": "^4.6.4",
+    "path": "^0.12.7",
     "request": "^2.75.0"
   },
   "devDependencies": {
