@@ -5,8 +5,5 @@ web/node_modules
 node_modules
 
 # services #
-services/job_listings
-services/processed_data
-services/raw_scrape_data
-services/locationData.js
-services/utilities.js
+services/records
+services/keys.js
