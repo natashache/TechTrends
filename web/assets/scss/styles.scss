@@ -1,0 +1,25 @@
+$grey255: rgb(255, 255, 255);
+$grey250: rgb(250, 250, 250);
+$grey245: rgb(245, 245, 245);
+$grey240: rgb(240, 240, 240);
+$grey100: rgb(100, 100, 100);
+$grey75: rgb(75, 75, 75);
+$grey50: rgb(50, 50, 50);
+$grey25: rgb(25, 25, 25);
+
+html, body {
+    margin: 0;
+    height: 100%;
+    font-family: sans-serif;
+		color: $grey25;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+h1, h2, h3, h4, h5, h6, div {
+	overflow: hidden;
+  margin: 0;
+}
