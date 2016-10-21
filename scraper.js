@@ -2,7 +2,7 @@ const fs = require('fs');
 const request = require('request');
 const series = require('async-series');
 const cheerio = require('cheerio');
-const locationData = require('./locationData.js');
+const locationData = require('../services/locationData.js');
 const promise = require('bluebird');
 
 const fetchJobPostingUrls = function(state) {
@@ -67,7 +67,7 @@ const fetchAllJobPostingContent = function(urlArr, state) {
             text: scrubbedData
           };
 
-          // fs.writeFile((__dirname + '/processed_data/' + fileName + '.txt'), JSON.stringify(result), function(err) {
+          // fs.writeFile((__dirname + '/services/processed_data/' + fileName + '.txt'), JSON.stringify(result), function(err) {
           //   if (err) console.log(err);
           // });
 
