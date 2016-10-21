@@ -13,7 +13,7 @@ app.use(bodyParser.json());
 
 
 //----------routes for the raw postings database---------------
-//---------------------------------------------------------
+//-------------------------------------------------------------
 
 app.post('/raw-postings',function(req,res){
   postingsHelpers.addNewPosting(req.body, (newPosting) => {
@@ -23,14 +23,15 @@ app.post('/raw-postings',function(req,res){
 
 });
 
+
 app.get('/raw-postings',function(req,res){
   postingsHelpers.getPostings(req.query.date, function(results){
     res.status(200).send(results);
   });
 });
 
-//----------routes for the analyzed database---------------
-//---------------------------------------------------------
+//----------routes for the analyzed database-------------------
+//-------------------------------------------------------------
 
 
 //--end routes--
