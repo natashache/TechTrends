@@ -19,9 +19,6 @@ console.log(process.env);
 //middleware
 app.use(bodyParser.json());
 
-//change
-//another change
-
 //----------routes for the raw postings database---------------
 //-------------------------------------------------------------
 
