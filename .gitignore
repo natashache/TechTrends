@@ -1,10 +1,12 @@
+.DS_Store
+
 databases/node_modules
 web/node_modules
 ./node_modules
 node_modules
 
 # services #
-services/job_listings/**
+services/job_listings
 services/processed_data
 services/raw_scrape_data
 services/locationData.js
