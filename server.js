@@ -1,6 +1,4 @@
-
-
-const postingsHelpers = require('./database/postingsHelpers.js');
+const postingsHelpers = require('./databases/postingsHelpers.js');
 const bodyParser = require('body-parser');
 var app = require('express')();
 var mongoose = require("mongoose");
