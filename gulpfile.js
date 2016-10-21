@@ -17,12 +17,12 @@ var rename = require('gulp-rename');
 //     .pipe(jshint.reporter('default'));
 // });
 
-// // Compile Our Sass
-// gulp.task('sass', function() {
-//   return gulp.src('assets/scss/*.scss')
-//     .pipe(sass({outputStyle: 'compressed' }).on('error', sass.logError))
-//     .pipe(gulp.dest('public/css'));
-// });
+// Compile Our Sass
+gulp.task('sass', function() {
+  return gulp.src('web/assets/scss/*.scss')
+    .pipe(sass({outputStyle: 'compressed' }).on('error', sass.logError))
+    .pipe(gulp.dest('web/public/css'));
+});
 
 // // Concatenate & Minify JS
 // gulp.task('scripts', function() {
