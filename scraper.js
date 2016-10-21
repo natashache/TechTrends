@@ -2,86 +2,111 @@ const fs = require('fs');
 const request = require('request');
 const series = require('async-series');
 const cheerio = require('cheerio');
-const locationData = require('./services/locationData.js');
+const keysMethods = require('./services/keys.js');
 const promise = require('bluebird');
 
-const fetchJobPostingUrls = function(state) {
+const queries = keysMethods.getQueries();
 
-  const entry = state.hubs.phoenix.queries.career_builder.web_developer;
+// TODO: need recursive call for all pages; remove id
+const fetchRecordUrls = function(queries) {
+  return new Promise(function(resolve, reject) {
 
-  var jobPostingUrls = [];
-  
-  const parseUrls = function(url) {
-    request.get(url, function(err, response, html) {
-      if (!err) {
-        
-        const $ = cheerio.load(html);
+    var records = [];
 
-        const urls = $('body').find('h2.job-title a'); // TODO: abstract this into source utility
-        
-        Object.keys(urls).forEach(function(listing) {
-          if (urls[listing].attribs !== undefined) {
-            var listingUrl = urls[listing].attribs.href;
-            listingUrl = 'http://www.careerbuilder.com' + listingUrl.split('?')[0]; // TODO: abstract this into source utility
-            jobPostingUrls.push(listingUrl);
+    queries.forEach(function(query) {
+      
+      const parseUrls = function(url) {
+        request.get(url, function(err, response, html) {
+          if (!err) {
+            
+            const $ = cheerio.load(html);
+
+            const urls = $('body').find('h2.job-title a'); // TODO: abstract this into source utility
+            
+            Object.keys(urls).forEach(function(listing) {
+              if (urls[listing].attribs !== undefined) {
+                
+                var record = {
+                  id: '', // TODO: remove?
+                  date: query.date,
+                  country: query.country,
+                  state: query.state,
+                  hub: query.hub,
+                  source: query.source,
+                  term: query.term,
+                  url: '',
+                  text: ''
+                };
+                
+                record.url = urls[listing].attribs.href;
+                record.url = 'http://www.careerbuilder.com' + record.url.split('?')[0]; // TODO: abstract this into source utility
+                record.id = Math.random() * 100000000000000000000;  // TODO: remove
+                
+                records.push(record);
+              }
+            });
+
+            // TODO: recursive logic here to check for additional pages and feed them back into this fetch until all are listed
+
+            resolve(records);
+          
+          } else {
+            reject(console.log(err));
           }
         });
+      };
 
-        // TODO: recursive logic here to check for additional pages and feed them back into this fetch until all are listed
-
-        fetchAllJobPostingContent(jobPostingUrls, state);
-      
-      } else {
-        console.log(err);
-      }
+      parseUrls(query.start);
+    
     });
-  };
-
-  parseUrls(entry, state);
-
+  });
 };
 
 // TODO: this needs to be throttled, ASAP
-const fetchAllJobPostingContent = function(urlArr, state) {
+const fetchRecordContent = function(records) {
+  return new Promise(function(resolve, reject) {
 
-  const fetches = urlArr.map(function(url) {
-    return function(done) {
-      request.get(url, function(error, response, html) {
-        if (!error) {
-          
-          const $ = cheerio.load(html);
-          
-          const fileName = url.split('\/').pop();
-          
-          const scrubbedData = $('body').find('.description').text().toLowerCase(); // TODO: abstract this into source utility
+    const fetches = records.map(function(record) {
+      return function(done) {
+        request.get(record.url, function(error, response, html) {
+          if (!error) {
+            
+            const $ = cheerio.load(html);
+            
+            record.text = $('body').find('.description').text().toLowerCase(); // TODO: abstract this into source utility
 
-          const result = {
-            id: fileName,
-            date: new Date(),
-            country: '000',
-            state: state.name,
-            hub: 'phoenix',
-            source: 'career_builder',
-            query: 'web_developer',
-            url: url,
-            text: scrubbedData
-          };
+            done();
 
-          fs.writeFile((__dirname + '/services/processed_data/' + fileName + '.txt'), JSON.stringify(result), function(err) {
-            if (err) console.log(err);
-          });
+          } else {
+            reject(error);
+          }
+        });
+      };
+    });
 
-          done();
-
-        }
-      });
-    };
-  });
-
-  series(fetches, function(err) {
-    if (err) console.log('failed to download: ', err);
+    series(fetches, function(err, results) {
+      if (!err) {
+        resolve(records);
+      } else {
+        reject(err);
+      }
+    });
+  
   });
 
 };
 
-fetchJobPostingUrls(locationData['000'].states.arizona);
+// TODO: replace with write to DB
+const storeRecords = function(records) {
+
+  records.forEach(function(record) {
+    fs.writeFile((__dirname + '/services/records/' + record.id + '.txt'), JSON.stringify(record), function(err) {
+      if (err) console.log(err);
+    });
+  });
+
+};
+
+fetchRecordUrls(queries)
+  .then(fetchRecordContent)
+  .then(storeRecords);
