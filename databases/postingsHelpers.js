@@ -1,6 +1,6 @@
 const PostingsModel = require("./postingsModel.js");
 
-// handles creating a new date collections and pushes into it's
+// handles creating a new date collections and pushes into its
 // posting array
 const createCollection = function (postingObject, callback){
   PostingsModel.create({date: postingObject.date})
@@ -14,7 +14,6 @@ const createCollection = function (postingObject, callback){
     })
 
 };
-
 
 //handles adding a new post, takes care of already existing dates and 
 //creating new dates
@@ -34,17 +33,16 @@ const addNewPosting = function(postingObject, callback) {
 
 const getPostings = function(date,callback){
   if(date === 'all'){
-    CollectionModel.find().then(results =>{
+    PostingsModel.find().then(results =>{
       callback(results); 
     });
   }
   else {
-    CollectionModel.find({date: date}).then( results => {
+    PostingsModel.find({date: date}).then( results => {
       callback(results);
     });
   }
 };
-  
 
 module.exports.createCollection = createCollection;
 module.exports.addNewPosting = addNewPosting;

@@ -17,9 +17,10 @@ app.use(bodyParser.json());
 //---------------------------------------------------------
 
 app.post('/postings',function(req,res){
-  postingsHelpers.addNewPosting(req.body, () => {
-    res.status(301).send();
-  })
+  postingsHelpers.addNewPosting(req.body, (newPosting) => {
+    console.log("added new posting", newPosting);
+    res.status(301).send(newPosting);
+  });
 
 });
 
