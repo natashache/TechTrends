@@ -1,7 +1,8 @@
 const postingsHelpers = require('./databases/postingsHelpers.js');
 const bodyParser = require('body-parser');
 var app = require('express')();
-var mongoose = require("mongoose");
+var mongoose = require('mongoose');
+const path = require('path');
 
 //mongoose is connected anywhere, it's connection is referenced whenever it is required
 
@@ -16,6 +17,10 @@ mongoose.connect(POSTINGSURI);
 console.log(process.env);
 //middleware
 app.use(bodyParser.json());
+
+app.get('/', function (req, res) {
+  res.status(200).sendFile(path.join(__dirname + '/web/public/index.html'));
+});
 
 //----------routes for the raw postings database---------------
 //-------------------------------------------------------------

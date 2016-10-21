@@ -10,6 +10,8 @@ const fetchRecordUrls = function(query) {
   return new Promise(function(resolve, reject) {
 
     var records = [];
+
+    // const source = keysMethods.getSource(query.source); // not sure if this works yet
       
     const parseUrls = function(url) {
       request.get(url, function(err, response, html) {
