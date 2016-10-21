@@ -20,6 +20,15 @@
     "body-parser": "^1.15.2",
     "cheerio": "^0.22.0",
     "express": "^4.14.0",
+<<<<<<< HEAD
+=======
+    "gulp-concat": "^2.6.0",
+    "gulp-jshint": "^2.0.1",
+    "gulp-rename": "^1.2.2",
+    "gulp-sass": "^2.3.2",
+    "gulp-uglify": "^2.0.0",
+    "jshint": "^2.9.3",
+>>>>>>> 3ba955d61a575830c8807d84f91a85e7209163f3
     "mongo": "^0.1.0",
     "mongoose": "^4.6.4",
     "request": "^2.75.0"
