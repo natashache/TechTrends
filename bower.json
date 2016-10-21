@@ -1,0 +1,17 @@
+{
+  "name": "tech-trends-dbs",
+  "description": "Compelling technology trend data by hub.",
+  "main": "",
+  "authors": [
+  ],
+  "license": "ISC",
+  "homepage": "",
+  "ignore": [
+    "node_modules",
+    "bower_components"
+  ],
+  "dependencies": {
+    "jquery": "^3.1.1",
+    "underscore": "^1.8.3"
+  }
+}
