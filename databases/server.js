@@ -1,5 +1,4 @@
-//var postingsdbUri= 'mongodb://hera:hackreactor19@ds063406.mlab.com:63406/rawpostings';
-const POSTINGSURI = "mongodb://localhost/postings";
+const POSTINGSURI = 'mongodb://hera:hackreactor19@ds063406.mlab.com:63406/rawpostings'//"mongodb://localhost/postings";
 const postingsHelpers = require('./postingsHelpers.js');
 const bodyParser = require('body-parser');
 var app = require('express')();
@@ -13,10 +12,10 @@ mongoose.connect(POSTINGSURI);
 app.use(bodyParser.json());
 
 
-//----------routes for the postings database---------------
+//----------routes for the raw postings database---------------
 //---------------------------------------------------------
 
-app.post('/postings',function(req,res){
+app.post('/raw-postings',function(req,res){
   postingsHelpers.addNewPosting(req.body, (newPosting) => {
     console.log("added new posting", newPosting);
     res.status(301).send(newPosting);
@@ -24,7 +23,7 @@ app.post('/postings',function(req,res){
 
 });
 
-app.get('/postings',function(req,res){
+app.get('/raw-postings',function(req,res){
   postingsHelpers.getPostings(req.query.date, function(results){
     res.status(200).send(results);
   });
