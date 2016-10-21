@@ -30,13 +30,28 @@ const addNewPosting = function(postingObject, callback) {
 };
 
 const getPostings = function(date,callback){
-  if(date === 'all'){
+  if(date === '0'){
     PostingsModel.find().then(results =>{
+      console.log('get results',results)
       callback(results); 
     });
   }
   else {
     PostingsModel.find({date: date}).then( results => {
+      console.log("get results",results)
+      callback(results);
+    });
+  }
+};
+
+const deletePostings = function(date,callback){
+  if(date === '0'){
+    PostingsModel.remove().then(results =>{
+      callback(results); 
+    });
+  }
+  else {
+    PostingsModel.remove({date: date}).then( results => {
       callback(results);
     });
   }
@@ -45,4 +60,5 @@ const getPostings = function(date,callback){
 module.exports.createCollection = createCollection;
 module.exports.addNewPosting = addNewPosting;
 module.exports.getPostings = getPostings;
+module.exports.deletePostings = deletePostings;
 
