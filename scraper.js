@@ -116,7 +116,7 @@ const storeRecords = (records) => {
     };
   });
 
-  async.parallel(writes, (err) => {
+  async.series(writes, (err) => {
     if (err) console.log('error writing records to database', err);
   });
 
