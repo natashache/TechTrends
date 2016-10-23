@@ -45,6 +45,7 @@ app.get('/raw-postings', (req, res) => {
 // });
 
 app.post('/raw-postings', function(req, res){
+  console.log('post record request received');
   let data = '';
   
   req.on('data', (chunk) => {

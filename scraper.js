@@ -15,7 +15,7 @@ const fetchRecordUrls = (query) => {
 
     const source = keysMethods.getSource(query.source);
 
-    var pageCount = 1;
+    var pageCount = 4;
       
     const parseUrls = (url) => {
       
@@ -105,7 +105,11 @@ const storeRecords = (records) => {
 
   const writes = records.map((record) => {
     return (done) => {
-      request.post(api, JSON.stringify(record), (error, response, body) => {
+      request({
+        url: api,
+        method: 'POST',
+        json: record
+      }, (error, response, body) => {
         if (!error) {
           console.log('record written from url', record.url, 'to database');
           done();
@@ -125,13 +129,20 @@ const storeRecords = (records) => {
 
 const queries = keysMethods.getQueries();
 
-// // TODO: begin scrape prompt
-// console.log('*================================================================*');
-// prompt('* Begin scrape? This command will take several hours to complete *');
-// console.log('*================================================================*');
-
-queries.forEach((query) => {
-  fetchRecordUrls(query)
-    .then(fetchRecordContent)
-    .then(storeRecords);
-});
+inquirer.prompt([{
+  type: 'confirm',
+  name: 'confirm',
+  message: 'Start the scrape? This process will take several hours. Begin:'
+}])
+  .then((answers) => {
+    console.log(answers);
+    if (answers.confirm) {
+      queries.forEach((query) => {
+        fetchRecordUrls(query)
+          .then(fetchRecordContent)
+          .then(storeRecords);
+      });
+    } else {
+      console.log('scrape aborted');
+    }
+  });
