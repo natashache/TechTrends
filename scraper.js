@@ -1,3 +1,4 @@
+const inquirer = require('inquirer');
 const request = require('request');
 const async = require('async');
 const cheerio = require('cheerio');
@@ -123,6 +124,11 @@ const storeRecords = (records) => {
 };
 
 const queries = keysMethods.getQueries();
+
+// // TODO: begin scrape prompt
+// console.log('*================================================================*');
+// prompt('* Begin scrape? This command will take several hours to complete *');
+// console.log('*================================================================*');
 
 queries.forEach((query) => {
   fetchRecordUrls(query)
