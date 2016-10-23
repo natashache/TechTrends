@@ -1,15 +1,13 @@
 const fs = require('fs');
 const request = require('request');
-const series = require('async-series');
+const async = require('async');
 const cheerio = require('cheerio');
 const keysMethods = require('./services/keys.js');
 const promise = require('bluebird');
 
 // TODO: undo this hard-coding
-
 const dbUrl = 'http://localhost:8000/raw-postings';
 
-// TODO: need recursive call for all pages; remove id
 const fetchRecordUrls = (query) => {
   return new Promise((resolve, reject) => {
 
@@ -23,7 +21,7 @@ const fetchRecordUrls = (query) => {
           
           const $ = cheerio.load(html);
           
-          const urls = $('body').find(source.elemRecordLink); // TODO: abstract this into source utility
+          const urls = $('body').find(source.elemRecordLink);
           
           Object.keys(urls).forEach((listing) => {
             if (urls[listing].attribs !== undefined) {
@@ -41,7 +39,7 @@ const fetchRecordUrls = (query) => {
               };
               
               record.url = urls[listing].attribs.href;
-              record.url = source.urlRoot + record.url.split('?')[0]; // TODO: abstract this into source utility
+              record.url = source.urlRoot + record.url.split('?')[0];
               record.id = Math.random() * 100000000000000000000;  // TODO: remove
               
               records.push(record);
@@ -50,7 +48,7 @@ const fetchRecordUrls = (query) => {
 
           // TODO: recursive logic here to check for additional pages and feed them back into this fetch until all are listed
 
-          resolve(records);
+          resolve({records: records, source: source});
         
         } else {
           reject(console.log(err));
@@ -63,28 +61,28 @@ const fetchRecordUrls = (query) => {
   });
 };
 
-// TODO: this needs to be throttled, ASAP
-const fetchRecordContent = (records) => {
+const fetchRecordContent = (obj) => {
+
   return new Promise((resolve, reject) => {
 
-    const fetches = records.map((record) => {
+    const fetches = obj.records.map((record) => {
       return (done) => {
         request.get(record.url, (error, response, html) => {
           if (!error) {
             const $ = cheerio.load(html);
-            record.text = $('body').find('.description').text().toLowerCase(); // TODO: abstract this into source utility
-            done();
+            record.text = $('body').find(obj.source.elemRecordBody).text().toLowerCase();
+            setTimeout(() => { done(); }, 2000);
           } else {
             reject(error);
-            done();
+            setTimeout(() => { done(); }, 2000);
           }
         });
       };
     });
 
-    series(fetches, (err, results) => {
+    async.series(fetches, (err, results) => {
       if (!err) {
-        resolve(records);
+        resolve(obj.records);
       } else {
         reject(err);
       }
@@ -99,6 +97,7 @@ const storeRecords = (records) => {
     return (done) => {
       request.post(dbUrl, JSON.stringify(record), (error, response, body) => {
         if (!error) {
+          console.log('record written from url', record.url);
           done();
         } else {
           console.log('error writing record to database', error);
@@ -108,8 +107,8 @@ const storeRecords = (records) => {
     };
   });
 
-  series(writes, (err) => {
-    if (err) console.log('error writing record to database, err');
+  async.parallel(writes, (err) => {
+    if (err) console.log('error writing records to database', err);
   });
 
   // fs.writeFile((__dirname + '/services/records/' + record.id + '.txt'), JSON.stringify(record), function(err) {

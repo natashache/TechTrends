@@ -37,11 +37,26 @@ app.get('/raw-postings', (req, res) => {
   });
 });
 
-app.post('/raw-postings', (req, res) => {
-  postingsHelpers.addNewPosting(req.body, (newPosting) => {
-    console.log("added new posting", newPosting);
-    res.status(202).send(newPosting);
-  });
+// app.post('/raw-postings', (req, res) => {
+//   postingsHelpers.addNewPosting(req.body, (newPosting) => {
+//     console.log("added new posting", newPosting);
+//     res.status(202).send(newPosting);
+//   });
+// });
+
+app.post('/raw-postings',function(req,res){
+  let data = "";
+  
+  req.on("data", (chunk) => {
+    data+=chunk;
+  }).on("end", () => {
+    console.log("parsed data", data);
+
+    postingsHelpers.addNewPosting(req.body, (newPosting) => {
+      console.log("added new posting", newPosting);
+      res.status(202).send(newPosting);
+    });
+  })
 });
 
 app.delete('/raw-postings', (req, res) => {
