@@ -4,8 +4,8 @@ const cheerio = require('cheerio');
 const keysMethods = require('./services/keys.js');
 const promise = require('bluebird');
 
-// TODO: undo this hard-coding
-const dbUrl = 'http://localhost:8000/raw-postings';
+// TODO: change this hard-coding when web server goes live
+const api = 'http://localhost:8000/raw-postings';
 
 const fetchRecordUrls = (query) => {
   return new Promise((resolve, reject) => {
@@ -92,7 +92,7 @@ const storeRecords = (records) => {
 
   const writes = records.map((record) => {
     return (done) => {
-      request.post(dbUrl, JSON.stringify(record), (error, response, body) => {
+      request.post(api, JSON.stringify(record), (error, response, body) => {
         if (!error) {
           console.log('record written from url', record.url);
           done();
