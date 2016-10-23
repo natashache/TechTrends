@@ -1,26 +1,29 @@
 const fs = require('fs');
 const request = require('request');
-const series = require('async-series');
+const async = require('async');
 const cheerio = require('cheerio');
 const keysMethods = require('./services/keys.js');
 const promise = require('bluebird');
 
-// TODO: need recursive call for all pages; remove id
-const fetchRecordUrls = function(query) {
-  return new Promise(function(resolve, reject) {
+// TODO: undo this hard-coding
+const dbUrl = 'http://localhost:8000/raw-postings';
+
+const fetchRecordUrls = (query) => {
+  return new Promise((resolve, reject) => {
 
     var records = [];
 
-    // const source = keysMethods.getSource(query.source); // not sure if this works yet
+    const source = keysMethods.getSource(query.source);
       
-    const parseUrls = function(url) {
-      request.get(url, function(err, response, html) {
+    const parseUrls = (url) => {
+      request.get(url, (err, response, html) => {
         if (!err) {
           
           const $ = cheerio.load(html);
-          const urls = $('body').find('h2.job-title a'); // TODO: abstract this into source utility
           
-          Object.keys(urls).forEach(function(listing) {
+          const urls = $('body').find(source.elemRecordLink);
+          
+          Object.keys(urls).forEach((listing) => {
             if (urls[listing].attribs !== undefined) {
               
               var record = {
@@ -36,7 +39,7 @@ const fetchRecordUrls = function(query) {
               };
               
               record.url = urls[listing].attribs.href;
-              record.url = 'http://www.careerbuilder.com' + record.url.split('?')[0]; // TODO: abstract this into source utility
+              record.url = source.urlRoot + record.url.split('?')[0];
               record.id = Math.random() * 100000000000000000000;  // TODO: remove
               
               records.push(record);
@@ -45,7 +48,7 @@ const fetchRecordUrls = function(query) {
 
           // TODO: recursive logic here to check for additional pages and feed them back into this fetch until all are listed
 
-          resolve(records);
+          resolve({records: records, source: source});
         
         } else {
           reject(console.log(err));
@@ -58,27 +61,28 @@ const fetchRecordUrls = function(query) {
   });
 };
 
-// TODO: this needs to be throttled, ASAP
-const fetchRecordContent = function(records) {
-  return new Promise(function(resolve, reject) {
+const fetchRecordContent = (obj) => {
 
-    const fetches = records.map(function(record) {
-      return function(done) {
-        request.get(record.url, function(error, response, html) {
+  return new Promise((resolve, reject) => {
+
+    const fetches = obj.records.map((record) => {
+      return (done) => {
+        request.get(record.url, (error, response, html) => {
           if (!error) {
             const $ = cheerio.load(html);
-            record.text = $('body').find('.description').text().toLowerCase(); // TODO: abstract this into source utility
-            done();
+            record.text = $('body').find(obj.source.elemRecordBody).text().toLowerCase();
+            setTimeout(() => { done(); }, 2000);
           } else {
             reject(error);
+            setTimeout(() => { done(); }, 2000);
           }
         });
       };
     });
 
-    series(fetches, function(err, results) {
+    async.series(fetches, (err, results) => {
       if (!err) {
-        resolve(records);
+        resolve(obj.records);
       } else {
         reject(err);
       }
@@ -87,18 +91,35 @@ const fetchRecordContent = function(records) {
   });
 };
 
-// TODO: replace with write to DB
-const storeRecords = function(records) {
-  records.forEach(function(record) {
-    fs.writeFile((__dirname + '/services/records/' + record.id + '.txt'), JSON.stringify(record), function(err) {
-      if (err) console.log(err);
-    });
+const storeRecords = (records) => {
+
+  const writes = records.map((record) => {
+    return (done) => {
+      request.post(dbUrl, JSON.stringify(record), (error, response, body) => {
+        if (!error) {
+          console.log('record written from url', record.url);
+          done();
+        } else {
+          console.log('error writing record to database', error);
+          done();
+        }
+      }); 
+    };
   });
+
+  async.parallel(writes, (err) => {
+    if (err) console.log('error writing records to database', err);
+  });
+
+  // fs.writeFile((__dirname + '/services/records/' + record.id + '.txt'), JSON.stringify(record), function(err) {
+  //   if (err) console.log(err);
+  // });
+
 };
 
 const queries = keysMethods.getQueries();
 
-queries.forEach(function(query) {
+queries.forEach((query) => {
   fetchRecordUrls(query)
     .then(fetchRecordContent)
     .then(storeRecords);
