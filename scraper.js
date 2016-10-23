@@ -18,7 +18,6 @@ const fetchRecordUrls = function(query) {
         if (!err) {
           
           const $ = cheerio.load(html);
-
           const urls = $('body').find('h2.job-title a'); // TODO: abstract this into source utility
           
           Object.keys(urls).forEach(function(listing) {
@@ -67,13 +66,9 @@ const fetchRecordContent = function(records) {
       return function(done) {
         request.get(record.url, function(error, response, html) {
           if (!error) {
-            
             const $ = cheerio.load(html);
-            
             record.text = $('body').find('.description').text().toLowerCase(); // TODO: abstract this into source utility
-
             done();
-
           } else {
             reject(error);
           }
@@ -90,7 +85,6 @@ const fetchRecordContent = function(records) {
     });
   
   });
-
 };
 
 // TODO: replace with write to DB
