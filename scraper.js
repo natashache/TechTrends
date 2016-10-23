@@ -5,6 +5,10 @@ const cheerio = require('cheerio');
 const keysMethods = require('./services/keys.js');
 const promise = require('bluebird');
 
+// TODO: undo this hard-coding
+
+const dbUrl = 'http://localhost:8000/raw-postings';
+
 // TODO: need recursive call for all pages; remove id
 const fetchRecordUrls = function(query) {
   return new Promise(function(resolve, reject) {
@@ -71,6 +75,7 @@ const fetchRecordContent = function(records) {
             done();
           } else {
             reject(error);
+            done();
           }
         });
       };
@@ -87,13 +92,29 @@ const fetchRecordContent = function(records) {
   });
 };
 
-// TODO: replace with write to DB
 const storeRecords = function(records) {
-  records.forEach(function(record) {
-    fs.writeFile((__dirname + '/services/records/' + record.id + '.txt'), JSON.stringify(record), function(err) {
-      if (err) console.log(err);
-    });
+
+  const writes = records.map((record) => {
+    return (done) => {
+      request.post(dbUrl, record, (error, response, body) => {
+        if (!error) {
+          done();
+        } else {
+          console.log('error writing record to database', error);
+          done();
+        }
+      }); 
+    };
   });
+
+  series(writes,  (err) => {
+    if (err) console.log('error writing record to database, err');
+  });
+
+  // fs.writeFile((__dirname + '/services/records/' + record.id + '.txt'), JSON.stringify(record), function(err) {
+  //   if (err) console.log(err);
+  // });
+
 };
 
 const queries = keysMethods.getQueries();
