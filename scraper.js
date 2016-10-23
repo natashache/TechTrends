@@ -1,4 +1,3 @@
-const fs = require('fs');
 const request = require('request');
 const async = require('async');
 const cheerio = require('cheerio');
@@ -27,7 +26,6 @@ const fetchRecordUrls = (query) => {
             if (urls[listing].attribs !== undefined) {
               
               var record = {
-                id: '', // TODO: remove?
                 date: query.date,
                 country: query.country,
                 state: query.state,
@@ -40,7 +38,6 @@ const fetchRecordUrls = (query) => {
               
               record.url = urls[listing].attribs.href;
               record.url = source.urlRoot + record.url.split('?')[0];
-              record.id = Math.random() * 100000000000000000000;  // TODO: remove
               
               records.push(record);
             }
@@ -110,10 +107,6 @@ const storeRecords = (records) => {
   async.parallel(writes, (err) => {
     if (err) console.log('error writing records to database', err);
   });
-
-  // fs.writeFile((__dirname + '/services/records/' + record.id + '.txt'), JSON.stringify(record), function(err) {
-  //   if (err) console.log(err);
-  // });
 
 };
 
