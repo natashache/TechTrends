@@ -1,12 +1,12 @@
-const fs = require('fs');
+const inquirer = require('inquirer');
 const request = require('request');
 const async = require('async');
 const cheerio = require('cheerio');
 const keysMethods = require('./services/keys.js');
 const promise = require('bluebird');
 
-// TODO: undo this hard-coding
-const dbUrl = 'http://localhost:8000/raw-postings';
+// TODO: change this hard-coding when web server goes live
+const api = 'http://localhost:8000/raw-postings';
 
 const fetchRecordUrls = (query) => {
   return new Promise((resolve, reject) => {
@@ -14,49 +14,59 @@ const fetchRecordUrls = (query) => {
     var records = [];
 
     const source = keysMethods.getSource(query.source);
+
+    var pageCount = 4;
       
     const parseUrls = (url) => {
+      
       request.get(url, (err, response, html) => {
         if (!err) {
-          
-          const $ = cheerio.load(html);
-          
-          const urls = $('body').find(source.elemRecordLink);
-          
-          Object.keys(urls).forEach((listing) => {
-            if (urls[listing].attribs !== undefined) {
-              
-              var record = {
-                id: '', // TODO: remove?
-                date: query.date,
-                country: query.country,
-                state: query.state,
-                hub: query.hub,
-                source: query.source,
-                term: query.term,
-                url: '',
-                text: ''
-              };
-              
-              record.url = urls[listing].attribs.href;
-              record.url = source.urlRoot + record.url.split('?')[0];
-              record.id = Math.random() * 100000000000000000000;  // TODO: remove
-              
-              records.push(record);
-            }
-          });
 
-          // TODO: recursive logic here to check for additional pages and feed them back into this fetch until all are listed
+          if (response.statusCode === 200) {
 
-          resolve({records: records, source: source});
-        
+            console.log('fetching urls from ' + url, '...',  response.statusCode);
+          
+            const $ = cheerio.load(html);
+            
+            const urls = $('body').find(source.elemRecordLink);
+            
+            Object.keys(urls).forEach((listing) => {
+              if (urls[listing].attribs !== undefined) {
+                
+                var record = {
+                  date: query.date,
+                  country: query.country,
+                  state: query.state,
+                  hub: query.hub,
+                  source: query.source,
+                  term: query.term,
+                  url: '',
+                  text: ''
+                };
+                
+                record.url = urls[listing].attribs.href;
+                record.url = source.urlRoot + record.url.split('?')[0];
+                
+                records.push(record);
+              }
+            });
+
+            setTimeout(() => {
+              pageCount++;
+              parseUrls(query.start + source.urlPage + pageCount)
+            }, 2000);
+          
+          } else {
+            resolve({records: records, source: source});
+          }
         } else {
           reject(console.log(err));
         }
       });
     };
 
-    parseUrls(query.start);
+    console.log('begin query at', query.start);
+    parseUrls(query.start + source.urlPage + pageCount);
 
   });
 };
@@ -95,9 +105,13 @@ const storeRecords = (records) => {
 
   const writes = records.map((record) => {
     return (done) => {
-      request.post(dbUrl, JSON.stringify(record), (error, response, body) => {
+      request({
+        url: api,
+        method: 'POST',
+        json: record
+      }, (error, response, body) => {
         if (!error) {
-          console.log('record written from url', record.url);
+          console.log('record written from url', record.url, 'to database');
           done();
         } else {
           console.log('error writing record to database', error);
@@ -107,20 +121,28 @@ const storeRecords = (records) => {
     };
   });
 
-  async.parallel(writes, (err) => {
+  async.series(writes, (err) => {
     if (err) console.log('error writing records to database', err);
   });
-
-  // fs.writeFile((__dirname + '/services/records/' + record.id + '.txt'), JSON.stringify(record), function(err) {
-  //   if (err) console.log(err);
-  // });
 
 };
 
 const queries = keysMethods.getQueries();
 
-queries.forEach((query) => {
-  fetchRecordUrls(query)
-    .then(fetchRecordContent)
-    .then(storeRecords);
-});
+inquirer.prompt([{
+  type: 'confirm',
+  name: 'confirm',
+  message: 'Start the scrape? This process will take several hours. Begin:'
+}])
+  .then((answers) => {
+    console.log(answers);
+    if (answers.confirm) {
+      queries.forEach((query) => {
+        fetchRecordUrls(query)
+          .then(fetchRecordContent)
+          .then(storeRecords);
+      });
+    } else {
+      console.log('scrape aborted');
+    }
+  });

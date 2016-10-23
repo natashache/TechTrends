@@ -19,6 +19,7 @@
     "body-parser": "^1.15.2",
     "cheerio": "^0.22.0",
     "express": "^4.14.0",
+    "inquirer": "^1.2.2",
     "jshint": "^2.9.3",
     "mongo": "^0.1.0",
     "mongoose": "^4.6.4",
