@@ -10,21 +10,22 @@ const promise = require('bluebird');
 const dbUrl = 'http://localhost:8000/raw-postings';
 
 // TODO: need recursive call for all pages; remove id
-const fetchRecordUrls = function(query) {
-  return new Promise(function(resolve, reject) {
+const fetchRecordUrls = (query) => {
+  return new Promise((resolve, reject) => {
 
     var records = [];
 
-    // const source = keysMethods.getSource(query.source); // not sure if this works yet
+    const source = keysMethods.getSource(query.source);
       
-    const parseUrls = function(url) {
-      request.get(url, function(err, response, html) {
+    const parseUrls = (url) => {
+      request.get(url, (err, response, html) => {
         if (!err) {
           
           const $ = cheerio.load(html);
-          const urls = $('body').find('h2.job-title a'); // TODO: abstract this into source utility
           
-          Object.keys(urls).forEach(function(listing) {
+          const urls = $('body').find(source.elemRecordLink); // TODO: abstract this into source utility
+          
+          Object.keys(urls).forEach((listing) => {
             if (urls[listing].attribs !== undefined) {
               
               var record = {
@@ -40,7 +41,7 @@ const fetchRecordUrls = function(query) {
               };
               
               record.url = urls[listing].attribs.href;
-              record.url = 'http://www.careerbuilder.com' + record.url.split('?')[0]; // TODO: abstract this into source utility
+              record.url = source.urlRoot + record.url.split('?')[0]; // TODO: abstract this into source utility
               record.id = Math.random() * 100000000000000000000;  // TODO: remove
               
               records.push(record);
@@ -63,12 +64,12 @@ const fetchRecordUrls = function(query) {
 };
 
 // TODO: this needs to be throttled, ASAP
-const fetchRecordContent = function(records) {
-  return new Promise(function(resolve, reject) {
+const fetchRecordContent = (records) => {
+  return new Promise((resolve, reject) => {
 
-    const fetches = records.map(function(record) {
-      return function(done) {
-        request.get(record.url, function(error, response, html) {
+    const fetches = records.map((record) => {
+      return (done) => {
+        request.get(record.url, (error, response, html) => {
           if (!error) {
             const $ = cheerio.load(html);
             record.text = $('body').find('.description').text().toLowerCase(); // TODO: abstract this into source utility
@@ -81,7 +82,7 @@ const fetchRecordContent = function(records) {
       };
     });
 
-    series(fetches, function(err, results) {
+    series(fetches, (err, results) => {
       if (!err) {
         resolve(records);
       } else {
@@ -92,11 +93,11 @@ const fetchRecordContent = function(records) {
   });
 };
 
-const storeRecords = function(records) {
+const storeRecords = (records) => {
 
   const writes = records.map((record) => {
     return (done) => {
-      request.post(dbUrl, record, (error, response, body) => {
+      request.post(dbUrl, JSON.stringify(record), (error, response, body) => {
         if (!error) {
           done();
         } else {
@@ -107,7 +108,7 @@ const storeRecords = function(records) {
     };
   });
 
-  series(writes,  (err) => {
+  series(writes, (err) => {
     if (err) console.log('error writing record to database, err');
   });
 
@@ -119,7 +120,7 @@ const storeRecords = function(records) {
 
 const queries = keysMethods.getQueries();
 
-queries.forEach(function(query) {
+queries.forEach((query) => {
   fetchRecordUrls(query)
     .then(fetchRecordContent)
     .then(storeRecords);

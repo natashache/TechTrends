@@ -31,17 +31,16 @@ app.get('/', (req, res) => {
 //----------routes for the raw postings database---------------
 //-------------------------------------------------------------
 
+app.get('/raw-postings', (req, res) => {
+  postingsHelpers.getPostings(req.query.date, (results) => {
+    res.status(202).send(results);
+  });
+});
+
 app.post('/raw-postings', (req, res) => {
   postingsHelpers.addNewPosting(req.body, (newPosting) => {
     console.log("added new posting", newPosting);
     res.status(202).send(newPosting);
-  });
-});
-
-
-app.get('/raw-postings', (req, res) => {
-  postingsHelpers.getPostings(req.query.date, (results) => {
-    res.status(202).send(results);
   });
 });
 
@@ -55,8 +54,8 @@ app.delete('/raw-postings', (req, res) => {
 //----------routes for the analyzed database-------------------
 //-------------------------------------------------------------
 
-//--end routes--
-//server listen
+//------------------server listen------------------------------
+//-------------------------------------------------------------
 app.listen(process.env.PORT || port, () => {
   console.log('web server listening on port', port);
 });
