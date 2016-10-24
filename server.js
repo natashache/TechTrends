@@ -11,7 +11,7 @@ const POSTINGSURI = process.env['dev']?
   "mongodb://localhost/postings" : 
   "mongodb://hera:hackreactor19@ds063406.mlab.com:63406/rawpostings";
 
-console.log('URI=========',POSTINGSURI);
+console.log('URI:', POSTINGSURI);
 mongoose.connect(POSTINGSURI);
 
 console.log(process.env);
@@ -20,6 +20,9 @@ console.log(process.env);
 //-------------------------------------------------------------
 
 app.use(bodyParser.json());
+app.use((req, res, next) => {
+  console.log(req.method + ' at ' + req.url);
+});
 
 //---------------------base route------------------------------
 //-------------------------------------------------------------
@@ -37,27 +40,13 @@ app.get('/raw-postings', (req, res) => {
   });
 });
 
-// app.post('/raw-postings', (req, res) => {
-//   postingsHelpers.addNewPosting(req.body, (newPosting) => {
-//     console.log("added new posting", newPosting);
-//     res.status(202).send(newPosting);
-//   });
-// });
+app.post('/raw-postings', (req, res) => {
+  console.log("req body", req.body);
 
-app.post('/raw-postings', function(req, res){
-  console.log('post record request received');
-  let data = '';
-  
-  req.on('data', (chunk) => {
-    data+=chunk;
-  }).on('end', () => {
-    console.log('parsed data', data);
-
-    postingsHelpers.addNewPosting(req.body, (newPosting) => {
-      console.log('added new posting', newPosting);
-      res.status(202).send(newPosting);
-    });
-  })
+  postingsHelpers.addNewPosting(req.body, (newPosting) => {
+    console.log("added new posting", newPosting);
+    res.status(202).send(newPosting);
+  });
 });
 
 app.delete('/raw-postings', (req, res) => {
