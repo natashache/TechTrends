@@ -20,8 +20,10 @@ console.log(process.env);
 //-------------------------------------------------------------
 
 app.use(bodyParser.json());
+
 app.use((req, res, next) => {
   console.log(req.method + ' at ' + req.url);
+  next();
 });
 
 //---------------------base route------------------------------
