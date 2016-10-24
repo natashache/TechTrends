@@ -46,7 +46,7 @@ app.post('/raw-postings', (req, res) => {
   console.log("req body", req.body);
 
   postingsHelpers.addNewPosting(req.body, (newPosting) => {
-    console.log("added new posting", newPosting);
+    console.log("added new posting", newPosting.url);
     res.status(202).send(newPosting);
   });
 });
