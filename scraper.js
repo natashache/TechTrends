@@ -5,11 +5,22 @@ const cheerio = require('cheerio');
 const keysMethods = require('./services/keys.js');
 const promise = require('bluebird');
 
+// TODO's:
+// * make fetch content / pipe to DS one operation, combine methods
+// * cleaner, less-suspicious request header
+
+const hrSingle = '-----------------------------------------------------------------------------------';
+const hrDouble = '===================================================================================';
+
 // TODO: change this hard-coding when web server goes live
 const api = 'http://localhost:8000/raw-postings';
 
 const fetchRecordUrls = (query) => {
   return new Promise((resolve, reject) => {
+
+    console.log(hrSingle);
+    console.log('beginning surface scrape of', query.hub, 'at', query.start);
+    console.log(hrSingle);
 
     var records = [];
 
@@ -24,7 +35,7 @@ const fetchRecordUrls = (query) => {
 
           if (response.statusCode === 200) {
 
-            console.log('fetching urls from ' + url, '...',  response.statusCode);
+            console.log('fetching record urls from ' + url, '...',  response.statusCode);
           
             const $ = cheerio.load(html);
             
@@ -57,6 +68,9 @@ const fetchRecordUrls = (query) => {
             }, 2000);
           
           } else {
+            console.log(hrSingle);
+            console.log('finished surface scrape of', records[0].hub);
+            console.log(hrSingle);
             resolve({records: records, source: source});
           }
         } else {
@@ -65,7 +79,6 @@ const fetchRecordUrls = (query) => {
       });
     };
 
-    console.log('begin query at', query.start);
     parseUrls(query.start + source.urlPage + pageCount);
 
   });
@@ -90,11 +103,20 @@ const fetchRecordContent = (obj) => {
       };
     });
 
+    const thisHub = obj.records[0].hub;
+    
+    console.log(hrSingle);
+    console.log('beginning deep scrape of', thisHub);
+    console.log(hrSingle);
+
     async.series(fetches, (err, results) => {
-      if (!err) {
-        resolve(obj.records);
-      } else {
+      if (err) {
         reject(err);
+      } else {
+        console.log(hrSingle);
+        console.log('finished deep scrape of', thisHub)
+        console.log(hrSingle);
+        resolve(obj.records);
       }
     });
   
@@ -111,38 +133,61 @@ const storeRecords = (records) => {
         json: record
       }, (error, response, body) => {
         if (!error) {
-          console.log('record written from url', record.url, 'to database');
-          done();
+          console.log('record written for url', record.url, 'in hub', record.hub, 'to database');
+          setTimeout(() => { done(); }, 500);
         } else {
-          console.log('error writing record to database', error);
-          done();
+          console.log('error writing record to database, record at`', record.url, error);
+          setTimeout(() => { done(); }, 500);
         }
       }); 
     };
   });
 
   async.series(writes, (err) => {
-    if (err) console.log('error writing records to database', err);
+    if (err) {
+      console.log('error writing records to database', err);
+      reject(err);
+    }
+  }, () => {
+    resolve('');
   });
 
 };
 
-const queries = keysMethods.getQueries();
-
 inquirer.prompt([{
   type: 'confirm',
   name: 'confirm',
-  message: 'Start the scrape? This process will take several hours. Begin:'
+  message: 'Start the scrape? This process can take several hours. Begin:'
 }])
   .then((answers) => {
-    console.log(answers);
     if (answers.confirm) {
-      queries.forEach((query) => {
-        fetchRecordUrls(query)
-          .then(fetchRecordContent)
-          .then(storeRecords);
+
+      const queries = keysMethods.getQueries(), scrapeId = queries[0].date;
+
+      console.log(hrDouble);
+      console.log('beginning big scrape with batch id', scrapeId);
+      console.log(hrDouble);
+      
+      const queue = queries.map((query) => {
+        return (done) => {
+          fetchRecordUrls(query)
+            .then(fetchRecordContent)
+            .then(storeRecords)
+            .then(done);
+        };
       });
+
+      async.series(queue, (err) => {
+        if (err) {
+          console.log('error writing records to database', err);
+        } else {
+          console.log(hrDouble);
+          console.log('finished big scrape, id', scrapeId, '-- have a great day!');
+          console.log(hrDouble);
+        }
+      });
+
     } else {
-      console.log('scrape aborted');
+      console.log('scrape aborted -- careerbuilder appreciates it <3');
     }
   });
