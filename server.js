@@ -9,7 +9,7 @@ const path = require('path');
 
 const POSTINGSURI = process.env['dev']? 
   "mongodb://localhost/postings" : 
-  "mongodb://hera:hackreactor19@ds063406.mlab.com:63406/rawpostings";
+  "mongodb://hera:hackreactor19@ds063406.mlab.com:63406/rawpostingsx";
 
 console.log('URI:', POSTINGSURI);
 mongoose.connect(POSTINGSURI);
