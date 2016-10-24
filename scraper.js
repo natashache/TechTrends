@@ -15,7 +15,7 @@ const fetchRecordUrls = (query) => {
 
     const source = keysMethods.getSource(query.source);
 
-    var pageCount = 4;
+    var pageCount = 1;
       
     const parseUrls = (url) => {
       
