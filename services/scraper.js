@@ -2,12 +2,13 @@ const inquirer = require('inquirer');
 const request = require('request');
 const async = require('async');
 const cheerio = require('cheerio');
-const keysMethods = require('./services/keys.js');
+const keysMethods = require('./keys.js');
 const promise = require('bluebird');
 
 // TODO's:
 // * make fetch content / pipe to DS one operation, combine methods
 // * cleaner, less-suspicious request header
+// * salary info
 
 const hrSingle = '-----------------------------------------------------------------------------------';
 const hrDouble = '===================================================================================';
@@ -125,32 +126,36 @@ const fetchRecordContent = (obj) => {
 
 const storeRecords = (records) => {
 
-  const writes = records.map((record) => {
-    return (done) => {
-      request({
-        url: api,
-        method: 'POST',
-        json: record
-      }, (error, response, body) => {
-        if (error) {
-          console.log('error writing record to database, record at`', record.url, error);
-          setTimeout(() => { done(err); }, 500);
-        } else {
-          console.log('record written for url', record.url, 'in hub', record.hub, 'to database');
-          setTimeout(() => { done(null); }, 500);
-        }
-          
-      }); 
-    };
-  });
+  return new Promise((resolve, reject) => {
 
-  async.series(writes, (err) => {
-    if (err) {
-      console.log('error writing records to database', err);
-      reject(err);
-    }
-  }, () => {
-    resolve('');
+    const writes = records.map((record) => {
+      return (done) => {
+        request({
+          url: api,
+          method: 'POST',
+          json: record
+        }, (error, response, body) => {
+          if (error) {
+            console.log('error writing record to database, record at`', record.url, error);
+            setTimeout(() => { done(error); }, 500);
+          } else {
+            console.log('record written for url', record.url, 'in hub', record.hub, 'to database');
+            setTimeout(() => { done(null); }, 500);
+          }
+            
+        }); 
+      };
+    });
+
+    async.series(writes, (err) => {
+      if (err) {
+        console.log('error writing records to database', err);
+        reject(err);
+      }
+    }, () => {
+      resolve('');
+    });
+  
   });
 
 };

@@ -2,7 +2,7 @@ const inquirer = require('inquirer');
 const request = require('request');
 const async = require('async');
 const cheerio = require('cheerio');
-const keysMethods = require('./services/keys.js');
+const keysMethods = require('./keys.js');
 const promise = require('bluebird');
 
 // TODO's:
