@@ -42,6 +42,27 @@ const getPostings = function(date,callback){
   }
 };
 
+const iterateDatelist = function(date,index,callback){
+  if(index === '-1'){
+    PostingsModel.find({date: date}).then(results =>{
+      //console.log('full results',results);
+      //console.log('datelist postings length',results[0].postings.length);
+      callback(results[0].postings.length); 
+    });
+
+  } else {
+    PostingsModel.find({date: date}).then( results => {
+      if(results[0].length<index){
+        callback('index out of bounds')
+      } else {
+        callback(results[0].postings[index]);
+      }
+    });
+
+  }
+
+};
+
 const deletePostings = function(date,callback){
   if(date === 0){
     //console.log('removing all...')
@@ -61,4 +82,5 @@ module.exports.createCollection = createCollection;
 module.exports.addNewPosting = addNewPosting;
 module.exports.getPostings = getPostings;
 module.exports.deletePostings = deletePostings;
+module.exports.iterateDatelist = iterateDatelist;
 

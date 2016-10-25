@@ -68,7 +68,8 @@ gulp.task('nodemon', (cb) => {
 gulp.task('test', function() {
   return gulp.src('./spec/*.js')
     .pipe(mocha({reporter: 'spec' }))  
-    .once('error', function() {
+    .once('error', function(err) {
+        console.log('error in gulptest',err)
         process.exit(1);
     })
     .once('end', function() {

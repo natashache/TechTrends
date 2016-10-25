@@ -5,7 +5,6 @@ const mongoose = require('mongoose');
 
 const POSTINGSURI = "mongodb://localhost/postings";
 console.log('URI:', POSTINGSURI);
-
 mongoose.connect(POSTINGSURI);
 
 //------------------server listen------------------------------
