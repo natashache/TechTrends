@@ -6,8 +6,10 @@ var chai = require('chai');
 var expect = chai.expect;
 var app = require('../devConfig.js')
 
-if(!process.env.dev){
-  console.log('environment is not development, exiting')
+//ensure you are on the local database before deletingall on beforeeach
+var mongoose = require('mongoose');
+if(!process.env.dev || mongoose.connection.host !== 'localhost'){
+  console.log('environment is not development, exiting');
   process.exit();
 }
 
