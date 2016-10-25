@@ -7,7 +7,7 @@ const createCollection = function (postingObject, callback) {
     .then( (created) => {
       created.save().then( (saved) => {
           saved.addPosting(postingObject, (newPosting) => {
-            console.log("added new posting", newPosting);
+            //console.log("added new posting", newPosting);
             callback(newPosting);
           })
         })
@@ -20,10 +20,10 @@ const addNewPosting = function(postingObject, callback) {
   PostingsModel.findOne({date: postingObject.date})
     .then((posting) => {
       if(posting){
-        console.log("date already exists");
+        //console.log("date already exists");
         posting.addPosting(postingObject, callback);
       } else {
-        console.log("creating new date");
+        //console.log("creating new date");
         createCollection(postingObject, callback);
       }
     });
@@ -32,21 +32,21 @@ const addNewPosting = function(postingObject, callback) {
 const getPostings = function(date,callback){
   if(date === '0'){
     PostingsModel.find().then(results =>{
-      console.log('get results',results)
       callback(results); 
     });
   }
   else {
     PostingsModel.find({date: date}).then( results => {
-      console.log("get results",results)
       callback(results);
     });
   }
 };
 
 const deletePostings = function(date,callback){
-  if(date === '0'){
+  if(date === 0){
+    //console.log('removing all...')
     PostingsModel.remove().then(results =>{
+      //console.log('remove results',results);
       callback(results); 
     });
   }

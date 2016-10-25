@@ -5,31 +5,20 @@ const port = 8000;
 const mongoose = require('mongoose');
 const path = require('path');
 
-//mongoose is connected anywhere, it's connection is referenced whenever it is required
-
-const POSTINGSURI = process.env['dev']? 
-  "mongodb://localhost/postings" : 
-  "mongodb://hera:hackreactor19@ds063406.mlab.com:63406/rawpostings";
-
-console.log('URI:', POSTINGSURI);
-mongoose.connect(POSTINGSURI);
-
-console.log(process.env);
-
 //-------------------middlewares-------------------------------
 //-------------------------------------------------------------
 
 app.use(bodyParser.json());
 
 app.use((req, res, next) => {
-  console.log(req.method + ' at ' + req.url);
   next();
 });
-
+//console.log('debug env',process.env.debug);
 //---------------------base route------------------------------
 //-------------------------------------------------------------
 
 app.get('/', (req, res) => {
+  //console.log('getting index');
   res.status(200).sendFile(path.join(__dirname + '/web/public/index.html'));
 });
 
@@ -43,28 +32,22 @@ app.get('/raw-postings', (req, res) => {
 });
 
 app.post('/raw-postings', (req, res) => {
-  console.log("req body", req.body);
-
   postingsHelpers.addNewPosting(req.body, (newPosting) => {
-    console.log("added new posting", newPosting);
-    res.status(202).send(newPosting);
+    res.status(202).send(req.body);  
   });
 });
 
-app.delete('/raw-postings', (req, res) => {
-  postingsHelpers.deletePostings(req.query.date, (result) => {
-    console.log('callback called');
+app.delete('/raw-postings/:date', (req, res) => {
+  //console.log('receiving delete request');
+  var date = Number(req.params.date.replace(':',''));
+  //console.log('date',date);
+  postingsHelpers.deletePostings(date, (result) => {
+    //console.log('delete results',result);
     res.status(204).send(result);
   });
 })
 
 //----------routes for the analyzed database-------------------
 //-------------------------------------------------------------
-
-//------------------server listen------------------------------
-//-------------------------------------------------------------
-app.listen(process.env.PORT || port, () => {
-  console.log('web server listening on port', port);
-});
 
 module.exports = app;
