@@ -44,9 +44,9 @@ const getPostings = function(date,callback){
 
 const deletePostings = function(date,callback){
   if(date === 0){
-    console.log('removing all...')
+    //console.log('removing all...')
     PostingsModel.remove().then(results =>{
-      console.log('remove results',results);
+      //console.log('remove results',results);
       callback(results); 
     });
   }

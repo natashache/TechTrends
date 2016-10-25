@@ -4,73 +4,36 @@ var rp = require('request-promise');
 var server = 'http://127.0.0.1:8000';
 var chai = require('chai');
 var expect = chai.expect;
-var promise = require('bluebird');
-var bodyparser = require('body-parser');
 
-var examplePosting1 = {
-  "date": "1000", 
-  "country": "A", 
-  "state": "Maryland", 
-  "hub": "la", 
-  "source": "career_builder", 
-  "url": "www.fff.com", 
-  "text": "some posting text"
-  }; 
-
-var examplePosting2 = {
-  "date": "1000", 
-  "country": "B", 
-  "state": "Maryland", 
-  "hub": "la", 
-  "source": "career_builder", 
-  "url": "www.fff.com", 
-  "text": "some posting text"
-  }; 
-
-var examplePosting3 = {
-  "date": "1000", 
-  "country": "C", 
-  "state": "Maryland", 
-  "hub": "la", 
-  "source": "career_builder", 
-  "url": "www.fff.com", 
-  "text": "some posting text"
-  };
-
-var examplePosting4 = {
-  "date": "1001", 
-  "country": "D", 
-  "state": "Maryland", 
-  "hub": "la", 
-  "source": "career_builder", 
-  "url": "www.fff.com", 
-  "text": "some posting text"
-  }; 
-
-
-var postone = function(){
-  return rp.post(server+'/raw-postings',{json: examplePosting1});
+//the first three have the same date, the last has a different date
+var postingsExamples = [{"date": "100", "name": "A"},
+                        {"date": "100","name":"B"},
+                        {"date": "100", "name": "C"},
+                        {"date": "101","name":"D"}];
+ 
+var postA = function(){
+  return rp.post(server+'/raw-postings',{json: postingsExamples[0]});
 }
 
-var posttwo= function(){
-  return rp.post(server+'/raw-postings',{json: examplePosting2});
+var postB= function(){
+  return rp.post(server+'/raw-postings',{json: postingsExamples[1]});
 }
 
-var postfour = function(){
-  return rp.post(server+'/raw-postings',{json: examplePosting4});
+var postC= function(){
+  return rp.post(server+'/raw-postings',{json: postingsExamples[2]});
 }
 
-var postthree =  function(){
-    return promise.all([rp.post(server+'/raw-postings',{json: examplePosting1}),
-                        rp.post(server+'/raw-postings',{json: examplePosting2}),
-                        rp.post(server+'/raw-postings',{json: examplePosting3}),]);
-  };
+//the post with a unique date
+var postD = function(){
+  return rp.post(server+'/raw-postings',{json: postingsExamples[3]});
+}
 
+//api descriptions here
 var deleteall = function(){return rp.delete(server+'/raw-postings/:0');};
-var deleteone = function(){return rp.delete(server+'/raw-postings/:1001');};
-
+var deleteone = function(){return rp.delete(server+'/raw-postings/:101');};
 var getall = function(){return rp.get(server+'/raw-postings?date=0');};
-var getone = function(){return rp.get(server+'/raw-postings?date=1001');};
+var getone = function(){return rp.get(server+'/raw-postings?date=101');};
+
 
 beforeEach(function(done){
   deleteall().then(res=>{
@@ -88,8 +51,9 @@ describe ('service of static assets',function(){
 });
 
 describe('raw-postings post request',function(){
+
   it('posts with statusCode of 202',function(done){
-      postone()
+      postA()
         .on('response',response=>{
           expect(response.statusCode).to.equal(202);
           done();
@@ -97,12 +61,12 @@ describe('raw-postings post request',function(){
     });
     
   it('returns the posted object from a post request',function(done){
-      postone()
+      postA()
         .then(response=>{
-          expect(response.country).to.equal('A');
+          expect(response.name).to.equal('A');
         })
-        .catch()
-        .then(done);
+        .then(done)            
+        .catch(done);
     });
 
 });
@@ -117,48 +81,63 @@ describe('raw-postings get request',function(){
       });
   });
 
-  it('getall returns an array of collections',function(done){
-    postone()
+  it('getall returns an array of date lists',function(done){
+    postA()
       .then(getall)
       .then(response=>{
         var res = JSON.parse(response);
         expect(Array.isArray(res)).to.equal(true);
       })
-      .then(done)
+      //.then>.catch provides expected and actual results in case of failure
+      .then(done)     
       .catch(done)
   });
 
-  it('getone returns an array of one collection',function(done){
-    postfour()
+  it('getone returns an array of one date-list',function(done){
+    postD()
       .then(getone)
       .then(response=>{
         var res = JSON.parse(response);
         expect(Array.isArray(res)).to.equal(true);
       })
       .then(done)
-      .catch(done)
+      .catch(done);
   });
 
-  it('gets one collection by date',function(done){
-    postone()
-      .then(posttwo)
-      .then(postfour)
+  it('gets one date-list by date',function(done){
+    postA()
+      .then(postB)
+      .then(postD)
       .then(getone)
       .then((response)=>{
         var res = JSON.parse(response);
         expect(res.length).to.equal(1);
         expect(res[0].postings.length).to.equal(1);
       })
-      .finally(done);
+      .then(done)
+      .catch(done);
   })
 
-  it('returns all collections on a getall request',function(done){
-    postone()
+  it('returned date-lists expose a postings property which is an array',function(done){
+    postA()
+      .then(postB)
+      .then(postC)
+      .then(getall)
+      .then((response)=>{
+        var res = JSON.parse(response);
+        expect(res[0].postings);
+        expect(Array.isArray(res[0].postings));
+      })
+      .then(done)
+      .catch(done);
+  })
+
+  it('returns all date-lists on a getall request',function(done){
+    postA()
       .then(getall)
       .then(response=>{
         var res = JSON.parse(response);
-        expect(res[0].postings[0].country).to.equal('A');
-        
+        expect(res[0].postings[0].name).to.equal('A');
       })
       .then(done)
       .catch(done)
@@ -177,28 +156,30 @@ describe('raw-postings delete request',function(){
   });
 
   it('deletes one datelist by date',function(done){
-    postone()
-      .then(posttwo)
-      .then(postfour)
+    postA()
+      .then(postB)
+      .then(postD)
       .then(deleteone)
       .then(getall)
       .then((response)=>{
         var res = JSON.parse(response);
         expect(res.length).to.equal(1);
-        expect(res[0].postings[0].country).to.equal('A');
+        expect(res[0].postings[0].name).to.equal('A');
       })
-      .finally(done);
+      .then(done)
+      .catch(done);
   });
 
   it('deletes all posts',function(done){
-    postone()
-      .then(posttwo)
+    postA()
+      .then(postB)
       .then(deleteall)
       .then(getall)
       .then((response)=>{
         expect(JSON.parse(response).length).to.equal(0);
       })
-      .finally(done);
+      .then(done)
+      .catch(done);
   });
 
 });
@@ -206,21 +187,22 @@ describe('raw-postings delete request',function(){
 describe('raw-postings database behavior',function(){
 
   it('adds multiple posts of the same date to the same list of postings',function(done){
-    postone()
-      .then(posttwo)
+    postA()
+      .then(postB)
       .then(getall)
       .then((response)=>{
         expect(JSON.parse(response).length).to.equal(1);
         var res = JSON.parse(response);
         expect(res[0].postings.length).to.equal(2);
       })
-      .finally(done);
+      .then(done)
+      .catch(done);
   });
 
   it('adds multiple posts of a different date to different lists of postings',function(done){
-    postone()
-      .then(posttwo)
-      .then(postfour)
+    postA()
+      .then(postB)
+      .then(postD)
       .then(getall)
       .then((response)=>{
         var res = JSON.parse(response);
@@ -228,7 +210,8 @@ describe('raw-postings database behavior',function(){
         expect(res[0].postings.length).to.equal(2);
         expect(res[1].postings.length).to.equal(1);
       })
-      .finally(done);
+      .then(done)
+      .catch(done);
   });
 
 });

@@ -18,7 +18,7 @@ app.use((req, res, next) => {
 //-------------------------------------------------------------
 
 app.get('/', (req, res) => {
-  console.log('getting index');
+  //console.log('getting index');
   res.status(200).sendFile(path.join(__dirname + '/web/public/index.html'));
 });
 
@@ -38,9 +38,9 @@ app.post('/raw-postings', (req, res) => {
 });
 
 app.delete('/raw-postings/:date', (req, res) => {
-  console.log('receiving delete request');
+  //console.log('receiving delete request');
   var date = Number(req.params.date.replace(':',''));
-  console.log('date',date);
+  //console.log('date',date);
   postingsHelpers.deletePostings(date, (result) => {
     //console.log('delete results',result);
     res.status(204).send(result);
