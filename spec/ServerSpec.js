@@ -1,53 +1,231 @@
-//process.env['dev'] = true;
 
-var request = require('supertest');
-var app = require('../server.js');
-var expect = require('chai').expect;
+var request = require('request');
+var rp = require('request-promise');
+var server = 'http://127.0.0.1:8000';
+var chai = require('chai');
+var expect = chai.expect;
+var app = require('../devConfig.js')
 
-/////////////////////////////////////////////////////
-// NOTE: these tests are designed for mongo!
-/////////////////////////////////////////////////////
+//ensure you are on the local database before deletingall on beforeeach
+var mongoose = require('mongoose');
+if(!process.env.dev || mongoose.connection.host !== 'localhost'){
+  console.log('environment is not development, exiting');
+  process.exit();
+}
 
-var mongoose = require("mongoose");
+//the first three have the same date, the last has a different date
+var postingsExamples = [{"date": "100", "name": "A"},
+                        {"date": "100","name":"B"},
+                        {"date": "100", "name": "C"},
+                        {"date": "101","name":"D"}];
+ 
+var postA = function(){
+  return rp.post(server+'/raw-postings',{json: postingsExamples[0]});
+}
 
-var examplePosting = {
-"date": "1000", 
-"country": "Europe", 
-"state": "Maryland", 
-"hub": "la", 
-"source": "career_builder", 
-"url": "www.fff.com", 
-"text": "some posting text"
-}; 
+var postB= function(){
+  return rp.post(server+'/raw-postings',{json: postingsExamples[1]});
+}
 
-describe ('App (using local db)', function() {
+var postC= function(){
+  return rp.post(server+'/raw-postings',{json: postingsExamples[2]});
+}
 
-  describe('Posting creation: ', function() {
+//the post with a unique date
+var postD = function(){
+  return rp.post(server+'/raw-postings',{json: postingsExamples[3]});
+}
 
-    it('gets postings', function(done) {
-      request(app)
-        .get('/raw-posting?date=0')
-        .send(examplePosting)
-        .expect(202)
-        .end(done);
+//api descriptions here
+var deleteall = function(){return rp.delete(server+'/raw-postings/:0');};
+var deleteone = function(){return rp.delete(server+'/raw-postings/:101');};
+var getall = function(){return rp.get(server+'/raw-postings?date=0');};
+var getone = function(){return rp.get(server+'/raw-postings?date=101');};
+
+//setup
+beforeEach(function(done){
+  deleteall().then(res=>{
+    done();
+  });
+})
+
+//testing
+describe ('service of static assets',function(){
+  it('serves index',function(done){
+    request(server+'/').on('response',function(res){
+      expect(res.statusCode).to.equal(200);
+      done();
+    })
+  });
+});
+
+describe('raw-postings post request',function(){
+
+  it('posts with statusCode of 202',function(done){
+      postA()
+        .on('response',response=>{
+          expect(response.statusCode).to.equal(202);
+          done();
+        });
     });
-
-    /*it('posts postings', function(done) {
-      request(app)
-        .post('/raw-posting')
-        .send(examplePosting)
-        .expect(202)
-        .end(done);
+    
+  it('returns the posted object from a post request',function(done){
+      postA()
+        .then(response=>{
+          expect(response.name).to.equal('A');
+        })
+        .then(done)            
+        .catch(done);
     });
-
-    it('deletes postings', function(done) {
-      request(app)
-        .post('/raw-posting')
-        .send(examplePosting)
-        .expect(202)
-        .end(done);
-    });*/
-
-  }); 
 
 });
+
+describe('raw-postings get request',function(){
+
+  it('gets postings with statusCode of 202',function(done){
+    getall()
+      .on('response',response=>{
+        expect(response.statusCode).to.equal(202);
+        done();
+      });
+  });
+
+  it('returns an array of date lists',function(done){
+    postA()
+      .then(getall)
+      .then(response=>{
+        var res = JSON.parse(response);
+        expect(Array.isArray(res)).to.equal(true);
+      })
+      //.then>.catch provides expected and actual results in case of failure
+      .then(done)     
+      .catch(done)
+  });
+
+  it('returns an array of one date-list',function(done){
+    postD()
+      .then(getone)
+      .then(response=>{
+        var res = JSON.parse(response);
+        expect(Array.isArray(res)).to.equal(true);
+      })
+      .then(done)
+      .catch(done);
+  });
+
+  it('gets one date-list by date',function(done){
+    postA()
+      .then(postB)
+      .then(postD)
+      .then(getone)
+      .then((response)=>{
+        var res = JSON.parse(response);
+        expect(res.length).to.equal(1);
+        expect(res[0].postings.length).to.equal(1);
+      })
+      .then(done)
+      .catch(done);
+  })
+
+  it('returned datelists expose a postings property which is an array',function(done){
+    postA()
+      .then(postB)
+      .then(postC)
+      .then(getall)
+      .then((response)=>{
+        var res = JSON.parse(response);
+        expect(res[0].postings);
+        expect(Array.isArray(res[0].postings));
+      })
+      .then(done)
+      .catch(done);
+  })
+
+  it('returns all date-lists',function(done){
+    postA()
+      .then(getall)
+      .then(response=>{
+        var res = JSON.parse(response);
+        expect(res[0].postings[0].name).to.equal('A');
+      })
+      .then(done)
+      .catch(done)
+  });
+
+});
+
+describe('raw-postings delete request',function(){
+  
+  it('deletes postings with statusCode of 204',function(done){
+    deleteall()
+      .on('response',response=>{
+        expect(response.statusCode).to.equal(204);
+        done();
+      });
+  });
+
+  it('deletes one datelist by date',function(done){
+    postA()
+      .then(postB)
+      .then(postD)
+      .then(deleteone)
+      .then(getall)
+      .then((response)=>{
+        var res = JSON.parse(response);
+        expect(res.length).to.equal(1);
+        expect(res[0].postings[0].name).to.equal('A');
+      })
+      .then(done)
+      .catch(done);
+  });
+
+  it('deletes all posts',function(done){
+    postA()
+      .then(postB)
+      .then(deleteall)
+      .then(getall)
+      .then((response)=>{
+        expect(JSON.parse(response).length).to.equal(0);
+      })
+      .then(done)
+      .catch(done);
+  });
+
+});
+
+describe('raw-postings database behavior',function(){
+
+  it('adds multiple posts of the same date to the same list of postings',function(done){
+    postA()
+      .then(postB)
+      .then(getall)
+      .then((response)=>{
+        expect(JSON.parse(response).length).to.equal(1);
+        var res = JSON.parse(response);
+        expect(res[0].postings.length).to.equal(2);
+      })
+      .then(done)
+      .catch(done);
+  });
+
+  it('adds multiple posts of a different date to different lists of postings',function(done){
+    postA()
+      .then(postB)
+      .then(postD)
+      .then(getall)
+      .then((response)=>{
+        var res = JSON.parse(response);
+        expect(res.length).to.equal(2);
+        expect(res[0].postings.length).to.equal(2);
+        expect(res[1].postings.length).to.equal(1);
+      })
+      .then(done)
+      .catch(done);
+  });
+
+});
+
+  
+
+
+
