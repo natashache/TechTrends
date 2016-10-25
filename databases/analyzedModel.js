@@ -3,15 +3,17 @@ const _ = require('underscore');
 
 var AnalyzedSchema = new mongoose.Schema(
   {
-    date: String, 
     hub: String,
-    analytics: Object
+    javaScriptFrameWorks: Array
   }
 );
 
-AnalyzedSchema.methods.addAnalytic = function (newAnalytic, cb) {
- _.extend(this.analytics, newAnalytic);
- cb(this);
+AnalyzedSchema.methods.addAnalytic = function (newAnalytic,view, cb) {
+  this.view.push(newAnalytic);
+  this.save()
+    .then( (saved) => {
+      cb(saved);
+    });
 };
 
 let AnalyzedModel = mongoose.model('collection', AnalyzedSchema);
