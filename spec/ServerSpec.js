@@ -34,13 +34,14 @@ var deleteone = function(){return rp.delete(server+'/raw-postings/:101');};
 var getall = function(){return rp.get(server+'/raw-postings?date=0');};
 var getone = function(){return rp.get(server+'/raw-postings?date=101');};
 
-
+//setup
 beforeEach(function(done){
   deleteall().then(res=>{
     done();
   });
 })
 
+//testing
 describe ('service of static assets',function(){
   it('serves index',function(done){
     request(server+'/').on('response',function(res){
@@ -81,7 +82,7 @@ describe('raw-postings get request',function(){
       });
   });
 
-  it('getall returns an array of date lists',function(done){
+  it('returns an array of date lists',function(done){
     postA()
       .then(getall)
       .then(response=>{
@@ -93,7 +94,7 @@ describe('raw-postings get request',function(){
       .catch(done)
   });
 
-  it('getone returns an array of one date-list',function(done){
+  it('returns an array of one date-list',function(done){
     postD()
       .then(getone)
       .then(response=>{
@@ -118,7 +119,7 @@ describe('raw-postings get request',function(){
       .catch(done);
   })
 
-  it('returned date-lists expose a postings property which is an array',function(done){
+  it('returned datelists expose a postings property which is an array',function(done){
     postA()
       .then(postB)
       .then(postC)
@@ -132,7 +133,7 @@ describe('raw-postings get request',function(){
       .catch(done);
   })
 
-  it('returns all date-lists on a getall request',function(done){
+  it('returns all date-lists',function(done){
     postA()
       .then(getall)
       .then(response=>{
