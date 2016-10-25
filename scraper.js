@@ -91,13 +91,13 @@ const fetchRecordContent = (obj) => {
     const fetches = obj.records.map((record) => {
       return (done) => {
         request.get(record.url, (error, response, html) => {
-          if (!error) {
+          if (error) {
+            reject(error);
+            setTimeout(() => { done(err); }, 2000);
+          } else {
             const $ = cheerio.load(html);
             record.text = $('body').find(obj.source.elemRecordBody).text().toLowerCase();
-            setTimeout(() => { done(); }, 2000);
-          } else {
-            reject(error);
-            setTimeout(() => { done(); }, 2000);
+            setTimeout(() => { done(null); }, 2000);
           }
         });
       };
@@ -109,7 +109,7 @@ const fetchRecordContent = (obj) => {
     console.log('beginning deep scrape of', thisHub);
     console.log(hrSingle);
 
-    async.series(fetches, (err, results) => {
+    async.series(fetches, (err) => {
       if (err) {
         reject(err);
       } else {
@@ -132,13 +132,14 @@ const storeRecords = (records) => {
         method: 'POST',
         json: record
       }, (error, response, body) => {
-        if (!error) {
-          console.log('record written for url', record.url, 'in hub', record.hub, 'to database');
-          setTimeout(() => { done(); }, 500);
-        } else {
+        if (error) {
           console.log('error writing record to database, record at`', record.url, error);
-          setTimeout(() => { done(); }, 500);
+          setTimeout(() => { done(err); }, 500);
+        } else {
+          console.log('record written for url', record.url, 'in hub', record.hub, 'to database');
+          setTimeout(() => { done(null); }, 500);
         }
+          
       }); 
     };
   });
@@ -178,9 +179,7 @@ inquirer.prompt([{
       });
 
       async.series(queue, (err) => {
-        if (err) {
-          console.log('error writing records to database', err);
-        } else {
+        if (err) { console.log(err); } else {
           console.log(hrDouble);
           console.log('finished big scrape, id', scrapeId, '-- have a great day!');
           console.log(hrDouble);
