@@ -1,4 +1,5 @@
 const postingsHelpers = require('./databases/postingsHelpers.js');
+const analyzedHelpers = require('./databases/analyzedHelpers.js');
 const bodyParser = require('body-parser');
 const app = require('express')();
 const port = 8000;
@@ -58,5 +59,30 @@ app.delete('/raw-postings/:date', (req, res) => {
 
 //----------routes for the analyzed database-------------------
 //-------------------------------------------------------------
+
+app.get("/analyzed-data", (req, res) => {
+  let hub = req.query.hub;
+  let view = req.query.viewName;
+
+  analyzedHelpers.getAnalytics(hub, view, (viewArray) => {
+    console.log(`found ${view} view data for ${hub}`);
+    console.log("data array", viewArray);
+
+    if(!viewArray) {
+      res.status(404).send("data not found");
+    } else {
+      res.status(200).send(viewArray);
+    }
+    
+  });
+});
+
+app.post("/analyzed-data", (req, res) => {
+
+  analyzedHelpers.addNewAnalytic(req.body, (hubObject) => {
+    console.log("saved hub object", hubObject);
+    res.status(201).send(hubObject);
+  });
+});
 
 module.exports = app;
