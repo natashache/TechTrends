@@ -41,6 +41,12 @@ var deleteall = function(){return rp.delete(server+'/raw-postings/:0');};
 var deleteone = function(){return rp.delete(server+'/raw-postings/:101');};
 var getall = function(){return rp.get(server+'/raw-postings?date=0');};
 var getone = function(){return rp.get(server+'/raw-postings?date=101');};
+var getlength = function(){return rp.get(server+'/raw-postings?date=100&index=-1');};
+var zeroelement = function(){return rp.get(server+'/raw-postings?date=100&index=0');};
+var firstelement = function(){return rp.get(server+'/raw-postings?date=100&index=1');};
+var secondelement = function(){return rp.get(server+'/raw-postings?date=100&index=2');};
+
+//todo: var nthelement = function(n){return rp.get(server+`/raw-postings?date=100&index=${n}`);};
 
 //setup
 beforeEach(function(done){
@@ -218,6 +224,42 @@ describe('raw-postings database behavior',function(){
         expect(res.length).to.equal(2);
         expect(res[0].postings.length).to.equal(2);
         expect(res[1].postings.length).to.equal(1);
+      })
+      .then(done)
+      .catch(done);
+  });
+
+  it('returns the length of the datelist',function(done){
+    postA()
+      .then(postB)
+      .then(postC)
+      .then(getlength)
+      .then((response)=>{
+        //console.log('response from server',response);
+        expect(response).to.equal('3');
+      })
+      .then(done)
+      .catch(done);
+  });
+
+  it('iterates postings in a datelist',function(done){
+    postA()
+      .then(postB)
+      .then(postC)
+      .then(zeroelement)
+      .then((response)=>{
+        var res = JSON.parse(response);
+        expect(res.name).to.equal('A');
+      })
+      .then(firstelement)
+      .then((response)=>{
+        var res = JSON.parse(response);
+        expect(res.name).to.equal('B');
+      })
+      .then(secondelement)
+      .then((response)=>{
+        var res = JSON.parse(response);
+        expect(res.name).to.equal('C');
       })
       .then(done)
       .catch(done);

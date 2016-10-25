@@ -26,9 +26,18 @@ app.get('/', (req, res) => {
 //-------------------------------------------------------------
 
 app.get('/raw-postings', (req, res) => {
-  postingsHelpers.getPostings(req.query.date, (results) => {
-    res.status(202).send(results);
-  });
+  if(req.query.index){
+    //console.log('req index', req.query.index)
+    //console.log('req date', req.query.date)
+    postingsHelpers.iterateDatelist(req.query.date, req.query.index,(result)=>{
+      //console.log('sending result', result);
+      res.status(202).send(JSON.stringify(result));
+    });
+  } else {
+    postingsHelpers.getPostings(req.query.date, (results) => {
+      res.status(202).send(results);
+    });
+  }
 });
 
 app.post('/raw-postings', (req, res) => {
