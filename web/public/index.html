@@ -1,24 +1,59 @@
 <!DOCTYPE html>
-<html lang="en">
-    <head>
-        <title>Tech Trends</title>
-        <link rel="stylesheet" type="text/css" href="/styles">
-    </head>
-    <body>
-			
-      <header>
-			</header>
-			
-      <div class="main">
-        hello world!
-			</div>
-        
-	    <footer>
-      </footer>
+<html lang="en" ng-app="mainApp">
+  <head>
+    <meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1">
+    <!-- CSS & BOOTSTRAP -->
+    <link rel="stylesheet" type="text/css" href="../public/css/styles.css">
+    <!-- <link rel="stylesheet" type="text/css" href="../bower_components/bootstrap/dist/css/bootstrap.css"> -->
+    <!-- <script src="../bower_components/jquery/dist/jquery.js"></script> -->
+    <!-- <script src="../bower_components/bootstrap/dist/js/bootstrap.js"></script> -->
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lato:100,300,400">
+    <!-- APP & Angular -->
+    <script src="../../services/keys.js"></script>
+    <script src="../bower_components/angular/angular.js"></script>
+    <script src="../bower_components/angular-route/angular-route.js"></script>
+    <script src="../bower_components/angular-mocks/angular-mocks.js"></script>
+    <script src="../assets/js/jqueryAssist.js"></script>
+    <script src="../assets/js/app.js"></script>
+    <title>Tech Trends</title>
+  </head>
+  <body>
+    <div class="container-fluid">
 
-      <script src="/scripts"></script>
-        <script>
-            $(function() { app.init(); });
-        </script>
-    </body>
-</html>
+      <div class="header">
+        <!-- <h1 align="center">Tech Trends</h1> -->
+        <span>Tech Trends</span>
+      </div>
+
+      <ul class="nav">
+        <li><a href="#home">Home</a></li>
+        <li><a href="#news">About</a></li>
+        <li class="dropdown">
+          <select>
+            <option selected="Select State:">Select State:</option>
+            <option></option>
+          </select>
+        </li>
+        <li class="dropdown city">
+          <select>
+            <option selected="Select State:">Select City:</option>
+            <option></option>
+          </select>
+        </li>
+      </ul>
+      <div class="main">
+
+      </div>
+
+      <footer>
+      </footer>
+    </div>
+  </body>
+  </html>
+
+
+
+
+
+
+
