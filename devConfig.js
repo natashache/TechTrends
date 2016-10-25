@@ -1,6 +1,5 @@
-process.env.debug = true;
 var app = require('./server.js');
-
+process.env.dev = true;
 const port = 8000;
 const mongoose = require('mongoose');
 

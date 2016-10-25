@@ -4,6 +4,12 @@ var rp = require('request-promise');
 var server = 'http://127.0.0.1:8000';
 var chai = require('chai');
 var expect = chai.expect;
+var app = require('../devConfig.js')
+
+if(!process.env.dev){
+  console.log('environment is not development, exiting')
+  process.exit();
+}
 
 //the first three have the same date, the last has a different date
 var postingsExamples = [{"date": "100", "name": "A"},
