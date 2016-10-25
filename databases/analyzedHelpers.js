@@ -2,15 +2,17 @@ const AnalyzedModel = require("./analyzedModel.js");
 
 //creates a new date/hub collections, and extends its analytics object with passed analytic
 const createAnalyticCollection = function (analyticObject, callback) {
-  AnalyzedModel.create({date: analyticObject.date, hub: analyticObject.hub, analytics: {}})
+  AnalyzedModel.create({hub: analyticObject.hub})
     .then( (created) => {
       created.save()
         .then(  (saved) => {
-          delete analyticObject.date;
-          delete analyticObject.hub;
+          let dataPoint  = {
+            date: analyticObject.date,
+            data: analyticObject.data
+          };
 
-          created.addAnalytic(analyticObject, (extendedObject) => {
-            console.log("added new analytic", extendedObject);
+          created.addAnalytic(dataPoint, analyticObject.viewName, (savedObject) => {
+            console.log("added new analytic", savedObject);
           })
       })
     });
@@ -18,28 +20,31 @@ const createAnalyticCollection = function (analyticObject, callback) {
 
 //handles adding a new analytic
 const addNewAnalytic = function (analyticObject, callback) {
-  AnalyzedModel.findOne({date: analyticObject.date, hub: analyticObject.hub})
+  AnalyzedModel.findOne({hub: analyticObject.hub})
     .then((analytic) => {
       if(analytic){
-        console.log("date/hub exists, extending the analytics object");
-        analytic.addAnalytic(analyticObject, callback);
+        let dataPoint  = {
+            date: analyticObject.date,
+            data: analyticObject.data
+        };
+        console.log(`hub exists, adding to the ${analyticObject.viewName} array`);
+        analytic.addAnalytic(dataPoint, analyticObject.viewName, callback);
       } else {
-        console.log("creating new date/hub");
+        console.log("creating new hub");
         createAnalyticCollection(analyticObject, callback);
       }
     });
 };
 
 //handles getting analytics
-const getAnalytics = function (hub, callback) {
+const getAnalytics = function (hub,view, callback) {
   analyzedModel.find({hub: hub})
-    .then((analyticArray) => {
-      callback(analyticArray);
+    .then((hubObject) => {
+      callback(hubObject.view);
     });
 };
 
 
-module.exports.createCollection = createCollection;
-module.exports.addNewPosting = addNewPosting;
-module.exports.getPostings = getPostings;
-module.exports.deletePostings = deletePostings;
+module.exports.createCollection = createAnalyticCollection;
+module.exports.addNewPosting = addNewAnalytic;
+module.exports.getPostings = getAnalytics;
