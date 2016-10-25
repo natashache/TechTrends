@@ -29,15 +29,15 @@
         <li><a href="#home">Home</a></li>
         <li><a href="#news">About</a></li>
         <li class="dropdown">
-          <select>
-            <option selected="Select State:">Select State:</option>
-            <option></option>
+          <select ng-controller="stateCtrl">
+            <option selected="Select State:" ng-selected="true">Select State:</option>
+            <option ng-repeat="state in data.states" value="{{ state }}">{{ state }}</option>
           </select>
         </li>
         <li class="dropdown city">
           <select>
             <option selected="Select State:">Select City:</option>
-            <option></option>
+            <!-- <option ng-controller="stateCtrl" ng-repeat="state in data.states" value="{{ state }}">{{ state }}</option> -->
           </select>
         </li>
       </ul>
