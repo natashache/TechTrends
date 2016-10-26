@@ -28,10 +28,7 @@ app.get('/', (req, res) => {
 
 app.get('/raw-postings', (req, res) => {
   if(req.query.index){
-    //console.log('req index', req.query.index)
-    //console.log('req date', req.query.date)
     postingsHelpers.iterateDatelist(req.query.date, req.query.index,(result)=>{
-      //console.log('sending result', result);
       res.status(202).send(JSON.stringify(result));
     });
   } else {
@@ -39,6 +36,12 @@ app.get('/raw-postings', (req, res) => {
       res.status(202).send(results);
     });
   }
+});
+
+app.get('/raw-postings/dates', (req, res) => {
+    postingsHelpers.getAllDates(result=>{
+      res.status(202).send(JSON.stringify(result));
+    });
 });
 
 app.post('/raw-postings', (req, res) => {

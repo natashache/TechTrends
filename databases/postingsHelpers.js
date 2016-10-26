@@ -63,6 +63,16 @@ const iterateDatelist = function(date,index,callback){
 
 };
 
+const getAllDates = function(callback){
+  PostingsModel.find().then(results=>{
+    var dates = results.reduce(function(acc,result){
+      acc.push(result.date);
+      return acc;
+    },[]);
+    callback(dates);
+  });
+}
+
 const deletePostings = function(date, hub, callback){
   if(date === 0){
     //console.log('removing all...')
@@ -103,4 +113,5 @@ module.exports.addNewPosting = addNewPosting;
 module.exports.getPostings = getPostings;
 module.exports.deletePostings = deletePostings;
 module.exports.iterateDatelist = iterateDatelist;
+module.exports.getAllDates = getAllDates;
 
