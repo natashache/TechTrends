@@ -1,4 +1,4 @@
-var app = require('./server.js');
+var app = require('../server.js');
 var inquirer = require('inquirer');
 process.env.dev = false;
 const port = 8000;

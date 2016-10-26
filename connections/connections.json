@@ -1,4 +1,4 @@
 {
   "production": "mongodb://hera:8292fwiw@ds063406.mlab.com:63406/rawpostings",
-  "test": "mongodb://hera:8292fwiw@ds063406.mlab.com:63406/rawpostings-test"
+  "test":  "mongodb://hera:8292fwiw@ds035177.mlab.com:35177/rawpostings-test"
 }

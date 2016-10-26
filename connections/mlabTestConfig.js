@@ -8,6 +8,10 @@ const POSTINGSURI = require('./connections').test;
 mongoose.connect(POSTINGSURI);
 console.log('URI:', POSTINGSURI);
 
+//var rp = require('request-promise');
+
+//var deleteall = function(){return rp.delete('http://localhost:8000'+'/raw-postings/?date=0');};
+//deleteall();
 //------------------server listen------------------------------
 //-------------------------------------------------------------
 
