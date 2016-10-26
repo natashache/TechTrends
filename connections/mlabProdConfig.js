@@ -21,3 +21,5 @@ console.log('URI:', POSTINGSURI);
 app.listen(process.env.PORT || port, () => {
   console.log('web server listening on port', port);
 });
+
+module.exports = app; 

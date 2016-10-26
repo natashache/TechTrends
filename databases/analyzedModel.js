@@ -5,7 +5,7 @@ var AnalyzedSchema = new mongoose.Schema(
   {
     hub: String,
     javaScriptFrameWorks: Array
-  }
+  }, {strict:false}
 );
 
 //todo: error handling for non-existent views

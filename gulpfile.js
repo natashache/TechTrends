@@ -11,6 +11,7 @@ var uglify = require('gulp-uglify');
 var rename = require('gulp-rename');
 var nodemon = require('gulp-nodemon');
 var mocha = require('gulp-mocha');
+var argv = require('yargs').argv;
 
 // Lint Task
 gulp.task('lint', function() {
@@ -48,11 +49,12 @@ gulp.task('watch', function() {
 });
 
 //start server with localhost database
-gulp.task('nodemon', (cb) => {
+gulp.task('nodemon-debug', (cb) => {
   let started = false;
-
+  var file = process.args[2];
+  console.log(file);
   return nodemon({
-    script: 'devConfig.js',
+    script: 'connections/mlabTestConfig.js',
   })
     .on('data', () => {
       if (!started) {
@@ -65,7 +67,20 @@ gulp.task('nodemon', (cb) => {
 
 });
 
-gulp.task('mlab-test', function() {
+gulp.task('test', function() {
+  //process.env.debug = true;
+  console.log(argv);
+  if(argv.mlab){
+    console.log('testing mlab');
+    process.env.target = '../connections/mlabTestConfig.js';
+    console.log(process.env.target);
+  }
+  if(argv.local){
+    process.env.target = '../connections/localhostConfig.js';
+  }
+  if(argv.debug){
+    process.env.debug = true;
+  }
   return gulp.src('./spec/server-mlab-test.js')
     .pipe(mocha({reporter: 'spec' }))  
     .once('error', function(err) {
@@ -77,17 +92,17 @@ gulp.task('mlab-test', function() {
     });
 });
 
-gulp.task('test', function() {
-  return gulp.src('./spec/server-localhost-test.js')
-    .pipe(mocha({reporter: 'spec' }))  
-    .once('error', function(err) {
-        console.log('error in gulptest',err)
-        process.exit(1);
-    })
-    .once('end', function() {
-      process.exit();
-    });
-});
+// gulp.task('test', function() {
+//   return gulp.src('./spec/server-localhost-test.js')
+//     .pipe(mocha({reporter: 'spec' }))  
+//     .once('error', function(err) {
+//         console.log('error in gulptest',err)
+//         process.exit(1);
+//     })
+//     .once('end', function() {
+//       process.exit();
+//     });
+// });
 
 // Default Task
 gulp.task('default', ['lint', 'sass', 'scripts', 'watch']);

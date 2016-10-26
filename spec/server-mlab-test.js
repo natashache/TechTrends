@@ -5,16 +5,19 @@ var server = 'http://127.0.0.1:8000';
 var chai = require('chai');
 var expect = chai.expect;
 var Promise = require('bluebird');
-var app = require('../connections/mlabTestConfig.js')
+console.log('debug is,', process.env.debug);
 
-//ensure you are on the local database before deletingall on beforeeach
-var mongoose = require('mongoose');
-// if(!process.env.dev || mongoose.connection.host !== 'localhost'){
-//   console.log('environment is not development, exiting');
-//   process.exit();
-// }
+//if debug is true the tests are run after starting the server, so vscode can attach to the server
+if(!process.env.debug){
+  var target = process.env.target;
+  console.log('target',target);
 
-//the first three have the same date, the last has a different date
+  var app = require(target);
+} 
+
+describe('raw-postings',function(){
+
+  //the first three have the same date, the last has a different date
 var postingsExamples = [{"date": "100", "name": "A"},
                         {"date": "100","name":"B"},
                         {"date": "100", "name": "C"},
@@ -269,97 +272,95 @@ describe('raw-postings database behavior',function(){
 
 });
 
-
-
-var deleteallAnalyzed = function(){return rp.delete(server+'/analyzed-data/?hub=0')};
-
-var analytics = require('./testAnalytics.json');
-var ascendingHub = analytics[0];
-var descendingHub = analytics[1];
-
-var getoneAnalyzed = function(){return rp.get(server+'/analyzed-data?hub=San%20Francisco&viewName=javaScriptFrameWorks');};
-
-var postAnalyzedA0 = function(){
-  return rp.post(server+'/analyzed-data',{json: ascendingHub[0]});
-}
-
-// var postAllA = function*(){
-//   var arr = []; 
-//   for(var i = 0; i<ascendingHub.length; i++){
-//     arr.push(rp.post(server+'/analyzed-data',{json: ascendingHub[i]}));
-//   }
-//   return arr;
-// }
-
-var postAnalyzedA1 = function(){
-  return rp.post(server+'/analyzed-data',{json: ascendingHub[1]});
-}
-
-var postAnalyzedD0= function(){
-  return rp.post(server+'/raw-postings',{json: descendingHub[0]});
-}
-
-var pospostAnalyzedD1= function(){
-  return rp.post(server+'/raw-postings',{json: descendingHub[1]});
-}
+}); //end of raw-postings describe
 
 describe('analyzed',function(){
 
-  beforeEach(function(done){
-    //console.log('deleting analyzed');
-    deleteallAnalyzed().then(res=>{
-      done();
-    });
-  })
+  var deleteallAnalyzed = function(){return rp.delete(server+'/analyzed-data/?hub=0')};
 
-  describe('analyzed-data post request',function(){
+  var analytics = require('./testAnalytics.json');
+  var ascendingHub = analytics[0];
+  var descendingHub = analytics[1];
 
-    it('posts with statusCode of 202',function(done){
-        postAnalyzedA0()
-          .on('response',response=>{
-            expect(response.statusCode).to.equal(201);
-            done();
-          });
-      });
+  var getoneAnalyzed = function(){return rp.get(server+'/analyzed-data?hub=San%20Francisco&viewName=javaScriptFrameWorks');};
 
-    it('gets with statusCode of 200',function(done){
-        postAnalyzedA0()
-        .then(function(){
-          getoneAnalyzed()
-          .on('response',response=>{
-            expect(response.statusCode).to.equal(200);
-            done();
-          });
-      });
-    });
+  var postAnalyzedA0 = function(){
+    return rp.post(server+'/analyzed-data',{json: ascendingHub[0]});
+  }
 
-    it('returns an array of date/hub data points on a get request',function(done){
-        postAnalyzedA0()
-        .then(postAnalyzedA1)
-        .then(getoneAnalyzed)
-        .then(function(response){
-          var res = JSON.parse(response);
-          expect(res.length).to.equal(2);
-        })
-        .then(done)
-        .catch(done);
-      });
+  // var postAllA = function*(){
+  //   var arr = []; 
+  //   for(var i = 0; i<ascendingHub.length; i++){
+  //     arr.push(rp.post(server+'/analyzed-data',{json: ascendingHub[i]}));
+  //   }
+  //   return arr;
+  // }
 
-      xit('adds all testdata to the database',function(done){
-        for(var i = 0; i<ascendingHub.length; i++){
-          rp.post(server+'/analyzed-data',{json: ascendingHub[i]});
-          //rp.post(server+'/analyzed-data',{json: descendingHub[i]});
-        }
+  var postAnalyzedA1 = function(){
+    return rp.post(server+'/analyzed-data',{json: ascendingHub[1]});
+  }
+
+  var postAnalyzedD0= function(){
+    return rp.post(server+'/raw-postings',{json: descendingHub[0]});
+  }
+
+  var pospostAnalyzedD1= function(){
+    return rp.post(server+'/raw-postings',{json: descendingHub[1]});
+  }
+
+
+
+    beforeEach(function(done){
+      //console.log('deleting analyzed');
+      deleteallAnalyzed().then(res=>{
         done();
       });
+    })
 
-  });
+    describe('analyzed-data post request',function(){
 
+      it('posts with statusCode of 201',function(done){
+          postAnalyzedA0()
+            .on('response',response=>{
+              expect(response.statusCode).to.equal(201);
+              done();
+            });
+        });
 
-})
+      it('gets with statusCode of 200',function(done){
+          postAnalyzedA0()
+          .then(function(){
+            getoneAnalyzed()
+            .on('response',response=>{
+              expect(response.statusCode).to.equal(200);
+              done();
+            });
+        });
+      });
 
+      it('returns an array of date/hub data points on a get request',function(done){
+          postAnalyzedA0()
+          .then(postAnalyzedA1)
+          .then(getoneAnalyzed)
+          .then(function(response){
+            var res = JSON.parse(response);
+            expect(res.length).to.equal(2);
+          })
+          .then(done)
+          .catch(done);
+        });
 
+        xit('adds all testdata to the database',function(done){
+          for(var i = 0; i<ascendingHub.length; i++){
+            rp.post(server+'/analyzed-data',{json: ascendingHub[i]});
+            //rp.post(server+'/analyzed-data',{json: descendingHub[i]});
+          }
+          done();
+        });
+
+    });
+ 
   
 
-
+});
 
