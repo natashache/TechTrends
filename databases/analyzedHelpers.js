@@ -13,6 +13,7 @@ const createAnalyticCollection = function (analyticObject, callback) {
 
           created.addAnalytic(dataPoint, analyticObject.viewName, (savedObject) => {
             console.log("added new analytic", savedObject);
+            callback(savedObject);
           })
       })
     });
@@ -45,6 +46,6 @@ const getAnalytics = function (hub,view, callback) {
 };
 
 
-module.exports.createCollection = createAnalyticCollection;
-module.exports.addNewPosting = addNewAnalytic;
-module.exports.getPostings = getAnalytics;
+module.exports.createAnalyticCollection = createAnalyticCollection;
+module.exports.addNewAnalytic = addNewAnalytic;
+module.exports.getAnalytics = getAnalytics;
