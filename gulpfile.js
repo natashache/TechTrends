@@ -65,8 +65,20 @@ gulp.task('nodemon', (cb) => {
 
 });
 
+gulp.task('mlab-test', function() {
+  return gulp.src('./spec/server-mlab-test.js')
+    .pipe(mocha({reporter: 'spec' }))  
+    .once('error', function(err) {
+        console.log('error in gulptest',err)
+        process.exit(1);
+    })
+    .once('end', function() {
+      process.exit();
+    });
+});
+
 gulp.task('test', function() {
-  return gulp.src('./spec/*.js')
+  return gulp.src('./spec/server-localhost-test.js')
     .pipe(mocha({reporter: 'spec' }))  
     .once('error', function(err) {
         console.log('error in gulptest',err)
