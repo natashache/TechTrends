@@ -29,7 +29,7 @@
         <li><a href="#home">Home</a></li>
         <li><a href="#news">About</a></li>
         <li class="dropdown">
-          <select ng-model="model" required ng-options="state for state in states" ng-change="populateDrop()">
+          <select ng-model="selectedState" required ng-options="state for state in states" ng-change="populateDrop()">
             <!-- <option selected="Select State:" ng-selected="true">Select State:</option>
             <option ng-repeat="state in states" ng-model="model" ng-change="populateDrop()" value="{{ state }}">{{ state }}</option> -->
           </select>
@@ -37,7 +37,7 @@
         <li class="dropdown city">
           <select>
             <option selected="Select State:">Select City:</option>
-            <option ng-repeat="state in data.states" value="{{ state }}">{{ state }}</option>
+            <option ng-repeat="city in currentCities" value="{{ state }}">{{ city }}</option>
           </select>
         </li>
       </ul>
