@@ -14,11 +14,12 @@ if(!process.env.debug){
 
 describe('raw-postings',function(){
 
-//the first three have the same date, the last has a different date
+//the first three have the same date, the last two have a different date
 var postingsExamples = [{"date": 100, "name": "A"},
                         {"date": 100,"name":"B"},
                         {"date": 100, "name": "C"},
-                        {"date": 101,"name":"D"}];
+                        {"date": 101,"name":"D"},
+                        {"date": 102,"name":"E"}];
  
 var postA = function(){
   return rp.post(server+'/raw-postings',{json: postingsExamples[0]});
@@ -35,6 +36,10 @@ var postC= function(){
 //the post with a unique date
 var postD = function(){
   return rp.post(server+'/raw-postings',{json: postingsExamples[3]});
+}
+
+var postE = function(){
+  return rp.post(server+'/raw-postings',{json: postingsExamples[4]});
 }
 
 //api descriptions here
@@ -168,10 +173,11 @@ describe('raw-postings getalldates request',function(){
   it('returns all dates on a request',function(done){
     postA()
     .then(postD)
+    .then(postE)
     .then(getallDates)
     .then(response =>{
       var res = JSON.parse(response);
-      expect(res.length).to.equal(2);
+      expect(res.length).to.equal(3);
       expect(res[0]).to.equal('100');
       expect(res[1]).to.equal('101');
     })
