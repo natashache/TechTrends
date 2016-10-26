@@ -50,7 +50,7 @@ app.post('/raw-postings', (req, res) => {
 app.delete('/raw-postings', (req, res) => {
   //console.log('receiving delete request');
 
-  const date = req.query.date;
+  const date = Number(req.query.date);
   const hub = req.query.hub;
 
   //console.log('date',date);
