@@ -5,6 +5,7 @@ const cheerio = require('cheerio');
 const keysMethods = require('./keys.js');
 const promise = require('bluebird');
 
+const apiEndpointGetDateIds = 'http://localhost:8000/raw-postings/dates';
 const apiEndpointGetNumberOfRecords = 'http://localhost:8000/raw-postings?date=';
 
 //============== utilities =================
@@ -225,75 +226,84 @@ const cruncherJSFrameworks = () => {
   console.log('records: ', records);
 
   // init: store a list of all the tech tracked for this view
-  const tech = keysMethods.getTech(view);
+  const tech = keysMethods.getTech(view);  
 
-  // create array to store fetched date id's
-  const dateIds = keysMethods.getDateIds(); // TODO: dynamic
-  console.log('date ids: ', dateIds);
-  // get all data id's and populate
-  
-  // for each date in the dateIds array:
-  dateIds.forEach((dateId) => {
+  request.get(apiEndpointGetDateIds, (err, res, body) => {
+    if (err) {
+      console.log('[X] error fetching date id\'s');
+    } else {
+      
+      // store fetched date id's
+      const dateIds = body;
+      console.log('date ids: ', dateIds);
 
-    console.log('this date id: ', dateId);
+      // map all date id's to fetch functions to store in async
+      // TODO break this out into a component function and not in the main body
+      const dates = dateIds.map((date) => {
+        return (done) => {
 
-    // request length (number of records) for the current date slice and store it
-    var numberOfRecords = 0;
+          console.log('this date id: ', date);
+          
+          const recordsCountUrl = apiEndpointGetNumberOfRecords + date + '&index=-1';
+
+          request.get(recordsCountUrl, (err, res, body) => {
+            if (err) {
+              console.log('[X] error fetching number of records for a date id', err);
+            } else {
+              
+              // request length (number of records) for the current date slice and store it
+              const numberOfRecords = body;
+              console.log('number of records', numberOfRecords);
+              
+              if (numberOfRecords > 0) {
+
+                // for each date slice, build a temp storage bin per hub to keep a tech count
+                var bins = {};
+
+                // bin storage constructor
+                const BinInit = () => {
+                  var bin = {};
+                  for (var item in tech) {
+                    bin[item] = 0;
+                  }
+                  return bin;
+                };
+
+                // initialize data points in each bin
+                for (var hub in records) bins[hub] = BinInit();
+
+                console.log(bins);
+
+                // request all records for the current date slice
+                // TODO break this out into a component function and not in the main body
+                // for (var i = 0; i < numberOfRecords; i++) {
+                //   request
+                //     // TODO: need the real url to continue
+                //     .get('http://localhost:8000/raw-postings?' + dateId) 
+                //     .on('error', (err) => {
+                //       console.log('[X] error fetching record', err);
+                //     })
+                //     .on('response', (response) => {
+                //       console.log('[ ] record fetched successfully');
+                //       parseTechnologies(JSON.stringify(response, tech));
+                //       // parse the response for keywords, increment count if found
+                //     });
+                // }
+
+              }
+            }
+          });
+        };
+      });
+      
+      async.series(dates, (err) => {
+        if (err) console.log('[X] failed JS framework crunch');
+      });
     
-    const recordsCountUrl = apiEndpointGetNumberOfRecords + dateId + '&index=-1';
-
-    request.get(recordsCountUrl, (err, res, body) => {
-      if (err) {
-        console.log('[X] error fetching number of records for a date id', err);
-      } else {
-        numberOfRecords = body;
-        console.log('number of records', numberOfRecords);
-        if (numberOfRecords > 0) iterateThroughRecords(numberOfRecords);
-      }
-    });
-
-    // console.log('date id: ', dateId, 'records: ', numberOfRecords);
-
-    const iterateThroughRecords = (num) => {
-      
-      // for each date slice, build a temp storage bin per hub to keep a tech count
-      var bins = {};
-
-      // bin storage constructor
-      const BinInit = () => {
-        var bin = {};
-        for (var item in tech) {
-          bin[item] = 0;
-        }
-        return bin;
-      };
-
-      // initialize data points in each bin
-      for (var hub in records) bins[hub] = BinInit();
-
-      console.log(bins);
-      
-      // request all records for the current date slice
-      // for (var i = 0; i < numberOfRecords; i++) {
-      //   request
-      //     // TODO: need the real url to continue
-      //     .get('http://localhost:8000/raw-postings?' + dateId) 
-      //     .on('error', (err) => {
-      //       console.log('[X] error fetching record', err);
-      //     })
-      //     .on('response', (response) => {
-      //       console.log('[ ] record fetched successfully');
-      //       parseTechnologies(JSON.stringify(response, tech));
-      //       // parse the response for keywords, increment count if found
-      //     });
-      // }
-    };
-      
+    }
   });
 
-  async.series([], (err) => {
-    if (err) console.log('failed');
-  });
+  
 
   // phoenix: {
   //   javascriptFrameworks: [
