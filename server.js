@@ -47,9 +47,15 @@ app.post('/raw-postings', (req, res) => {
   });
 });
 
-app.delete('/raw-postings/:date', (req, res) => {
-  var date = Number(req.params.date.replace(':',''));
-  postingsHelpers.deletePostings(date, (result) => {
+app.delete('/raw-postings', (req, res) => {
+  //console.log('receiving delete request');
+
+  const date = req.query.date;
+  const hub = req.query.hub;
+
+  //console.log('date',date);
+  postingsHelpers.deletePostings(date, hub, (result) => {
+    //console.log('delete results',result);
     res.status(204).send(result);
   });
 })

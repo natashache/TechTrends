@@ -38,8 +38,8 @@ var postD = function(){
 }
 
 //api descriptions here
-var deleteall = function(){return rp.delete(server+'/raw-postings/:0');};
-var deleteone = function(){return rp.delete(server+'/raw-postings/:101');};
+var deleteall = function(){return rp.delete(server+'/raw-postings/?date=0');};
+var deleteone = function(){return rp.delete(server+'/raw-postings/?date=101');};
 var getall = function(){return rp.get(server+'/raw-postings?date=0');};
 var getone = function(){return rp.get(server+'/raw-postings?date=101');};
 var getlength = function(){return rp.get(server+'/raw-postings?date=100&index=-1');};
