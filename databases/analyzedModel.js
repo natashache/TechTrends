@@ -9,13 +9,13 @@ var AnalyzedSchema = new mongoose.Schema(
 );
 
 AnalyzedSchema.methods.addAnalytic = function (newAnalytic,view, cb) {
-  this.view.push(newAnalytic);
+  this[view].push(newAnalytic);
   this.save()
     .then( (saved) => {
       cb(saved);
     });
 };
 
-let AnalyzedModel = mongoose.model('collection', AnalyzedSchema);
+let AnalyzedModel = mongoose.model('analyzed', AnalyzedSchema);
 
 module.exports = AnalyzedModel;

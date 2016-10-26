@@ -1,5 +1,5 @@
 const postingsHelpers = require('./databases/postingsHelpers.js');
-const analyzedHelpers = require('./analyzedHelpers.js');
+const analyzedHelpers = require('./databases/analyzedHelpers.js');
 const bodyParser = require('body-parser');
 const app = require('express')();
 const port = 8000;
