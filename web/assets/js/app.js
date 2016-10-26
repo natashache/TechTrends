@@ -4,6 +4,7 @@ angular.module('mainApp', [
 .factory('country', function() {
   var country = keys.collections.geo.united_states;
   country.states = Object.keys(keys.collections.geo.united_states);
+  country.states.unshift('Select State:');
   return {
     rootLocations: country
   }
@@ -12,14 +13,10 @@ angular.module('mainApp', [
 .controller('stateCtrl', function($scope, country) {
   $scope.country = country.rootLocations;
   $scope.states = $scope.country.states;
+  $scope.model = $scope.states[0]
   $scope.populateDrop = function() {
-    console.log('Yay, the test worked!');
+    console.log($scope.model);
   }
-  // $scope.data = {
-  //   default: 'Select State:',
-  //   states: Object.keys(keys.collections.geo.united_states)
-  // }
-
 })
 
 
