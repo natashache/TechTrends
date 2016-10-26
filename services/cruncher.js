@@ -5,7 +5,7 @@ const cheerio = require('cheerio');
 const keysMethods = require('./keys.js');
 const promise = require('bluebird');
 
-const api = 'http://localhost:8000/raw-postings';
+const apiEndpointGetNumberOfRecords = 'http://localhost:8000/raw-postings?date=';
 
 //============== utilities =================
 //==========================================
@@ -211,64 +211,88 @@ const tempGetHubs = () => {
 //========= js frameworks crunch ===========
 //==========================================
 const cruncherJSFrameworks = () => {
-
-  // define a records object to hold the data to be stored in prod
+  
+  // init: define a records object to hold the data to be stored in prod
   var records = tempGetHubs();
   // var records = keysMethods.getHubs(); // TODO
 
-  // store a reference to the view currently being operated on
+  // init: store a reference to the view currently being operated on
   const view = 'javascriptFrameworks';
 
-  // attach this view to each hub in records
+  // init: attach this view to each hub in records
   for (var hub in records) records[hub][view] = [];
 
-  console.log(records);
+  console.log('records: ', records);
 
-  // store a list of all the tech tracked for this view
+  // init: store a list of all the tech tracked for this view
   const tech = keysMethods.getTech(view);
 
   // create array to store fetched date id's
-  const dateIds = [1477411263456]; // TODO: dynamic
+  const dateIds = keysMethods.getDateIds(); // TODO: dynamic
+  console.log('date ids: ', dateIds);
   // get all data id's and populate
   
   // for each date in the dateIds array:
   dateIds.forEach((dateId) => {
-    
-    // for each date slice, build a temp storage bin to keep a count attached to a hub
-    var bins = {};
 
-    // bin storage constructor
-    const BinInit = () => {
-      var bin = {};
-      for (var item in tech) {
-        bin[item] = 0;
-      }
-      return bin;
-    };
+    console.log('this date id: ', dateId);
 
-    // initialize data points in each bin
-    for (var hub in records) bins[hub] = BinInit();
-    
     // request length (number of records) for the current date slice and store it
-    const numberOfRecords = ;
-    // request all records for the current date slice
-    for (var i = 0; i < numberOfRecords; i++) {
-      request
-        // TODO: need the real url to continue
-        .get('http://localhost:8000/raw-postings?' + dateId) 
-        .on('error', (err) => {
-          console.log('[X] error fetching record', err);
-        })
-        .on('response', (response) => {
-          console.log('[ ] record fetched successfully');
-          parseTechnologies(JSON.stringify(response, tech));
-          // parse the response for keywords, increment count if found
-        });
-    }
+    var numberOfRecords = 0;
+    
+    const recordsCountUrl = apiEndpointGetNumberOfRecords + dateId + '&index=-1';
+
+    request.get(recordsCountUrl, (err, res, body) => {
+      if (err) {
+        console.log('[X] error fetching number of records for a date id', err);
+      } else {
+        numberOfRecords = body;
+        console.log('number of records', numberOfRecords);
+        if (numberOfRecords > 0) iterateThroughRecords(numberOfRecords);
+      }
+    });
+
+    // console.log('date id: ', dateId, 'records: ', numberOfRecords);
+
+    const iterateThroughRecords = (num) => {
       
-      // var view = {};
-      // for (var item in tech) { view[item] = 0; }
+      // for each date slice, build a temp storage bin per hub to keep a tech count
+      var bins = {};
+
+      // bin storage constructor
+      const BinInit = () => {
+        var bin = {};
+        for (var item in tech) {
+          bin[item] = 0;
+        }
+        return bin;
+      };
+
+      // initialize data points in each bin
+      for (var hub in records) bins[hub] = BinInit();
+
+      console.log(bins);
       
+      // request all records for the current date slice
+      // for (var i = 0; i < numberOfRecords; i++) {
+      //   request
+      //     // TODO: need the real url to continue
+      //     .get('http://localhost:8000/raw-postings?' + dateId) 
+      //     .on('error', (err) => {
+      //       console.log('[X] error fetching record', err);
+      //     })
+      //     .on('response', (response) => {
+      //       console.log('[ ] record fetched successfully');
+      //       parseTechnologies(JSON.stringify(response, tech));
+      //       // parse the response for keywords, increment count if found
+      //     });
+      // }
+    };
+      
+  });
+
+  async.series([], (err) => {
+    if (err) console.log('failed');
   });
 
   // phoenix: {
