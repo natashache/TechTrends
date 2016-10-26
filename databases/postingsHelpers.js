@@ -63,7 +63,7 @@ const iterateDatelist = function(date,index,callback){
 
 };
 
-const deletePostings = function(date,callback){
+const deletePostings = function(date, hub, callback){
   if(date === 0){
     //console.log('removing all...')
     PostingsModel.remove().then(results =>{
@@ -72,9 +72,29 @@ const deletePostings = function(date,callback){
     });
   }
   else {
-    PostingsModel.remove({date: date}).then( results => {
-      callback(results);
-    });
+    if (!hub) {
+      PostingsModel.remove({date: date}).then( results => {
+        callback(results);
+      });
+    } else {
+      console.log("heard delete in correct conditional")
+      PostingsModel.findOne({date:date})
+        .then( (dateObject) => {
+          var removed = dateObject.postings.filter( (posting) => {
+            return posting.hub == hub;
+          })
+        
+          dateObject.postings = dateObject.postings.filter( (posting) => {
+            return posting.hub !== hub;
+          });
+
+          dateObject.save()
+            .then( (saved) => {
+              callback(removed);
+            });
+        });
+    }
+    
   }
 };
 
