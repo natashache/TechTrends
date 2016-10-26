@@ -12,11 +12,24 @@ const createAnalyticCollection = function (analyticObject, callback) {
           };
 
           created.addAnalytic(dataPoint, analyticObject.viewName, (savedObject) => {
-            console.log("added new analytic", savedObject);
+            //console.log("added new analytic", savedObject);
             callback(savedObject);
           })
       })
     });
+};
+
+const deleteAnalyticCollection = function (hub, callback) {
+  if(hub === "0"){
+    AnalyzedModel.remove().then(results =>{
+      callback(results); 
+    });
+  }
+  else {
+    AnalyzedModel.remove({hub: hub}).then( results => {
+      callback(results);
+    });
+  }
 };
 
 //handles adding a new analytic
@@ -28,10 +41,10 @@ const addNewAnalytic = function (analyticObject, callback) {
             date: analyticObject.date,
             data: analyticObject.data
         };
-        console.log(`hub exists, adding to the ${analyticObject.viewName} array`);
+        //console.log(`hub exists, adding to the ${analyticObject.viewName} array`);
         analytic.addAnalytic(dataPoint, analyticObject.viewName, callback);
       } else {
-        console.log("creating new hub");
+        //console.log("creating new hub");
         createAnalyticCollection(analyticObject, callback);
       }
     });
@@ -47,5 +60,6 @@ const getAnalytics = function (hub,view, callback) {
 
 
 module.exports.createAnalyticCollection = createAnalyticCollection;
+module.exports.deleteAnalyticCollection = deleteAnalyticCollection;
 module.exports.addNewAnalytic = addNewAnalytic;
 module.exports.getAnalytics = getAnalytics;
