@@ -7,7 +7,7 @@ const createCollection = function (postingObject, callback) {
     .then( (created) => {
       created.save().then( (saved) => {
           saved.addPosting(postingObject, (newPosting) => {
-            console.log("added new posting", newPosting);
+            //console.log("added new posting", newPosting);
             callback(newPosting);
           })
         })
@@ -20,10 +20,10 @@ const addNewPosting = function(postingObject, callback) {
   PostingsModel.findOne({date: postingObject.date})
     .then((posting) => {
       if(posting){
-        console.log("date already exists");
+        //console.log("date already exists");
         posting.addPosting(postingObject, callback);
       } else {
-        console.log("creating new date");
+        //console.log("creating new date");
         createCollection(postingObject, callback);
       }
     });
@@ -32,21 +32,42 @@ const addNewPosting = function(postingObject, callback) {
 const getPostings = function(date,callback){
   if(date === '0'){
     PostingsModel.find().then(results =>{
-      console.log('get results',results)
       callback(results); 
     });
   }
   else {
     PostingsModel.find({date: date}).then( results => {
-      console.log("get results",results)
       callback(results);
     });
   }
 };
 
+const iterateDatelist = function(date,index,callback){
+  if(index === '-1'){
+    PostingsModel.find({date: date}).then(results =>{
+      //console.log('full results',results);
+      //console.log('datelist postings length',results[0].postings.length);
+      callback(results[0].postings.length); 
+    });
+
+  } else {
+    PostingsModel.find({date: date}).then( results => {
+      if(results[0].length<index){
+        callback('index out of bounds')
+      } else {
+        callback(results[0].postings[index]);
+      }
+    });
+
+  }
+
+};
+
 const deletePostings = function(date,callback){
-  if(date === '0'){
+  if(date === 0){
+    //console.log('removing all...')
     PostingsModel.remove().then(results =>{
+      //console.log('remove results',results);
       callback(results); 
     });
   }
@@ -61,4 +82,5 @@ module.exports.createCollection = createCollection;
 module.exports.addNewPosting = addNewPosting;
 module.exports.getPostings = getPostings;
 module.exports.deletePostings = deletePostings;
+module.exports.iterateDatelist = iterateDatelist;
 

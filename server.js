@@ -1,20 +1,10 @@
 const postingsHelpers = require('./databases/postingsHelpers.js');
+const analyzedHelpers = require('./databases/analyzedHelpers.js');
 const bodyParser = require('body-parser');
 const app = require('express')();
 const port = 8000;
 const mongoose = require('mongoose');
 const path = require('path');
-
-//mongoose is connected anywhere, it's connection is referenced whenever it is required
-
-const POSTINGSURI = process.env['dev']? 
-  "mongodb://localhost/postings" : 
-  "mongodb://hera:hackreactor19@ds063406.mlab.com:63406/rawpostings";
-
-console.log('URI:', POSTINGSURI);
-mongoose.connect(POSTINGSURI);
-
-console.log(process.env);
 
 //-------------------middlewares-------------------------------
 //-------------------------------------------------------------
@@ -22,14 +12,14 @@ console.log(process.env);
 app.use(bodyParser.json());
 
 app.use((req, res, next) => {
-  console.log(req.method + ' at ' + req.url);
   next();
 });
-
+//console.log('debug env',process.env.debug);
 //---------------------base route------------------------------
 //-------------------------------------------------------------
 
 app.get('/', (req, res) => {
+  //console.log('getting index');
   res.status(200).sendFile(path.join(__dirname + '/web/public/index.html'));
 });
 
@@ -37,23 +27,29 @@ app.get('/', (req, res) => {
 //-------------------------------------------------------------
 
 app.get('/raw-postings', (req, res) => {
-  postingsHelpers.getPostings(req.query.date, (results) => {
-    res.status(202).send(results);
-  });
+  if(req.query.index){
+    //console.log('req index', req.query.index)
+    //console.log('req date', req.query.date)
+    postingsHelpers.iterateDatelist(req.query.date, req.query.index,(result)=>{
+      //console.log('sending result', result);
+      res.status(202).send(JSON.stringify(result));
+    });
+  } else {
+    postingsHelpers.getPostings(req.query.date, (results) => {
+      res.status(202).send(results);
+    });
+  }
 });
 
 app.post('/raw-postings', (req, res) => {
-  console.log("req body", req.body);
-
   postingsHelpers.addNewPosting(req.body, (newPosting) => {
-    console.log("added new posting", newPosting.url);
-    res.status(202).send(newPosting);
+    res.status(202).send(req.body);  
   });
 });
 
-app.delete('/raw-postings', (req, res) => {
-  postingsHelpers.deletePostings(req.query.date, (result) => {
-    console.log('callback called');
+app.delete('/raw-postings/:date', (req, res) => {
+  var date = Number(req.params.date.replace(':',''));
+  postingsHelpers.deletePostings(date, (result) => {
     res.status(204).send(result);
   });
 })
@@ -61,10 +57,36 @@ app.delete('/raw-postings', (req, res) => {
 //----------routes for the analyzed database-------------------
 //-------------------------------------------------------------
 
-//------------------server listen------------------------------
-//-------------------------------------------------------------
-app.listen(process.env.PORT || port, () => {
-  console.log('web server listening on port', port);
+app.get("/analyzed-data", (req, res) => {
+  let hub = req.query.hub;
+  let view = req.query.viewName;
+
+  analyzedHelpers.getAnalytics(hub, view, (viewArray) => {
+    //console.log(`found ${view} view data for ${hub}`);
+    //console.log("data array", viewArray);
+
+    if(!viewArray) {
+      res.status(404).send("data not found");
+    } else {
+      res.status(200).send(viewArray);
+    }
+    
+  });
 });
+
+app.post("/analyzed-data", (req, res) => {
+  //console.log('post endpoint');
+  analyzedHelpers.addNewAnalytic(req.body, (hubObject) => {
+    //console.log("saved hub object", hubObject);
+    res.status(201).send(hubObject);
+  });
+});
+
+app.delete('/analyzed-data/', (req, res) => {
+  var hub = req.query.hub;
+  analyzedHelpers.deleteAnalyticCollection(hub, (result) => {
+    res.status(204).send(result);
+  });
+})
 
 module.exports = app;
