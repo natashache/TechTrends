@@ -69,11 +69,8 @@ gulp.task('nodemon-debug', (cb) => {
 
 gulp.task('test', function() {
   //process.env.debug = true;
-  console.log(argv);
   if(argv.mlab){
-    console.log('testing mlab');
     process.env.target = '../connections/mlabTestConfig.js';
-    console.log(process.env.target);
   }
   if(argv.local){
     process.env.target = '../connections/localhostConfig.js';
@@ -81,7 +78,7 @@ gulp.task('test', function() {
   if(argv.debug){
     process.env.debug = true;
   }
-  return gulp.src('./spec/server-mlab-test.js')
+  return gulp.src('./spec/serverTest.js')
     .pipe(mocha({reporter: 'spec' }))  
     .once('error', function(err) {
         console.log('error in gulptest',err)
