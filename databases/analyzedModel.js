@@ -8,6 +8,7 @@ var AnalyzedSchema = new mongoose.Schema(
   }
 );
 
+//todo: error handling for non-existent views
 AnalyzedSchema.methods.addAnalytic = function (newAnalytic,view, cb) {
   this[view].push(newAnalytic);
   this.save()

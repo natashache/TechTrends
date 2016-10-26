@@ -48,11 +48,8 @@ app.post('/raw-postings', (req, res) => {
 });
 
 app.delete('/raw-postings/:date', (req, res) => {
-  //console.log('receiving delete request');
   var date = Number(req.params.date.replace(':',''));
-  //console.log('date',date);
   postingsHelpers.deletePostings(date, (result) => {
-    //console.log('delete results',result);
     res.status(204).send(result);
   });
 })
@@ -65,8 +62,8 @@ app.get("/analyzed-data", (req, res) => {
   let view = req.query.viewName;
 
   analyzedHelpers.getAnalytics(hub, view, (viewArray) => {
-    console.log(`found ${view} view data for ${hub}`);
-    console.log("data array", viewArray);
+    //console.log(`found ${view} view data for ${hub}`);
+    //console.log("data array", viewArray);
 
     if(!viewArray) {
       res.status(404).send("data not found");
@@ -78,11 +75,18 @@ app.get("/analyzed-data", (req, res) => {
 });
 
 app.post("/analyzed-data", (req, res) => {
-
+  //console.log('post endpoint');
   analyzedHelpers.addNewAnalytic(req.body, (hubObject) => {
-    console.log("saved hub object", hubObject);
+    //console.log("saved hub object", hubObject);
     res.status(201).send(hubObject);
   });
 });
+
+app.delete('/analyzed-data/', (req, res) => {
+  var hub = req.query.hub;
+  analyzedHelpers.deleteAnalyticCollection(hub, (result) => {
+    res.status(204).send(result);
+  });
+})
 
 module.exports = app;
