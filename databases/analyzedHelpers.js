@@ -39,9 +39,9 @@ const addNewAnalytic = function (analyticObject, callback) {
 
 //handles getting analytics
 const getAnalytics = function (hub,view, callback) {
-  analyzedModel.find({hub: hub})
+  AnalyzedModel.find({hub: hub})
     .then((hubObject) => {
-      callback(hubObject.view);
+      callback(hubObject[0][view]);
     });
 };
 

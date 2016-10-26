@@ -66,7 +66,14 @@ app.get("/analyzed-data", (req, res) => {
 
   analyzedHelpers.getAnalytics(hub, view, (viewArray) => {
     console.log(`found ${view} view data for ${hub}`);
-    res.status(200).send(viewArray);
+    console.log("data array", viewArray);
+
+    if(!viewArray) {
+      res.status(404).send("data not found");
+    } else {
+      res.status(200).send(viewArray);
+    }
+    
   });
 });
 
