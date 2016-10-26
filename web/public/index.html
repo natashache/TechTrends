@@ -25,13 +25,13 @@
         <span>Tech Trends</span>
       </div>
 
-      <ul class="nav">
+      <ul class="nav" ng-controller="stateCtrl">
         <li><a href="#home">Home</a></li>
         <li><a href="#news">About</a></li>
         <li class="dropdown">
-          <select ng-controller="stateCtrl">
+          <select>
             <option selected="Select State:" ng-selected="true">Select State:</option>
-            <option ng-repeat="state in data.states" value="{{ state }}">{{ state }}</option>
+            <option ng-repeat="state in states" value="{{ state }}">{{ state }}</option>
           </select>
         </li>
         <li class="dropdown city">
