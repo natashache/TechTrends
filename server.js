@@ -1,6 +1,7 @@
 const postingsHelpers = require('./databases/postingsHelpers.js');
 const analyzedHelpers = require('./databases/analyzedHelpers.js');
 const bodyParser = require('body-parser');
+var express = require('express');
 const app = require('express')();
 const port = 8000;
 const mongoose = require('mongoose');
@@ -14,6 +15,8 @@ app.use(bodyParser.json());
 app.use((req, res, next) => {
   next();
 });
+
+app.use(express.static('web'));
 //console.log('debug env',process.env.debug);
 //---------------------base route------------------------------
 //-------------------------------------------------------------
@@ -67,6 +70,7 @@ app.delete('/raw-postings', (req, res) => {
 //-------------------------------------------------------------
 
 app.get("/analyzed-data", (req, res) => {
+  console.log('analyzed data route')
   let hub = req.query.hub;
   let view = req.query.viewName;
 

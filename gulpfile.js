@@ -49,10 +49,8 @@ gulp.task('watch', function() {
 });
 
 //start server with localhost database
-gulp.task('nodemon-debug', (cb) => {
+gulp.task('nodemon', (cb) => {
   let started = false;
-  var file = process.args[2];
-  console.log(file);
   return nodemon({
     script: 'connections/mlabTestConfig.js',
   })
