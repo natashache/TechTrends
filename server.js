@@ -95,6 +95,12 @@ app.post("/analyzed-data", (req, res) => {
   });
 });
 
+app.get("/analyzed-data/views", (req, res) => {
+  analyzedHelpers.getViewsList((viewsArray) => {
+    res.status(200).send(viewsArray);
+  });
+});
+
 app.get("/analyzed-data/hubs", (req, res) => {
   analyzedHelpers.getHubs((list) => {
     console.log("sent", list);
