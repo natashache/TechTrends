@@ -27,6 +27,67 @@ function extracDataPoints(hubData){
   });
 }
 
+function highChartsFormat(data){
+  let result = {};
+
+  result.dates = extractDates(data);
+  result.data = createCatagories(extractDataPoints(data));
+
+  return result; 
+}
+
+function getDataFromServer(hubName, callback){
+  function success(response){
+    let returnObj = {};
+
+    for(let key in response.data) {
+      returnObj[key] = highChartsFormat(response.data[key]);
+    }
+
+    console.log("formated object", returnObj);
+    callback(returnObj);
+  }
+
+  function error(err){
+    console.log("error geting from database ==>", error);
+  }
+
+  $http.get(`/analyzed-data?hub=${hubName}`)
+    .then((success, error))
+}
+
+//getDataFromServer should return data in this format
+// {
+//   javascriptFrameworks: {
+//     date: Array,
+//     data: Array
+//   },
+//   serverLanguages: {
+//     date: Array,
+//     data: Array
+//   },,
+//   databaseLanguages: {
+//     date: Array,
+//     data: Array
+//   },,
+//   contentManagementSystems: {
+//     date: Array,
+//     data: Array
+//   },,
+//   upAndComingLanguages: {
+//     date: Array,
+//     data: Array
+//   },,
+//   javascriptMarkup: {
+//     date: Array,
+//     data: Array
+//   },,
+//   versionControlSystems: {
+//     date: Array,
+//     data: Array
+//   },
+// }
+
 var formatSeriesData = (data) => {
   var framworkNames = Object.keys(data[0][0].data);
   var seriesFormat = [];

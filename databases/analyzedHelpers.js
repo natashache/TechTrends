@@ -68,7 +68,15 @@ const getAnalytics = function (hub,view, callback) {
       if(view) {
         callback(hubObject[0][view]);
       } else {
-        callback(hubObject[0]);
+        let returnObj = {};
+    
+        Object.keys(hubObject[0]._doc).forEach( (key) => {
+          if(key !== "__v" && key !== "_id" && key !== "hub"){
+            returnObj[key] = hubObject[0]._doc[key];
+          }
+        });
+
+        callback(returnObj);
       }
     });
 
