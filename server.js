@@ -70,6 +70,7 @@ app.delete('/raw-postings', (req, res) => {
 //-------------------------------------------------------------
 
 app.get("/analyzed-data", (req, res) => {
+  console.log('analyzed data route')
   let hub = req.query.hub;
   let view = req.query.viewName;
 

@@ -306,30 +306,23 @@ describe('raw-postings database behavior',function(){
 
 describe('analyzed',function(){
 
+  console.log('server is',server);
   var deleteallAnalyzed = function(){return rp.delete(server+'/analyzed-data/?hub=0')};
 
   var analytics = require('./testAnalytics.json');
   var ascendingHub = analytics[0];
   var descendingHub = analytics[1];
 
-  var getoneAnalyzed = function(){return rp.get(server+'/analyzed-data?hub=San%20Francisco&viewName=javaScriptFrameWorks');};
+  var getoneAnalyzed = function(){return rp.get(server+'/analyzed-data?hub=San%20Francisco&viewName=javascriptFrameworks');};
 
   var postAnalyzedA0 = function(){
     return rp.post(server+'/analyzed-data',{json: ascendingHub[0]});
   }
 
-  // var postAllA = function*(){
-  //   var arr = []; 
-  //   for(var i = 0; i<ascendingHub.length; i++){
-  //     arr.push(rp.post(server+'/analyzed-data',{json: ascendingHub[i]}));
-  //   }
-  //   return arr;
-  // }
-
   var postAnalyzedA1 = function(){
     return rp.post(server+'/analyzed-data',{json: ascendingHub[1]});
   }
-
+  
   var postAnalyzedD0= function(){
     return rp.post(server+'/raw-postings',{json: descendingHub[0]});
   }
@@ -337,8 +330,6 @@ describe('analyzed',function(){
   var pospostAnalyzedD1= function(){
     return rp.post(server+'/raw-postings',{json: descendingHub[1]});
   }
-
-
 
     beforeEach(function(done){
       //console.log('deleting analyzed');

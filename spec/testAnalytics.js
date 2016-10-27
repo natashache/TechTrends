@@ -24,7 +24,7 @@ function testAnalytics(){
             var newAnalytic = {};
             newAnalytic.date = msperday * i; 
             newAnalytic.hub = hub;
-            newAnalytic.viewName = 'javaScriptFrameWorks';
+            newAnalytic.viewName = 'javascriptFrameworks';
             newAnalytic.data = {};
             Object.keys(schema).reverse().forEach(function(key, index){
                 newAnalytic.data[key] = i + index;
@@ -42,7 +42,7 @@ function testAnalytics(){
             var newAnalytic = {};
             newAnalytic.date = msperday * i; 
             newAnalytic.hub = hub;
-            newAnalytic.viewName = 'javaScriptFrameWorks';
+            newAnalytic.viewName = 'javascriptFrameworks';
             newAnalytic.data = {};
             Object.keys(schema).reverse().forEach(function(key, index){
                 newAnalytic.data[key] = multiplier + index;
