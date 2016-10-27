@@ -154,11 +154,11 @@ const storeRecords = (records) => {
 
 };
 
-const setKeys = function(keys) {
+const setKeys = (keys) => {
   keysMethods = keys;
 };
 
-const run = function(next) {
+const run = (next) => {
   const queries = keysMethods.getQueries(), scrapeId = queries[0].date;
   
   const queue = queries.map((query) => {
@@ -184,12 +184,12 @@ const run = function(next) {
 
 };
 
-const runAsPromise = function(){
-  return new Promise(function(resolve,reject){
-    run(function(){
+const runAsPromise = () => {
+  return new Promise((resolve, reject) => {
+    run(() => {
       resolve();
     });
-  })
+  });
 }
 
 module.exports.fetchRecordUrls = fetchRecordUrls;
