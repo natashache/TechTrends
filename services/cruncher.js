@@ -114,7 +114,7 @@ const cruncherJSFrameworks = () => {
                 var records = [];
 
                 // for each record in a date, push a request/parse func to a series func
-                for (var i = 0; i < 5; i++) {
+                for (var i = 0; i < numberOfRecords; i++) {
                   // construct the request url including this index
                   const thisRecordRequestUrl = `${apiEndpointRoot}?date=${date}&index=${i}`;
                   records.push((complete) => {
