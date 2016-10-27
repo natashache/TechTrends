@@ -17,7 +17,7 @@ function createCategories(hubDataPoints){
 
 function extractDates(hubData){
   return hubData.map((data) => {
-    return moment.unix(data.date).format('MMMM DD'); //change format later
+    return moment.unix(data[0].date).format('MMMM DD'); //change format later
   });
 }
 
