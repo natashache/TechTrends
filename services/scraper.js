@@ -9,6 +9,7 @@ var keysMethods = null;
 // * make fetch content / pipe to DS one operation, combine methods
 // * cleaner, less-suspicious request header
 // * salary info
+// * announcement utility, tee hee
 
 
 const hrSingle = '-----------------------------------------------------------------------------------';
