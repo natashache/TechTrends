@@ -1,5 +1,7 @@
 const inquirer = require('inquirer');
 const request = require('request');
+const fs = require('fs');
+const path = require('path');
 const async = require('async');
 const cheerio = require('cheerio');
 const keysMethods = require('./keys.js');
@@ -68,7 +70,7 @@ var crunched = keysMethods.getHubs();
 
 //========= js frameworks crunch ===========
 //==========================================
-const cruncherJSFrameworks = () => {
+const cruncher = () => {
   
   // init: store a reference to the view currently being operated on
   const view = 'javascriptFrameworks';
@@ -136,22 +138,23 @@ const cruncherJSFrameworks = () => {
                 // for each record in a date, push a request/parse func to a series func
                 for (var i = 0; i < numberOfRecords; i++) {
                   // construct the request url including this index
-                  const thisRecordRequestUrl = `${apiEndpointRoot}?date=${date}&index=${i}`;
+                  const thisIndex = i;
+                  const thisRecordRequestUrl = `${apiEndpointRoot}?date=${date}&index=${thisIndex}`;
                   records.push((complete) => {
-                    utilities.announce(`requesting record at url: ${thisRecordRequestUrl}`, {type: 'start'});
+                    utilities.announce(`fetching record at index ${thisIndex} of ${numberOfRecords}`, {type: 'start'});
                     // request the specific record for the specific date
                     request
                       .get(thisRecordRequestUrl, (err, res, body) => {
                         if (err) {
                           utilities.announce(`error fetching record ${err}`, {type: 'error'});
                         } else {
-                          utilities.announce(`record fetched successfully`, {type: 'success'});
+                          utilities.announce(`record fetched successfully, parsing technologies`, {type: 'success'});
                           body = JSON.parse(body);
                           // parse the response text value for tech and increment counters
                           for (var technology in tech) {
                             if (tech[technology].test(body.text)) { crunched[body.hub][view][date][technology]++; }
                           }
-                          setTimeout(() => { complete() }, 500);
+                          complete();
                         }
                       });
                   });
@@ -174,7 +177,7 @@ const cruncherJSFrameworks = () => {
       
       async.series(dates, (err) => {
         if (err) {
-          utilities.announce(`failed JS framework crunch ${err}`, {type: 'error', importance: 1});
+          utilities.announce(`failed crunch ${err}`, {type: 'error', importance: 1});
         } else {
 
           // convert results data into preferred prod db format
@@ -194,12 +197,23 @@ const cruncherJSFrameworks = () => {
 
           // save converted results to database
           utilities.announce(`saving results to prod database`, {type: 'start'});
-          request.post('apiEndpointPostResults', converted, (err, res) => {
+          
+          request.post('apiEndpointPostResults', JSON.stringify(converted), (err, res) => {
             if (err) {
-              utilities.announce(`failed to save results to prod database`, {type: 'error', importance: 1});
+              // if write to db fails, save results to local disk to save time
+              utilities.announce(`failed to save results to prod database, attempting to write to disk`, {type: 'error', importance: 1});
+              fs.writeFile(path.join(__dirname + '/results.json'), JSON.stringify(converted), (err) => {
+                if (err) {
+                  utilities.announce(`failed to write to file`, {type: 'error'});
+                } else {
+                  utilities.announce(`results written to file`, {type: 'success'});
+                  utilities.announce(`crunch complete!`, {type: 'success', importance: 1});
+                }
+              });
+
             } else {
               utilities.announce(`results saved to database`, {type: 'success'});
-              utilities.announce(`JS framework crunch complete!`, {type: 'success', importance: 1});
+              utilities.announce(`crunch complete!`, {type: 'success', importance: 1});
             }
           });
         }
@@ -209,4 +223,4 @@ const cruncherJSFrameworks = () => {
 
 };
 
-cruncherJSFrameworks();
+cruncher();

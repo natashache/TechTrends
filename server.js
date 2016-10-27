@@ -77,6 +77,7 @@ app.get("/analyzed-data", (req, res) => {
     if(!viewArray) {
       res.status(404).send("data not found");
     } else {
+      console.log("view array", viewArray);
       res.status(200).send(viewArray);
     }
     
@@ -88,6 +89,13 @@ app.post("/analyzed-data", (req, res) => {
   analyzedHelpers.addNewAnalytic(req.body, (hubObject) => {
     //console.log("saved hub object", hubObject);
     res.status(201).send(hubObject);
+  });
+});
+
+app.get("/analyzed-data/hubs", (req, res) => {
+  analyzedHelpers.getHubs((list) => {
+    console.log("sent", list);
+    res.status(200).send(list);
   });
 });
 
