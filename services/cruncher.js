@@ -14,11 +14,8 @@ const apiEndpointRoot = apiRoot + '/raw-postings/';
 const apiEndpointGetNumberOfRecords = apiRoot + '/raw-postings?date=';
 const apiEndpointPostResults = apiRoot + '/analyzed-data';
 
-//================ result ==================
+//============= example output =============
 //==========================================
-
-// init: define an object to hold the count data for a date to be stored in prod
-var crunched = keysMethods.getHubs();
 
 // example output before conversion
 // phoenix: {
@@ -68,28 +65,27 @@ var crunched = keysMethods.getHubs();
 // },
 // colorado: [...]
 
-//========= js frameworks crunch ===========
+//================ cruncher ================
 //==========================================
 const cruncher = () => {
-  
-  // init: store a reference to the view currently being operated on
-  const view = 'javascriptFrameworks';
-
-  utilities.announce(`beginning crunch of ${view}`, {type: 'start', importance: 1});
-
-  // init: add this data storge to results for this view
-  for (var hub in crunched) crunched[hub][view] = {};
-  
-  // init: store a list of all the tech tracked for this view
-  const tech = keysMethods.getTech(view);
 
   request.get(apiEndpointGetDateIds, (err, res, body) => {
     if (err) {
       utilities.announce(`error fetching date id's, ${err}`, {type: 'error'});
     } else {
       
-      // init: get and store hub listing
-      const hubs = keysMethods.getHubs();
+      // init: un-converted result storage object
+      var crunched = keysMethods.getHubs();
+      
+      // init: views to crunched
+      const views = keysMethods.getTech();
+      
+      // init: add all views to all hubs
+      for (const hub in crunched) {
+        for (const view in views) {
+          crunched[hub][view] = {};
+        }
+      }
       
       // store fetched date id's
       var dateIds = JSON.parse(body);
@@ -100,7 +96,7 @@ const cruncher = () => {
       utilities.announce(`dates to be crunched this batch: ${dateIds}`, {type: 'note'});
 
       // init: tech count constructor
-      const Bin = () => {
+      const Bin = (tech) => {
         var bin = {}
         for (var item in tech) {
           bin[item] = 0;
@@ -115,19 +111,21 @@ const cruncher = () => {
 
           utilities.announce(`beginning fetch and parse for date ${date}`, {type: 'start', importance: 2});
 
-          // add a count storage bin to each hub for this date
-          for (var hub in crunched) {
-            crunched[hub][view][date] = Bin();
+          // add a container to each view for this date then add initialized tech counts to this container
+          for (const hub in crunched) {
+            for (const view in crunched[hub]) {
+              crunched[hub][view][date] = Bin(views[view]);
+            }
           }
           
           const recordsCountUrl = apiEndpointGetNumberOfRecords + date + '&index=-1';
 
+          // get the number of records for the current date
           request.get(recordsCountUrl, (err, res, body) => {
             if (err) {
               utilities.announce(`error fetching number of records for date id ${err}`, {type: 'error'});
             } else {
               
-              // request length (number of records) for the current date slice and store it
               const numberOfRecords = body;
               utilities.announce('date id ' + date + ' has ' + numberOfRecords + ' records', {type: 'note'});
               
@@ -135,13 +133,12 @@ const cruncher = () => {
 
                 var records = [];
 
-                // for each record in a date, push a request/parse func to a series func
+                // for each record in a date, push a request/parse func to a series array
                 for (var i = 0; i < numberOfRecords; i++) {
                   // construct the request url including this index
-                  const thisIndex = i;
-                  const thisRecordRequestUrl = `${apiEndpointRoot}?date=${date}&index=${thisIndex}`;
+                  const thisIndex = i, thisRecordRequestUrl = `${apiEndpointRoot}?date=${date}&index=${thisIndex}`;
                   records.push((complete) => {
-                    utilities.announce(`fetching record at index ${thisIndex} of ${numberOfRecords}`, {type: 'start'});
+                    utilities.announce(`fetching record at index ${thisIndex} of ${numberOfRecords - 1}`, {type: 'start'});
                     // request the specific record for the specific date
                     request
                       .get(thisRecordRequestUrl, (err, res, body) => {
@@ -151,8 +148,10 @@ const cruncher = () => {
                           utilities.announce(`record fetched successfully, parsing technologies`, {type: 'success'});
                           body = JSON.parse(body);
                           // parse the response text value for tech and increment counters
-                          for (var technology in tech) {
-                            if (tech[technology].test(body.text)) { crunched[body.hub][view][date][technology]++; }
+                          for (const view in views) {
+                            for (const tech in views[view]) {
+                              if (views[view][tech].test(body.text)) { crunched[body.hub][view][date][tech]++; }
+                            }
                           }
                           complete();
                         }
@@ -175,6 +174,7 @@ const cruncher = () => {
         };
       });
       
+      // series loop to crunch all dates
       async.series(dates, (err) => {
         if (err) {
           utilities.announce(`failed crunch ${err}`, {type: 'error', importance: 1});
@@ -202,7 +202,7 @@ const cruncher = () => {
             if (err) {
               // if write to db fails, save results to local disk to save time
               utilities.announce(`failed to save results to prod database, attempting to write to disk`, {type: 'error', importance: 1});
-              fs.writeFile(path.join(__dirname + '/results.json'), JSON.stringify(converted), (err) => {
+              fs.writeFile(path.join(__dirname + '/results' + new Date().getTime() + '.json'), JSON.stringify(converted), (err) => {
                 if (err) {
                   utilities.announce(`failed to write to file`, {type: 'error'});
                 } else {
