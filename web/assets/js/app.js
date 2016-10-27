@@ -36,14 +36,15 @@ angular.module('mainApp', [
 })
 
 .controller('chartCtrl', function($scope) {
-  chart.options = {
+  $scope.chartOptions = {
     title: {
-      text: `JS Framework Popularity for ${data[0].hub}` //template string add in hub location
+      text: `JS Framework Popularity for ${data[0][0].hub}` //template string add in hub location
     },
-    xAxis:{
+    xAxis: {
+      type: 'datetime',
       catagories: extractDates(data)
     },
-
+    series: formatSeriesData(data)
   }
 })
 
