@@ -17,6 +17,11 @@ var deleteall = function(){return rp.delete(server+'/raw-postings/?date=0');};
 var scraper = require('../services/scraper.js');
 var keysMethods = require('../services/keys.js');
 
+if(!process.env.debug){
+  var target = process.env.target;
+  var app = require(target);
+} 
+
 describe('scraper',function(){
   this.timeout(5*60*1000);
   beforeEach(function(done){
@@ -24,7 +29,7 @@ describe('scraper',function(){
     .then(done);
   });
 
-  it('returns something',function(done){
+  it('saves the right number of postings',function(done){
     keysMethods.setGeo(keysMethods.singlePage);
     scraper.setKeys(keysMethods);
     scraper.runAsPromise()
@@ -32,7 +37,7 @@ describe('scraper',function(){
     .then(function(results){
       var res = JSON.parse(results);
       console.log(res);
-      expect(res).to.equal(5);
+      expect(res).to.equal(4);
       done();
     })
     .catch(done);
