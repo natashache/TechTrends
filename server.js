@@ -91,6 +91,13 @@ app.post("/analyzed-data", (req, res) => {
   });
 });
 
+app.get("/analyzed-data/hubs", (req, res) => {
+  analyzedHelpers.getHubs((list) => {
+    console.log("sent", list);
+    res.status(200).send(list);
+  });
+});
+
 app.delete('/analyzed-data/', (req, res) => {
   var hub = req.query.hub;
   analyzedHelpers.deleteAnalyticCollection(hub, (result) => {

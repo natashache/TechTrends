@@ -1,4 +1,5 @@
 const AnalyzedModel = require("./analyzedModel.js");
+const _ = require("underscore");
 
 //creates a new date/hub collections, and extends its analytics object with passed analytic
 const createAnalyticCollection = function (analyticObject, callback) {
@@ -16,6 +17,14 @@ const createAnalyticCollection = function (analyticObject, callback) {
             callback(savedObject);
           })
       })
+    });
+};
+
+const getHubs = function(callback){ 
+  AnalyzedModel.find()
+    .then((arrayOfHubs) => {
+      console.log("list of hubs", arrayOfHubs.map( hub => hub.hub));
+      callback(arrayOfHubs.map( hub => hub.hub));
     });
 };
 
@@ -58,7 +67,7 @@ const getAnalytics = function (hub,view, callback) {
     });
 };
 
-
+module.exports.getHubs = getHubs;
 module.exports.createAnalyticCollection = createAnalyticCollection;
 module.exports.deleteAnalyticCollection = deleteAnalyticCollection;
 module.exports.addNewAnalytic = addNewAnalytic;

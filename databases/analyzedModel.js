@@ -4,7 +4,13 @@ const _ = require('underscore');
 var AnalyzedSchema = new mongoose.Schema(
   {
     hub: String,
-    javaScriptFrameWorks: Array
+    javascriptFrameworks: Array,
+    serverLanguages: Array,
+    databaseLanguages: Array,
+    contentManagementSystems: Array,
+    upAndComingLanguages: Array,
+    javascriptMarkup: Array,
+    versionControlSystems: Array
   }, {strict:false}
 );
 
