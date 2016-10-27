@@ -2,14 +2,13 @@ const inquirer = require('inquirer');
 const request = require('request');
 const async = require('async');
 const cheerio = require('cheerio');
+const keysMethods = require('./keys.js');
 const promise = require('bluebird');
 
-var keysMethods = null;
 // TODO's:
 // * make fetch content / pipe to DS one operation, combine methods
 // * cleaner, less-suspicious request header
 // * salary info
-
 
 const hrSingle = '-----------------------------------------------------------------------------------';
 const hrDouble = '===================================================================================';
@@ -152,8 +151,6 @@ const storeRecords = (records) => {
       if (err) {
         console.log('error writing records to database', err);
         reject(err);
-      } else {
-        resolve();
       }
     }, () => {
       resolve('');
@@ -163,12 +160,21 @@ const storeRecords = (records) => {
 
 };
 
-const setKeys = function(keys){
-  keysMethods = keys;
-}
-const run = function(next){
-  const queries = keysMethods.getQueries(), scrapeId = queries[0].date;
-  const queue = queries.map((query) => {
+inquirer.prompt([{
+  type: 'confirm',
+  name: 'confirm',
+  message: 'Start the scrape? This process can take several hours. Begin:'
+}])
+  .then((answers) => {
+    if (answers.confirm) {
+
+      const queries = keysMethods.getQueries(), scrapeId = queries[0].date;
+
+      console.log(hrDouble);
+      console.log('beginning big scrape with batch id', scrapeId);
+      console.log(hrDouble);
+      
+      const queue = queries.map((query) => {
         return (done) => {
           fetchRecordUrls(query)
             .then(fetchRecordContent)
@@ -176,29 +182,16 @@ const run = function(next){
             .then(done);
         };
       });
-      //execute the queries in series to avoid simultaneous requests
+
       async.series(queue, (err) => {
-        console.log('series resolved');
         if (err) { console.log(err); } else {
           console.log(hrDouble);
           console.log('finished big scrape, id', scrapeId, '-- have a great day!');
           console.log(hrDouble);
-          next();
         }
       });
-}
 
-const runAsPromise = function(){
-  return new Promise(function(resolve,reject){
-    run(function(){
-      resolve();
-    });
-  })
-}
-
-module.exports.fetchRecordUrls = fetchRecordUrls;
-module.exports.fetchRecordContent = fetchRecordContent;
-module.exports.storeRecords = storeRecords;
-module.exports.setKeys = setKeys;
-module.exports.run = run;
-module.exports.runAsPromise = runAsPromise;
+    } else {
+      console.log('scrape aborted -- careerbuilder appreciates it <3');
+    }
+  });
