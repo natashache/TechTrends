@@ -12,198 +12,35 @@ const apiEndpointGetNumberOfRecords = 'http://localhost:8000/raw-postings?date='
 const hrSingle = '-----------------------------------------------------------------------------------';
 const hrDouble = '===================================================================================';
 
-//================ TEMP ====================
-//==========================================
-
-const tempGeo = {
-  // countries > states > hubs > sources > queries
-  united_states: {
-    arizona: {
-      phoenix: {
-        career_builder: {
-          web_developer: 'http://www.careerbuilder.com/jobs-web-developer-in-phoenix,az'
-        }
-      }
-    },      
-    california: {
-      san_jose: {
-        career_builder: {
-          web_developer: 'http://www.careerbuilder.com/jobs-web-developer-in-san-jose,ca'
-        }
-      },
-      san_francisco: {
-        career_builder: {
-          web_developer: 'http://www.careerbuilder.com/jobs-web-developer-in-san-francisco,ca'
-        }
-      },
-      los_angeles: {
-        career_builder: {
-          web_developer: 'http://www.careerbuilder.com/jobs-web-developer-in-los-angeles,ca'
-        }
-      },
-      san_diego: {
-        career_builder: {
-          web_developer: 'http://www.careerbuilder.com/jobs-web-developer-in-san-diego,ca'
-        }
-      }
-    },
-    colorado: {
-      boulder: {
-        career_builder: {
-          web_developer: 'http://www.careerbuilder.com/jobs-web-developer-in-boulder,co'
-        }
-      },
-      fort_collins: {
-        career_builder: {
-          web_developer: 'http://www.careerbuilder.com/jobs-web-developer-in-fort-collins,co'
-        }
-      }
-    },
-    georgia: {
-      atlanta: {
-        career_builder: {
-          web_developer: 'http://www.careerbuilder.com/jobs-web-developer-in-atlanta,ga'
-        }
-      }
-    },
-    illinois: {
-      chicago: {
-        career_builder: {
-          web_developer: 'http://www.careerbuilder.com/jobs-web-developer-in-chicago,il'
-        }
-      }
-    },
-    kansas: {
-      kansas_city: {
-        career_builder: {
-          web_developer: 'http://www.careerbuilder.com/jobs-web-developer-in-kansas-city,ks'
-        }
-      }
-    },
-    massachusetts: {
-      boston: {
-        career_builder: {
-          web_developer: 'http://www.careerbuilder.com/jobs-web-developer-in-boston,ma'
-        }
-      }
-    },
-    new_mexico: {
-      albuquerque: {
-        career_builder: {
-          web_developer: 'http://www.careerbuilder.com/jobs-web-developer-in-albuquerque,nm'
-        }
-      }
-    },
-    new_york: {
-      new_york: {
-        career_builder: {
-          web_developer: 'http://www.careerbuilder.com/jobs-web-developer-in-new-york,ny'
-        }
-      }
-    },
-    north_carolina: {
-      raleigh: {
-        career_builder: {
-          web_developer: 'http://www.careerbuilder.com/jobs-web-developer-in-raleigh,nc'
-        }
-      }
-    },
-    oregon: {
-      portland: {
-        career_builder: {
-          web_developer: 'http://www.careerbuilder.com/jobs-web-developer-in-portland,or'
-        }
-      }
-    },
-    pennsylvania: {
-      philadelphia: {
-        career_builder: {
-          web_developer: 'http://www.careerbuilder.com/jobs-web-developer-in-philadelphia,pa'
-        }
-      },
-      pittsburg: {
-        career_builder: {
-          web_developer: 'http://www.careerbuilder.com/jobs-web-developer-in-pittsburgh,pa'
-        }
-      }
-    },
-    tennessee: {
-      memphis: {
-        career_builder: {
-          web_developer: 'http://www.careerbuilder.com/jobs-web-developer-in-memphis,tn'
-        }
-      },
-      nashville: {
-        career_builder: {
-          web_developer: 'http://www.careerbuilder.com/jobs-web-developer-in-nashville,tn'
-        }
-      }
-    },
-    texas: {
-      austin: {
-        career_builder: {
-          web_developer: 'http://www.careerbuilder.com/jobs-web-developer-in-austin,tx'
-        }
-      },
-      houston: {
-        career_builder: {
-          web_developer: 'http://www.careerbuilder.com/jobs-web-developer-in-houston,tx'
-        }
-      },
-      dallas_fort_worth: {
-        career_builder: {
-          web_developer: 'http://www.careerbuilder.com/jobs-web-developer-in-dallas-fort-worth,tx'
-        }
-      }
-    },
-    utah: {
-      provo: {
-        career_builder: {
-          web_developer: 'http://www.careerbuilder.com/jobs-web-developer-in-provo,ut'
-        }
-      },
-      salt_lake_city: {
-        career_builder: {
-          web_developer: 'http://www.careerbuilder.com/jobs-web-developer-in-salt-lake-city,ut'
-        }
-      }
-    },
-    washington: {
-      seattle: {
-        career_builder: {
-          web_developer: 'http://www.careerbuilder.com/jobs-web-developer-in-seattle,wa'
-        }
-      }
-    },
-    washington_dc: {
-      washington_dc: {
-        career_builder: {
-          web_developer: 'http://www.careerbuilder.com/jobs-web-developer-in-washington,dc'
-        }
-      }
-    }
-  }
-};
-
-const tempGetHubs = () => {
-  var hubs = {}, geo = tempGeo;
-
-  for (var country in geo) {
-    for (var state in geo[country]) {
-      for (var hub in geo[country][state]) {
-        hubs[hub] = {};
-      }
-    }
-  }
-
-  return hubs;
-};
-
 //================ result ==================
 //==========================================
 
 // init: define an object to hold the count data for a date to be stored in prod
 var crunched = keysMethods.getHubs();
+
+// example output
+// phoenix: {
+//   javascriptFrameworks: {
+//     123456789: {
+//         angular: 7,
+//         backbone: 5,
+//         react: 6,
+//         ember: 3,
+//         knockout: 2,
+//         aurelia: 1,
+//         meteor: 0,
+//         polymer: 1,
+//         vue: 0,
+//         mercury: 1
+//     },
+//     987654321,
+//       data: {...}
+//     }
+//   },
+//   serverTechnologies: {...},
+//   databases: {...}
+// },
+// colorado: {...}
 
 //========= js frameworks crunch ===========
 //==========================================
@@ -231,9 +68,7 @@ const cruncherJSFrameworks = () => {
       const hubs = keysMethods.getHubs();
       
       // store fetched date id's
-      // TODO endpoint for this fetch doesn't work, will have to fix eventually
       var dateIds = JSON.parse(body);
-      // const dateIds = keysMethods.getDateIds();
       // filter out any test dates
       dateIds = dateIds.filter((date) => {
         return date > 1000000;
@@ -294,10 +129,7 @@ const cruncherJSFrameworks = () => {
                           body = JSON.parse(body);
                           // parse the response text value for tech and increment counters
                           for (var technology in tech) {
-                            if (tech[technology].test(body.text)) {
-                              console.log('found', technology);
-                              crunched[body.hub][view][date][technology]++;
-                            }
+                            if (tech[technology].test(body.text)) { crunched[body.hub][view][date][technology]++; }
                           }
                           setTimeout(() => { complete() }, 500);
                         }
@@ -338,31 +170,6 @@ const cruncherJSFrameworks = () => {
     
     }
   });
-
-  
-
-  // phoenix: {
-  //   javascriptFrameworks: {
-  //     123456789: {
-//         angular: 7,
-//         backbone: 5,
-//         react: 6,
-//         ember: 3,
-//         knockout: 2,
-//         aurelia: 1,
-//         meteor: 0,
-//         polymer: 1,
-//         vue: 0,
-//         mercury: 1
-  //     },
-  //     987654321,
-  //       data: {...}
-  //     }
-  //   },
-  //   serverTechnologies: {...},
-  //   databases: {...}
-  // },
-  // colorado: {...}
 
 };
 
