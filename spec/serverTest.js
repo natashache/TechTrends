@@ -14,11 +14,12 @@ if(!process.env.debug){
 
 describe('raw-postings',function(){
 
-//the first three have the same date, the last has a different date
-var postingsExamples = [{"date": "100", "name": "A"},
-                        {"date": "100","name":"B"},
-                        {"date": "100", "name": "C"},
-                        {"date": "101","name":"D"}];
+//the first three have the same date, the last two have a different date
+var postingsExamples = [{"date": 100, "name": "A"},
+                        {"date": 100,"name":"B"},
+                        {"date": 100, "name": "C"},
+                        {"date": 101,"name":"D"},
+                        {"date": 102,"name":"E"}];
  
 var postA = function(){
   return rp.post(server+'/raw-postings',{json: postingsExamples[0]});
@@ -37,6 +38,10 @@ var postD = function(){
   return rp.post(server+'/raw-postings',{json: postingsExamples[3]});
 }
 
+var postE = function(){
+  return rp.post(server+'/raw-postings',{json: postingsExamples[4]});
+}
+
 //api descriptions here
 var deleteall = function(){return rp.delete(server+'/raw-postings/?date=0');};
 var deleteone = function(){return rp.delete(server+'/raw-postings/?date=101');};
@@ -46,6 +51,7 @@ var getlength = function(){return rp.get(server+'/raw-postings?date=100&index=-1
 var zeroelement = function(){return rp.get(server+'/raw-postings?date=100&index=0');};
 var firstelement = function(){return rp.get(server+'/raw-postings?date=100&index=1');};
 var secondelement = function(){return rp.get(server+'/raw-postings?date=100&index=2');};
+var getallDates = function(){return rp.get(server+'/raw-postings/dates');};
 
 //todo: var nthelement = function(n){return rp.get(server+`/raw-postings?date=100&index=${n}`);};
 
@@ -159,6 +165,26 @@ describe('raw-postings get request',function(){
       .then(done)
       .catch(done)
   });
+
+});
+
+describe('raw-postings getalldates request',function(){
+
+  it('returns all dates on a request',function(done){
+    postA()
+    .then(postD)
+    .then(postE)
+    .then(getallDates)
+    .then(response =>{
+      var res = JSON.parse(response);
+      expect(res.length).to.equal(3);
+      expect(res[0]).to.equal('100');
+      expect(res[1]).to.equal('101');
+    })
+    .then(done)
+    .catch(done);
+
+  })
 
 });
 

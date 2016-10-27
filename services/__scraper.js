@@ -2,15 +2,16 @@ const inquirer = require('inquirer');
 const request = require('request');
 const async = require('async');
 const cheerio = require('cheerio');
+const keysMethods = require('./keys.js');
 const promise = require('bluebird');
-const utilities = require('./utilities');
-
-var keysMethods = null;
 
 // TODO's:
 // * make fetch content / pipe to DS one operation, combine methods
 // * cleaner, less-suspicious request header
 // * salary info
+
+const hrSingle = '-----------------------------------------------------------------------------------';
+const hrDouble = '===================================================================================';
 
 // TODO: change this hard-coding when web server goes live
 const api = 'http://localhost:8000/raw-postings';
@@ -18,7 +19,9 @@ const api = 'http://localhost:8000/raw-postings';
 const fetchRecordUrls = (query) => {
   return new Promise((resolve, reject) => {
 
-    utilities.announce(`beginning surface scrape of ${query.hub} at ${query.start}`, {type: 'start', importance: 2});
+    console.log(hrSingle);
+    console.log('beginning surface scrape of', query.hub, 'at', query.start);
+    console.log(hrSingle);
 
     var records = [];
 
@@ -33,7 +36,7 @@ const fetchRecordUrls = (query) => {
 
           if (response.statusCode === 200) {
 
-            utilities.announce(`fetching record urls from ${url}`, {type: 'start'});
+            console.log('fetching record urls from ' + url, '...',  response.statusCode);
           
             const $ = cheerio.load(html);
             
@@ -66,12 +69,13 @@ const fetchRecordUrls = (query) => {
             }, 2000);
           
           } else {
-            utilities.announce(`finished surface scrape of ${records[0].hub}`, {type: 'success', importance: 2});
+            console.log(hrSingle);
+            console.log('finished surface scrape of', records[0].hub);
+            console.log(hrSingle);
             resolve({records: records, source: source});
           }
         } else {
-          utilities.announce(`error fetching surface scrape date, ${err}`, {type: 'error'});
-          reject();
+          reject(console.log(err));
         }
       });
     };
@@ -102,13 +106,17 @@ const fetchRecordContent = (obj) => {
 
     const thisHub = obj.records[0].hub;
     
-    utilities.announce(`beginning deep scrape of ${thisHub}`, {type: 'start', importance: 2});
+    console.log(hrSingle);
+    console.log('beginning deep scrape of', thisHub);
+    console.log(hrSingle);
 
     async.series(fetches, (err) => {
       if (err) {
         reject(err);
       } else {
-        utilities.announce(`finished deep scrape of ${thisHub}`, {type: 'success', importance: 2});
+        console.log(hrSingle);
+        console.log('finished deep scrape of', thisHub)
+        console.log(hrSingle);
         resolve(obj.records);
       }
     });
@@ -128,10 +136,10 @@ const storeRecords = (records) => {
           json: record
         }, (error, response, body) => {
           if (error) {
-            utilities.announce(`error writing record to database, record at ${record.url}, ${error}`, {type: 'error'});
+            console.log('error writing record to database, record at`', record.url, error);
             setTimeout(() => { done(error); }, 500);
           } else {
-            utilities.announce(`record written for url ${record.url} in ${record.hub} to database`, {type: 'success'});
+            console.log('record written for url', record.url, 'in hub', record.hub, 'to database');
             setTimeout(() => { done(null); }, 500);
           }
             
@@ -141,60 +149,49 @@ const storeRecords = (records) => {
 
     async.series(writes, (err) => {
       if (err) {
-        utilities.announce(`error writing records to database ${err}`, {type: 'error'});
+        console.log('error writing records to database', err);
         reject(err);
-      } else {
-        utilities.announce(`records written to database`, {type: 'success'});
-        // TODO figure out what's going on here...
-        resolve('');
       }
+    }, () => {
+      resolve('');
     });
   
   });
 
 };
 
-const setKeys = (keys) => {
-  keysMethods = keys;
-};
+inquirer.prompt([{
+  type: 'confirm',
+  name: 'confirm',
+  message: 'Start the scrape? This process can take several hours. Begin:'
+}])
+  .then((answers) => {
+    if (answers.confirm) {
 
-const run = (next) => {
-  const queries = keysMethods.getQueries(), scrapeId = queries[0].date;
-  
-  const queue = queries.map((query) => {
-    
-    return (done) => {
-      fetchRecordUrls(query)
-        .then(fetchRecordContent)
-        .then(storeRecords)
-        .then(done);
-    };
-  
-  });
-  
-  //execute the queries in series to avoid simultaneous requests
-  async.series(queue, (err) => {
-    if (err) {
-      utilities.announce(`error executing queries ${err}`, {type: 'error'});
+      const queries = keysMethods.getQueries(), scrapeId = queries[0].date;
+
+      console.log(hrDouble);
+      console.log('beginning big scrape with batch id', scrapeId);
+      console.log(hrDouble);
+      
+      const queue = queries.map((query) => {
+        return (done) => {
+          fetchRecordUrls(query)
+            .then(fetchRecordContent)
+            .then(storeRecords)
+            .then(done);
+        };
+      });
+
+      async.series(queue, (err) => {
+        if (err) { console.log(err); } else {
+          console.log(hrDouble);
+          console.log('finished big scrape, id', scrapeId, '-- have a great day!');
+          console.log(hrDouble);
+        }
+      });
+
     } else {
-      utilities.announce(`finished big scrape for date ${scrapeId} -- have a great day!`, {type: 'success', importance: 1});
-      next();
+      console.log('scrape aborted -- careerbuilder appreciates it <3');
     }
   });
-
-};
-
-const runAsPromise = () => {
-  return new Promise((resolve, reject) => {
-    run(() => {
-      resolve();
-    });
-  });
-}
-
-module.exports.fetchRecordUrls = fetchRecordUrls;
-module.exports.fetchRecordContent = fetchRecordContent;
-module.exports.storeRecords = storeRecords;
-module.exports.setKeys = setKeys;
-module.exports.run = run;
-module.exports.runAsPromise = runAsPromise;
