@@ -18,10 +18,33 @@ const apiEndpointPostResults = apiRoot + '/analyzed-data';
 // init: define an object to hold the count data for a date to be stored in prod
 var crunched = keysMethods.getHubs();
 
-// example output
+// example output before conversion
 // phoenix: {
 //   javascriptFrameworks: {
 //     123456789: {
+//      angular: 7,
+//      backbone: 5,
+//      react: 6,
+//      ember: 3,
+//      knockout: 2,
+//      aurelia: 1,
+//      meteor: 0,
+//      polymer: 1,
+//      vue: 0,
+//      mercury: 1
+//     },
+//     987654321: {...}
+//   },
+//   serverTechnologies: {...},
+//   databases: {...}
+// },
+// colorado: {...}
+
+// example output after conversion
+// phoenix: {
+//   javascriptFrameworks: [
+//     { date: 123456789,
+//       data: {
 //         angular: 7,
 //         backbone: 5,
 //         react: 6,
@@ -32,15 +55,16 @@ var crunched = keysMethods.getHubs();
 //         polymer: 1,
 //         vue: 0,
 //         mercury: 1
+//       }
 //     },
-//     987654321,
+//     { date: 987654321,
 //       data: {...}
 //     }
-//   },
-//   serverTechnologies: {...},
-//   databases: {...}
+//   ],
+//   serverTechnologies: [...],
+//   databases: [...]
 // },
-// colorado: {...}
+// colorado: [...]
 
 //========= js frameworks crunch ===========
 //==========================================
@@ -59,7 +83,7 @@ const cruncherJSFrameworks = () => {
 
   request.get(apiEndpointGetDateIds, (err, res, body) => {
     if (err) {
-      utilities.announce(`error fetching date id's`, {type: 'error'});
+      utilities.announce(`error fetching date id's, ${err}`, {type: 'error'});
     } else {
       
       // init: get and store hub listing
@@ -152,8 +176,25 @@ const cruncherJSFrameworks = () => {
         if (err) {
           utilities.announce(`failed JS framework crunch ${err}`, {type: 'error', importance: 1});
         } else {
+
+          // convert results data into preferred prod db format
+          var converted = {};
+          for (const hub in crunched) {
+            converted[hub] = {};
+            for (const tech in crunched[hub]) {
+              converted[hub][tech] = [];
+              for (const date in crunched[hub][tech]) {
+                converted[hub][tech].push({
+                  date: date,
+                  data: crunched[hub][tech][date]
+                });
+              }
+            }
+          }
+
+          // save converted results to database
           utilities.announce(`saving results to prod database`, {type: 'start'});
-          request.post('apiEndpointPostResults', crunched,(err, res) => {
+          request.post('apiEndpointPostResults', converted, (err, res) => {
             if (err) {
               utilities.announce(`failed to save results to prod database`, {type: 'error', importance: 1});
             } else {
