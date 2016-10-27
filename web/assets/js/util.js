@@ -61,31 +61,31 @@ function getDataFromServer(hubName, callback){
 //   javascriptFrameworks: {
 //     date: Array,
 //     data: Array
-//   },
+//   }
 //   serverLanguages: {
 //     date: Array,
 //     data: Array
-//   },,
+//   }
 //   databaseLanguages: {
 //     date: Array,
 //     data: Array
-//   },,
+//   }
 //   contentManagementSystems: {
 //     date: Array,
 //     data: Array
-//   },,
+//   }
 //   upAndComingLanguages: {
 //     date: Array,
 //     data: Array
-//   },,
+//   }
 //   javascriptMarkup: {
 //     date: Array,
 //     data: Array
-//   },,
+//   }
 //   versionControlSystems: {
 //     date: Array,
 //     data: Array
-//   },
+//   }
 // }
 
 
