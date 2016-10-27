@@ -35,12 +35,25 @@ if(!process.env.debug){
 } 
 
 describe('scraper',function(){
-    
-    this.timeout(5*60*1000);
+  this.timeout(5*60*1000);
+  beforeEach(function(done){
+    deleteall()
+    .then(done);
+  });
 
-    before(function(done){
-      keysMethods.setGeo(keysMethods.singlePage);
-      scraper.setKeys(keysMethods);
+  it('saves the right number of postings',function(done){
+    keysMethods.setGeo(keysMethods.singlePage);
+    scraper.setKeys(keysMethods);
+    scraper.runAsPromise()
+    .then(getlength)
+    .then(function(results){
+      var res = JSON.parse(results);
+      console.log(res);
+      expect(res).to.equal(4);
+      done();
+    })
+    .catch(done);
+   });
 
       deleteall()
       .then(scraper.runAsPromise)
