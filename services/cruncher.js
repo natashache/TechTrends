@@ -4,15 +4,13 @@ const async = require('async');
 const cheerio = require('cheerio');
 const keysMethods = require('./keys.js');
 const promise = require('bluebird');
+const utilities = require('./utilities.js');
 
 const apiRoot = 'http://localhost:8000'
 const apiEndpointGetDateIds = apiRoot + '/raw-postings/dates';
 const apiEndpointRoot = apiRoot + '/raw-postings/';
-const apiEndpointGetNumberOfRecords = apRoot + '/raw-postings?date=';
+const apiEndpointGetNumberOfRecords = apiRoot + '/raw-postings?date=';
 const apiEndpointPostResults = apiRoot + '/analyzed-data';
-
-const hrSingle = '-----------------------------------------------------------------------------------';
-const hrDouble = '===================================================================================';
 
 //================ result ==================
 //==========================================
@@ -51,9 +49,7 @@ const cruncherJSFrameworks = () => {
   // init: store a reference to the view currently being operated on
   const view = 'javascriptFrameworks';
 
-  console.log(hrDouble);
-  console.log('[?] beginning crunch of', view, '...');
-  console.log(hrDouble);
+  utilities.announce(`beginning crunch of ${view}`, {type: 'start', importance: 1});
 
   // init: add this data storge to results for this view
   for (var hub in crunched) crunched[hub][view] = {};
@@ -63,7 +59,7 @@ const cruncherJSFrameworks = () => {
 
   request.get(apiEndpointGetDateIds, (err, res, body) => {
     if (err) {
-      console.log('[X] error fetching date id\'s');
+      utilities.announce(`error fetching date id's`, {type: 'error'});
     } else {
       
       // init: get and store hub listing
@@ -75,7 +71,7 @@ const cruncherJSFrameworks = () => {
       dateIds = dateIds.filter((date) => {
         return date > 1000000;
       });
-      console.log('[*] dates to be crunched this batch:', dateIds);
+      utilities.announce(`dates to be crunched this batch: ${dateIds}`, {type: 'note'});
 
       // init: tech count constructor
       const Bin = () => {
@@ -91,9 +87,7 @@ const cruncherJSFrameworks = () => {
       const dates = dateIds.map((date) => {
         return (done) => {
 
-          console.log(hrSingle);
-          console.log('[?] beginning fetch and parse for date id', date, '...');
-          console.log(hrSingle);
+          utilities.announce(`beginning fetch and parse for date ${date}`, {type: 'start', importance: 2});
 
           // add a count storage bin to each hub for this date
           for (var hub in crunched) {
@@ -104,12 +98,12 @@ const cruncherJSFrameworks = () => {
 
           request.get(recordsCountUrl, (err, res, body) => {
             if (err) {
-              console.log('[X] error fetching number of records for a date id', err);
+              utilities.announce(`error fetching number of records for date id ${err}`, {type: 'error'});
             } else {
               
               // request length (number of records) for the current date slice and store it
               const numberOfRecords = body;
-              console.log('[*] date id', date, 'has', numberOfRecords, 'records');
+              utilities.announce('date id ' + date + ' has ' + numberOfRecords + ' records', {type: 'note'});
               
               if (numberOfRecords > 0) {
 
@@ -120,14 +114,14 @@ const cruncherJSFrameworks = () => {
                   // construct the request url including this index
                   const thisRecordRequestUrl = `${apiEndpointRoot}?date=${date}&index=${i}`;
                   records.push((complete) => {
-                    console.log('[?] requesting record at url: ', thisRecordRequestUrl, '...');
+                    utilities.announce(`requesting record at url: ${thisRecordRequestUrl}`, {type: 'start'});
                     // request the specific record for the specific date
                     request
                       .get(thisRecordRequestUrl, (err, res, body) => {
                         if (err) {
-                          console.log('[X] error fetching record', err);
+                          utilities.announce(`error fetching record ${err}`, {type: 'error'});
                         } else {
-                          console.log('[+] record fetched successfully');
+                          utilities.announce(`record fetched successfully`, {type: 'success'});
                           body = JSON.parse(body);
                           // parse the response text value for tech and increment counters
                           for (var technology in tech) {
@@ -141,13 +135,9 @@ const cruncherJSFrameworks = () => {
 
                 async.series(records, (err) => {
                   if (err) {
-                    console.log(hrSingle);
-                    console.log('[X] error fetching and/or parsing records for date', date, err);
-                    console.log(hrSingle);
+                    utilities.announce(`error fetching and/or parsing records for date ${date}  ${err}`, {type: 'error', importance: 2});
                   } else {
-                    console.log(hrSingle);
-                    console.log('[+] records fetched and parsed successfully for date', date);
-                    console.log(hrSingle);
+                    utilities.announce(`records fetched and parsed successfully for date ${date}`, {type: 'success', importance: 2});
                     done();
                   }
                 });
@@ -160,16 +150,16 @@ const cruncherJSFrameworks = () => {
       
       async.series(dates, (err) => {
         if (err) {
-          console.log(hrDouble);
-          console.log('[X] failed JS framework crunch');
-          console.log(hrDouble);
+          utilities.announce(`failed JS framework crunch ${err}`, {type: 'error', importance: 1});
         } else {
-          console.log('[?] saving results to prod database...');
+          utilities.announce(`saving results to prod database`, {type: 'start'});
           request.post('apiEndpointPostResults', crunched,(err, res) => {
-            console.log('[+] results saved to database');
-            console.log(hrDouble);
-            console.log('[+] JS framework crunch complete!');
-            console.log(hrDouble);
+            if (err) {
+              utilities.announce(`failed to save results to prod database`, {type: 'error', importance: 1});
+            } else {
+              utilities.announce(`results saved to database`, {type: 'success'});
+              utilities.announce(`JS framework crunch complete!`, {type: 'success', importance: 1});
+            }
           });
         }
       });
