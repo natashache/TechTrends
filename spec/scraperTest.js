@@ -13,7 +13,6 @@ var check = require('check-types');
 var now = 1477411263456;
 var getall = function(){return rp.get(server+'/raw-postings?date=1477411263456');};
 var postingType = {
-      text: check.string,
       url: check.string,
       term: check.string,
       source: check.string,
@@ -35,25 +34,12 @@ if(!process.env.debug){
 } 
 
 describe('scraper',function(){
-  this.timeout(5*60*1000);
-  beforeEach(function(done){
-    deleteall()
-    .then(done);
-  });
+    
+    this.timeout(5*60*1000);
 
-  it('saves the right number of postings',function(done){
-    keysMethods.setGeo(keysMethods.singlePage);
-    scraper.setKeys(keysMethods);
-    scraper.runAsPromise()
-    .then(getlength)
-    .then(function(results){
-      var res = JSON.parse(results);
-      console.log(res);
-      expect(res).to.equal(4);
-      done();
-    })
-    .catch(done);
-   });
+    before(function(done){
+      keysMethods.setGeo(keysMethods.singlePage);
+      scraper.setKeys(keysMethods);
 
       deleteall()
       .then(scraper.runAsPromise)
