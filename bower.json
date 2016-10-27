@@ -2,8 +2,7 @@
   "name": "tech-trends-dbs",
   "description": "Compelling technology trend data by hub.",
   "main": "",
-  "authors": [
-  ],
+  "authors": [],
   "license": "ISC",
   "homepage": "",
   "ignore": [
@@ -12,6 +11,7 @@
   ],
   "dependencies": {
     "jquery": "^3.1.1",
-    "underscore": "^1.8.3"
+    "underscore": "^1.8.3",
+    "moment": "^2.15.2"
   }
 }
