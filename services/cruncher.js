@@ -5,9 +5,11 @@ const cheerio = require('cheerio');
 const keysMethods = require('./keys.js');
 const promise = require('bluebird');
 
-const apiEndpointGetDateIds = 'http://localhost:8000/raw-postings/dates';
-const apiEndpointRoot = 'http://localhost:8000/raw-postings/';
-const apiEndpointGetNumberOfRecords = 'http://localhost:8000/raw-postings?date=';
+const apiRoot = 'http://localhost:8000'
+const apiEndpointGetDateIds = apiRoot + '/raw-postings/dates';
+const apiEndpointRoot = apiRoot + '/raw-postings/';
+const apiEndpointGetNumberOfRecords = apRoot + '/raw-postings?date=';
+const apiEndpointPostResults = apiRoot + '/analyzed-data';
 
 const hrSingle = '-----------------------------------------------------------------------------------';
 const hrDouble = '===================================================================================';
@@ -50,7 +52,7 @@ const cruncherJSFrameworks = () => {
   const view = 'javascriptFrameworks';
 
   console.log(hrDouble);
-  console.log('[?] beginning crunch of', view);
+  console.log('[?] beginning crunch of', view, '...');
   console.log(hrDouble);
 
   // init: add this data storge to results for this view
@@ -90,7 +92,7 @@ const cruncherJSFrameworks = () => {
         return (done) => {
 
           console.log(hrSingle);
-          console.log('[?] beginning fetch and parse for date id', date);
+          console.log('[?] beginning fetch and parse for date id', date, '...');
           console.log(hrSingle);
 
           // add a count storage bin to each hub for this date
@@ -118,7 +120,7 @@ const cruncherJSFrameworks = () => {
                   // construct the request url including this index
                   const thisRecordRequestUrl = `${apiEndpointRoot}?date=${date}&index=${i}`;
                   records.push((complete) => {
-                    console.log('[?] request record at url: ', thisRecordRequestUrl)
+                    console.log('[?] requesting record at url: ', thisRecordRequestUrl, '...');
                     // request the specific record for the specific date
                     request
                       .get(thisRecordRequestUrl, (err, res, body) => {
@@ -162,12 +164,15 @@ const cruncherJSFrameworks = () => {
           console.log('[X] failed JS framework crunch');
           console.log(hrDouble);
         } else {
-          console.log(hrDouble);
-          console.log('[+] JS framework crunch complete!');
-          console.log(hrDouble);
+          console.log('[?] saving results to prod database...');
+          request.post('apiEndpointPostResults', crunched,(err, res) => {
+            console.log('[+] results saved to database');
+            console.log(hrDouble);
+            console.log('[+] JS framework crunch complete!');
+            console.log(hrDouble);
+          });
         }
       });
-    
     }
   });
 
