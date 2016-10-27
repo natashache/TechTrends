@@ -1,4 +1,4 @@
-function createCategories(hubDataPoints){
+function createCatagories(hubDataPoints){
   let keys = Object.keys(hubDataPoints[0]);
   let result = [];
 
@@ -17,11 +17,11 @@ function createCategories(hubDataPoints){
 
 function extractDates(hubData){
   return hubData.map((data) => {
-    return moment.unix(data[0].date).format('MMMM DD'); //change format later
+    return moment.unix(data.date).format('MMMM DD'); //change format later
   });
 }
 
-function extracDataPoints(hubData){
+function extractDataPoints(hubData){
   return hubData.map((data) => {
     return data.data;
   });
@@ -87,39 +87,6 @@ function getDataFromServer(hubName, callback){
 //     data: Array
 //   },
 // }
-
-var formatSeriesData = (data) => {
-  var framworkNames = Object.keys(data[0][0].data);
-  var seriesFormat = [];
-
-  framworkNames.forEach((name) => {
-    var obj = {
-      name: '',
-      data: []
-    };
-    obj.name = name
-    seriesFormat.push(obj)
-  });
-
-  var dataPoints = data[0].map((element) => {
-    return element.data
-  });
-
-  dataPoints.forEach((tech, i) => {
-    let count = 0
-    for (const key in tech) {
-      seriesFormat[count].data.push(tech[key])
-      count++
-    }
-    count = 0
-  });
-
-  return seriesFormat
-}
-
-module.exports.createCategories = createCategories;
-module.exports.extractDates = extractDates;
-module.exports.extracDataPoints = extracDataPoints;
 
 
 
