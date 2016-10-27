@@ -20,6 +20,7 @@ const createAnalyticCollection = function (analyticObject, callback) {
     });
 };
 
+//handles getting hub names
 const getHubs = function(callback){ 
   AnalyzedModel.find()
     .then((arrayOfHubs) => {
@@ -28,6 +29,7 @@ const getHubs = function(callback){
     });
 };
 
+//handles deleting a record
 const deleteAnalyticCollection = function (hub, callback) {
   if(hub === "0"){
     AnalyzedModel.remove().then(results =>{
@@ -63,9 +65,15 @@ const addNewAnalytic = function (analyticObject, callback) {
 const getAnalytics = function (hub,view, callback) {
   AnalyzedModel.find({hub: hub})
     .then((hubObject) => {
-      callback(hubObject[0][view]);
+      if(view) {
+        callback(hubObject[0][view]);
+      } else {
+        callback(hubObject[0]);
+      }
     });
-};
+
+  };
+
 
 module.exports.getHubs = getHubs;
 module.exports.createAnalyticCollection = createAnalyticCollection;

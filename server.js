@@ -77,6 +77,7 @@ app.get("/analyzed-data", (req, res) => {
     if(!viewArray) {
       res.status(404).send("data not found");
     } else {
+      console.log("view array", viewArray);
       res.status(200).send(viewArray);
     }
     
