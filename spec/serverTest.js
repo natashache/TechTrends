@@ -1,17 +1,24 @@
 
 var request = require('request');
 var rp = require('request-promise');
-var server = 'http://127.0.0.1:8000';
+var server = null;
 var chai = require('chai');
 var expect = chai.expect;
 var Promise = require('bluebird');
 
 //if debug is true the tests are run after starting the server, so vscode can attach to the server
-if(!process.env.debug){
+if(!process.env.debug && !process.env.heroku){
+  
   var target = process.env.target;
   var app = require(target);
 } 
-
+if(process.env.heroku){
+  server = 'https://arcane-ravine-35587.herokuapp.com'
+} else {
+  server = 'http://127.0.0.1:8000';
+}
+console.log('heroku is',process.env.heroku);
+console.log('server is',server);
 describe('raw-postings',function(){
 
 //the first three have the same date, the last two have a different date

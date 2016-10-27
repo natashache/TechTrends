@@ -72,6 +72,9 @@ gulp.task('test', function() {
   if(argv.scraper){
     testFile = './spec/scraperTest.js';
   }
+  if(argv.heroku){
+    process.env.heroku = true;
+  }
   if(argv.mlab){
     process.env.target = '../connections/mlabTestConfig.js';
   }
