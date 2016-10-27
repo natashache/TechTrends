@@ -4,7 +4,7 @@ process.env.dev = false;
 const port = 8000;
 const mongoose = require('mongoose');
 
-const POSTINGSURI = require('./connections').test;
+const POSTINGSURI = process.env.dburl || require('./connections').test;
 mongoose.connect(POSTINGSURI);
 console.log('URI:', POSTINGSURI);
 
