@@ -5,7 +5,7 @@
   "repository": "https://github.com/Hrr19-Team-Hera/TechTrends",
   "main": "index.js",
   "engines": {
-    "node": ">=4.0.0"
+    "node": ">=6.0.0"
   },
   "scripts": {
     "test": "mocha spec/ServerSpec.js",
