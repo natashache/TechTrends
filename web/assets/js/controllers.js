@@ -13,6 +13,7 @@ angular.module('app.controllers', [
   
   init();
   $scope.view = 'javascriptFrameworks';
+  $scope.chartOptions = {};
 
   function init(){
     var qs = '/analyzed-data?hub=San%20Francisco';
@@ -44,7 +45,11 @@ angular.module('app.controllers', [
       options: '='
     },
     link: function(scope, element) {
-      Highcharts.chart(element[0], scope.options);
+      
+      scope.$watch('options', function(newValue, oldValue) {
+          if (newValue)
+            Highcharts.chart(element[0], scope.options);
+      }, true);
     }
   };
 })
