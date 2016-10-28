@@ -17,7 +17,7 @@ const apiEndpointPostResults = apiRoot + '/analyzed-data';
 //============= example output =============
 //==========================================
 
-// example output before conversion
+// // example output before conversion
 // phoenix: {
 //   javascriptFrameworks: {
 //     123456789: {
@@ -39,31 +39,54 @@ const apiEndpointPostResults = apiRoot + '/analyzed-data';
 // },
 // colorado: {...}
 
-// example output after conversion
-// phoenix: {
-//   javascriptFrameworks: [
-//     { date: 123456789,
-//       data: {
-//         angular: 7,
-//         backbone: 5,
-//         react: 6,
-//         ember: 3,
-//         knockout: 2,
-//         aurelia: 1,
-//         meteor: 0,
-//         polymer: 1,
-//         vue: 0,
-//         mercury: 1
+// // example output after conversion
+// [
+// 	{
+//     hubName: "phoenix",
+//     views: [
+//       { 
+//         viewName: "javascriptFrameworks", 
+//         item: {
+//           date: "123456",
+//           data: {
+//             angular: 7,
+//             backbone: 5,
+//             react: 6,
+//             ember: 3,
+//             knockout: 2,
+//             aurelia: 1,
+//             meteor: 0,
+//             polymer: 1,
+//             vue: 0,
+//             mercury: 1
+//           }
+//         }
 //       }
-//     },
-//     { date: 987654321,
-//       data: {...}
-//     }
-//   ],
-//   serverTechnologies: [...],
-//   databases: [...]
-// },
-// colorado: [...]
+//     ]
+// 	},
+// 	{
+// 	  hubName: "new_york`",
+//     views: [
+//       { viewName: "javascriptFrameworks", 
+//         item: {
+//           date: "123456",
+//           data: {
+//             angular: 7,
+//             backbone: 5,
+//             react: 6,
+//             ember: 3,
+//             knockout: 2,
+//             aurelia: 1,
+//             meteor: 0,
+//             polymer: 1,
+//             vue: 0,
+//             mercury: 1
+//           }
+//         }
+//       }
+//     ]
+// 	}
+// ]
 
 //================ cruncher ================
 //==========================================
@@ -184,18 +207,22 @@ const cruncher = (dateId) => {
         } else {
 
           // convert results data into preferred prod db format
-          var converted = {};
+          var converted = [];
           for (const hub in crunched) {
-            converted[hub] = {};
-            for (const tech in crunched[hub]) {
-              converted[hub][tech] = [];
-              for (const date in crunched[hub][tech]) {
-                converted[hub][tech].push({
-                  date: date,
-                  data: crunched[hub][tech][date]
-                });
+            var thisHub = {};
+            thisHub.hubName = hub;
+            thisHub.views = [];
+            for (const view in crunched[hub]) {
+              var thisView = {};
+              thisView.viewName = view;
+              thisView.item = {};
+              for (const date in crunched[hub][view]) {
+                thisView.item.date = date;
+                thisView.item.data = crunched[hub][view][date];
+                thisHub.views.push(thisView);
               }
             }
+            converted.push(thisHub);
           }
 
           // save converted results to database
