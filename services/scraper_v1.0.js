@@ -4,14 +4,12 @@ const async = require('async');
 const cheerio = require('cheerio');
 const keysMethods = require('./keys.js');
 const promise = require('bluebird');
+const utilities = require('./utilities.js');
 
 // TODO's:
 // * make fetch content / pipe to DS one operation, combine methods
 // * cleaner, less-suspicious request header
-// * salary info
-
-const hrSingle = '-----------------------------------------------------------------------------------';
-const hrDouble = '===================================================================================';
+// * salary info, title
 
 // TODO: change this hard-coding when web server goes live
 const api = 'http://localhost:8000/raw-postings';
@@ -19,9 +17,7 @@ const api = 'http://localhost:8000/raw-postings';
 const fetchRecordUrls = (query) => {
   return new Promise((resolve, reject) => {
 
-    console.log(hrSingle);
-    console.log('beginning surface scrape of', query.hub, 'at', query.start);
-    console.log(hrSingle);
+    utilities.announce(`beginning surface scrape of ${query.hub} at ${query.start}`, {type: 'start', importance: 2});
 
     var records = [];
 
@@ -36,7 +32,7 @@ const fetchRecordUrls = (query) => {
 
           if (response.statusCode === 200) {
 
-            console.log('fetching record urls from ' + url, '...',  response.statusCode);
+            utilities.announce(`fetching record urls from ${url}`, {type: 'start'});
           
             const $ = cheerio.load(html);
             
@@ -69,9 +65,7 @@ const fetchRecordUrls = (query) => {
             }, 2000);
           
           } else {
-            console.log(hrSingle);
-            console.log('finished surface scrape of', records[0].hub);
-            console.log(hrSingle);
+            utilities.announce(`finished surface scrape of ${records[0].hub}`, {type: 'success', importance: 1});
             resolve({records: records, source: source});
           }
         } else {
@@ -106,17 +100,13 @@ const fetchRecordContent = (obj) => {
 
     const thisHub = obj.records[0].hub;
     
-    console.log(hrSingle);
-    console.log('beginning deep scrape of', thisHub);
-    console.log(hrSingle);
+    utilities.announce(`beginning deep scrape of ${thisHub}`, {type: 'start', importance: 2});
 
     async.series(fetches, (err) => {
       if (err) {
         reject(err);
       } else {
-        console.log(hrSingle);
-        console.log('finished deep scrape of', thisHub)
-        console.log(hrSingle);
+        utilities.announce(`finished deep scrape of ${thisHub}`, {type: 'success', importance: 2});
         resolve(obj.records);
       }
     });
@@ -136,10 +126,10 @@ const storeRecords = (records) => {
           json: record
         }, (error, response, body) => {
           if (error) {
-            console.log('error writing record to database, record at`', record.url, error);
+            utilities.announce(`error writing record to database, record at ${record.url}, ${error}`, {type: 'error'});
             setTimeout(() => { done(error); }, 500);
           } else {
-            console.log('record written for url', record.url, 'in hub', record.hub, 'to database');
+            utilities.announce(`record written for url ${record.url} in ${record.hub} to database`, {type: 'success'});
             setTimeout(() => { done(null); }, 500);
           }
             
@@ -149,11 +139,11 @@ const storeRecords = (records) => {
 
     async.series(writes, (err) => {
       if (err) {
-        console.log('error writing records to database', err);
+        utilities.announce(`error writing records to database ${err}`, {type: 'error'});
         reject(err);
+      } else {
+        resolve('');
       }
-    }, () => {
-      resolve('');
     });
   
   });
@@ -170,9 +160,7 @@ inquirer.prompt([{
 
       const queries = keysMethods.getQueries(), scrapeId = queries[0].date;
 
-      console.log(hrDouble);
-      console.log('beginning big scrape with batch id', scrapeId);
-      console.log(hrDouble);
+      utilities.announce(`beginning big scrape with date id ${scrapeId}`, {type: 'start', importance: 1});
       
       const queue = queries.map((query) => {
         return (done) => {
@@ -185,13 +173,11 @@ inquirer.prompt([{
 
       async.series(queue, (err) => {
         if (err) { console.log(err); } else {
-          console.log(hrDouble);
-          console.log('finished big scrape, id', scrapeId, '-- have a great day!');
-          console.log(hrDouble);
+          utilities.announce(`finished big scrape ${scrapeId} -- have a great day!`, {type: 'success', importance: 1});
         }
       });
 
     } else {
-      console.log('scrape aborted -- careerbuilder appreciates it <3');
+      utilities.announce(`scrape aborted`, {type: 'note'});
     }
   });

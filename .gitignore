@@ -9,4 +9,4 @@ web/bower_components
 connections/connections.json
 # services #
 services/keys.js
-services/*.json
+services/archive/*.json
