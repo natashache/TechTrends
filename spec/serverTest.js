@@ -5,6 +5,7 @@ var server = null;
 var chai = require('chai');
 var expect = chai.expect;
 var Promise = require('bluebird');
+var _ = require('underscore');
 
 //if debug is true the tests are run after starting the server, so vscode can attach to the server
 if(!process.env.debug && !process.env.heroku){
@@ -343,7 +344,7 @@ describe('analyzed',function(){
     
 
     describe('analyzed-data post request',function(){
-
+      
       beforeEach(function(done){
         //console.log('deleting analyzed');
         deleteallAnalyzed().then(res=>{
@@ -396,16 +397,24 @@ describe('analyzed',function(){
           .catch(done);
         });
 
-        it('adds all testdata to the database',function(done){
+        it.only('adds all testdata to the database',function(done){
+          this.timeout(300000);
+          
           deleteallAnalyzed().then(function(){
             for(var i = 0; i<ascendingHub.length; i++){
-            rp.post(server+'/analyzed-data',{json: ascendingHub[i]});
-            console.log('wrote',ascendingHub[i]);
-            //rp.post(server+'/analyzed-data',{json: descendingHub[i]});
+              var delay = i * 1000;
+              console.log('i',i)
+              setTimeout(function (ii){
+                console.log('ii',ii);
+                rp.post(server+'/analyzed-data',{json: ascendingHub[ii]});
+                console.log('wrote',ascendingHub[ii]);
+              }.bind(null,i),delay);
+              if(i === ascendingHub.length){
+                done();
+              }
+              //rp.post(server+'/analyzed-data',{json: descendingHub[i]});
             }
           })
-          .then(done)
-          .catch(done);
         });
 
     });
