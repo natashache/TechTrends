@@ -112,7 +112,7 @@ const cruncher = (dateId) => {
       const dates = dateIds.map((date) => {
         return (done) => {
 
-          utilities.announce(`beginning fetch and parse for date ${date}`, {type: 'start', importance: 2});
+          utilities.announce(`beginning fetch and parse for date ${date}, ${new Date(date)}`, {type: 'start', importance: 2});
 
           // add a container to each view for this date then add initialized tech counts to this container
           for (const hub in crunched) {
@@ -202,7 +202,7 @@ const cruncher = (dateId) => {
           utilities.announce(`saving results to prod database`, {type: 'start'});
 
           // TODO remove this after the cruncher works well
-          fs.writeFile(path.join(__dirname + '/archive' + dateId + '.json'), JSON.stringify(converted), (err) => {
+          fs.writeFile(path.join(__dirname + '/archive/' + dateId + '.json'), JSON.stringify(converted), (err) => {
             if (err) {
               utilities.announce(`failed to write to file`, {type: 'error'});
             } else {
@@ -216,7 +216,7 @@ const cruncher = (dateId) => {
               // if write to db fails, save results to local disk to save time
               utilities.announce(`failed to save results to prod database, attempting to write to disk`, {type: 'error', importance: 1});
               // // remove big scrape functionality for now
-              // fs.writeFile(path.join(__dirname + '/results' + new Date().getTime() + '.json'), JSON.stringify(converted), (err) => {
+              // fs.writeFile(path.join(__dirname + '/archive/' + new Date().getTime() + '.json'), JSON.stringify(converted), (err) => {
               //   if (err) {
               //     utilities.announce(`failed to write to file`, {type: 'error'});
               //   } else {
