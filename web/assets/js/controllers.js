@@ -12,25 +12,26 @@ angular.module('app.controllers', [
 .controller('chartController', ['$scope', 'queryService', 'chartService', function($scope, queryService, chartService) {
   
   init();
-  
+  $scope.view = 'javascriptFrameworks';
+
   function init(){
-    var qs = '/analyzed-data?hub=San%20Francisco&viewName=javascriptFrameworks';
+    var qs = '/analyzed-data?hub=San%20Francisco';
     queryService.getDataFromServer(qs,function(data){
       var chartData = chartService.formatResponseData(data);
-      setOptions(response);
+      setOptions(chartData);
     });
   }
 
   function setOptions(data){
       $scope.chartOptions = {
       title: {
-        text: `JS Framework Popularity for ${data[0][0].hub}` //template string add in hub location
+        text: `JS Framework Popularity for xxx` //template string add in hub location
       },
       xAxis: {
         type: 'datetime',
-        catagories: extractDates(data)
+        catagories: data[$scope.view].dates
       },
-      series: formatSeriesData(data)
+      series: data[$scope.view].data
     }
   }
  
