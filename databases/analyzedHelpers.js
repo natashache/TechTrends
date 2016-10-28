@@ -29,6 +29,20 @@ const getHubs = function(callback){
     });
 };
 
+const getViewsList = function(callback){ 
+  AnalyzedModel.find()
+    .then((arrayOfHubs) => {
+      var x = arrayOfHubs[0].schema.paths;
+      var arr = [];
+      for(var prop in x){
+        if(prop!== "hub" && prop[0] !== "_"){
+          arr.push(prop);
+        }
+      }
+      callback(arr);
+    });
+};
+
 //handles deleting a record
 const deleteAnalyticCollection = function (hub, callback) {
   if(hub === "0"){
@@ -88,3 +102,4 @@ module.exports.createAnalyticCollection = createAnalyticCollection;
 module.exports.deleteAnalyticCollection = deleteAnalyticCollection;
 module.exports.addNewAnalytic = addNewAnalytic;
 module.exports.getAnalytics = getAnalytics;
+module.exports.getViewsList = getViewsList;

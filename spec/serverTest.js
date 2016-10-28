@@ -312,8 +312,13 @@ describe('analyzed',function(){
   var analytics = require('./testAnalytics.json');
   var ascendingHub = analytics[0];
   var descendingHub = analytics[1];
+  var ascendingHubv2 = analytics[2];
 
   var getoneAnalyzed = function(){return rp.get(server+'/analyzed-data?hub=San%20Francisco&viewName=javascriptFrameworks');};
+  
+  var getviews = function(){
+    return rp.get(server+'/analyzed-data/views');
+  };
 
   var postAnalyzedA0 = function(){
     return rp.post(server+'/analyzed-data',{json: ascendingHub[0]});
@@ -329,6 +334,10 @@ describe('analyzed',function(){
 
   var pospostAnalyzedD1= function(){
     return rp.post(server+'/raw-postings',{json: descendingHub[1]});
+  }
+
+  var postAnalyzedA0V2= function(){
+    return rp.post(server+'/raw-postings',{json: ascendingHubv2[0]});
   }
 
     beforeEach(function(done){
@@ -366,6 +375,20 @@ describe('analyzed',function(){
           .then(function(response){
             var res = JSON.parse(response);
             expect(res.length).to.equal(2);
+          })
+          .then(done)
+          .catch(done);
+        });
+
+        it('returns a list of views',function(done){
+          postAnalyzedA0()
+          .then(postAnalyzedA0V2)
+          .then(getviews)
+          .then(function(response){
+            var res = JSON.parse(response);
+            expect(res.length).to.equal(7);
+            expect(res[0]).to.equal('javascriptFrameworks');
+            expect(res[1]).to.equal('serverLanguages');
           })
           .then(done)
           .catch(done);
