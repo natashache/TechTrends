@@ -14,6 +14,9 @@ const apiEndpointRoot = apiRoot + '/raw-postings/';
 const apiEndpointGetNumberOfRecords = apiRoot + '/raw-postings?date=';
 const apiEndpointPostResults = apiRoot + '/analyzed-data';
 
+// throttle speed in ms
+const throttle = 0;
+
 //============= example output =============
 //==========================================
 
@@ -179,7 +182,7 @@ const cruncher = (dateId) => {
                               if (views[view][tech].test(body.text)) crunched[body.hub][view][date][tech]++;
                             }
                           }
-                          complete();
+                          setTimeout(() => { complete() }, throttle);
                         }
                       });
                   });

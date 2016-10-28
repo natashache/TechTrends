@@ -14,6 +14,13 @@ const utilities = require('./utilities.js');
 // TODO: change this hard-coding when web server goes live
 const api = 'http://localhost:8000/raw-postings';
 
+// count number of records processed
+var recordCount = 0;
+
+// thorttle speed in ms
+const throttle = 1000;
+
+// scan entry url's for each hub, create records, and scrape record url's
 const fetchRecordUrls = (query) => {
   return new Promise((resolve, reject) => {
 
@@ -21,23 +28,29 @@ const fetchRecordUrls = (query) => {
 
     var records = [];
 
+    // source for this scrape
     const source = keysMethods.getSource(query.source);
 
+    // counter to keep track of what page of results scraper is currently on
     var pageCount = 1;
       
+    // recursive function to create records for each page of results
     const parseUrls = (url) => {
       
+      // request results page
       request.get(url, (err, response, html) => {
         if (!err) {
 
+          // if response is not 200, short-circuit the function
           if (response.statusCode === 200) {
 
             utilities.announce(`fetching record urls from ${url}`, {type: 'start'});
           
+            // parse the html and locate the records
             const $ = cheerio.load(html);
-            
             const urls = $('body').find(source.elemRecordLink);
             
+            // create a record object for each posting found in the results page and populate the object
             Object.keys(urls).forEach((listing) => {
               if (urls[listing].attribs !== undefined) {
                 
@@ -54,15 +67,15 @@ const fetchRecordUrls = (query) => {
                 
                 record.url = urls[listing].attribs.href;
                 record.url = source.urlRoot + record.url.split('?')[0];
-                
                 records.push(record);
               }
             });
 
+            // wait X seconds then recursively call the function again with the next page
             setTimeout(() => {
               pageCount++;
               parseUrls(query.start + source.urlPage + pageCount)
-            }, 2000);
+            }, throttle);
           
           } else {
             utilities.announce(`finished surface scrape of ${records[0].hub}`, {type: 'success', importance: 1});
@@ -74,6 +87,7 @@ const fetchRecordUrls = (query) => {
       });
     };
 
+    // call first cycle of recursive parseUrl function
     parseUrls(query.start + source.urlPage + pageCount);
 
   });
@@ -105,18 +119,19 @@ const processRecords = (obj) => {
             }, (err) => {
               if (err) {
                 utilities.announce(`error writing record to raw db, record at ${record.url}, ${error}`, {type: 'error'});
-                setTimeout(() => { complete(err); }, 1000);
+                setTimeout(() => { complete(err); }, throttle);
               } else {
                 utilities.announce(`record scraped and written to raw db for url ${record.url} in ${record.hub}`, {type: 'success'});
-                setTimeout(() => { complete(null); }, 1000);
+                recordCount++;
+                setTimeout(() => { complete(null); }, throttle);
               }
-                
             });
           }
         });
       };
     });
 
+    // set hub variable for tagging reference
     const thisHub = obj.records[0].hub;
     
     utilities.announce(`beginning deep scrape of ${thisHub}`, {type: 'start', importance: 2});
@@ -154,8 +169,10 @@ inquirer.prompt([{
       });
 
       async.series(queue, (err) => {
-        if (err) { console.log(err); } else {
-          utilities.announce(`finished big scrape ${scrapeId} -- have a great day!`, {type: 'success', importance: 1});
+        if (err) {
+          console.log(err);
+        } else {
+          utilities.announce(`finished big scrape ${scrapeId} with ${recordCount} records created`, {type: 'success', importance: 1});
         }
       });
 
