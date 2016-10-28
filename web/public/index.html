@@ -47,8 +47,11 @@
           </select>
         </li>
       </ul>-->
+      
       <div class="main" ng-controller="chartController">
-          <hc-chart options="chartOptions"></hc-chart>
+        <button ng-click="view='javascriptFrameworks'; fill();">jsFrameworks</button>
+        <button ng-click="view='serverLanguages'; fill();">server Languages</button>
+        <hc-chart options="chartOptions"></hc-chart>
       </div>
 
       <footer>

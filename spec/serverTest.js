@@ -345,12 +345,12 @@ describe('analyzed',function(){
 
     describe('analyzed-data post request',function(){
       
-      beforeEach(function(done){
-        //console.log('deleting analyzed');
-        deleteallAnalyzed().then(res=>{
-          done();
-        });
-      })
+      // beforeEach(function(done){
+      //   //console.log('deleting analyzed');
+      //   deleteallAnalyzed().then(res=>{
+      //     done();
+      //   });
+      // })
 
       it('posts with statusCode of 201',function(done){
           postAnalyzedA0()
@@ -400,7 +400,7 @@ describe('analyzed',function(){
         it.only('adds all testdata to the database',function(done){
           this.timeout(300000);
           
-          deleteallAnalyzed().then(function(){
+          //deleteallAnalyzed().then(function(){
             for(var i = 0; i<ascendingHub.length; i++){
               var delay = i * 1000;
               console.log('i',i)
@@ -412,9 +412,10 @@ describe('analyzed',function(){
               if(i === ascendingHub.length){
                 done();
               }
-              //rp.post(server+'/analyzed-data',{json: descendingHub[i]});
             }
-          })
+              //rp.post(server+'/analyzed-data',{json: descendingHub[i]});
+            //}
+          //})
         });
 
     });
