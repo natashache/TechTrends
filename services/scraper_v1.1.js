@@ -118,10 +118,10 @@ const processRecords = (obj) => {
               json: record
             }, (err) => {
               if (err) {
-                utilities.announce(`error writing record to raw db, record at ${record.url}, ${error}`, {type: 'error'});
+                utilities.announce(`error writing record to raw db, record at ${record.url} in ${record.hub}, ${error}`, {type: 'error'});
                 setTimeout(() => { complete(err); }, throttle);
               } else {
-                utilities.announce(`record scraped and written to raw db for url ${record.url} in ${record.hub}`, {type: 'success'});
+                utilities.announce(`record scraped and written to raw db; ${record.hub}`, {type: 'success'});
                 recordCount++;
                 setTimeout(() => { complete(null); }, throttle);
               }
@@ -141,7 +141,7 @@ const processRecords = (obj) => {
         reject(err);
       } else {
         utilities.announce(`finished deep scrape of ${thisHub}`, {type: 'success', importance: 2});
-        resolve(obj.records);
+        resolve();
       }
     });
   
