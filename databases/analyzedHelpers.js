@@ -3,19 +3,15 @@ const _ = require("underscore");
 
 //creates a new date/hub collections, and extends its analytics object with passed analytic
 const createAnalyticCollection = function (analyticObject, callback) {
-  AnalyzedModel.create({hub: analyticObject.hub})
+  AnalyzedModel.create({hub: analyticObject.hubName})
     .then( (created) => {
       created.save()
         .then(  (saved) => {
-          let dataPoint  = {
-            date: analyticObject.date,
-            data: analyticObject.data
-          };
-
-          created.addAnalytic(dataPoint, analyticObject.viewName, (savedObject) => {
-            //console.log("added new analytic", savedObject);
-            callback(savedObject);
-          })
+          analyticObject.views.forEach((view) => {
+            created.addAnalytic(view.item, view.viewName, (obj) => {
+              console.log("saved", obj);
+            });
+          });
       })
     });
 };
@@ -59,17 +55,23 @@ const deleteAnalyticCollection = function (hub, callback) {
 
 //handles adding a new analytic
 const addNewAnalytic = function (analyticObject, callback) {
-  AnalyzedModel.findOne({hub: analyticObject.hub})
+  AnalyzedModel.findOne({hub: analyticObject.hubName})
     .then((analytic) => {
       if(analytic){
-        let dataPoint  = {
-            date: analyticObject.date,
-            data: analyticObject.data
-        };
-        //console.log(`hub exists, adding to the ${analyticObject.viewName} array`);
-        analytic.addAnalytic(dataPoint, analyticObject.viewName, callback);
+
+        console.log(`hub ${analyticObject.hubName} exists, adding datapoints to views`);
+
+        analyticObject.views.forEach((view) => {
+          analytic.addAnalytic(view.item, view.viewName, (obj) => {
+            console.log("saved", obj);
+          });
+        });
+
+        callback(analytic);
+        
       } else {
         //console.log("creating new hub");
+        console.log(`hub ${analyticObject.hubName} does not exiss, creating hub record`);
         createAnalyticCollection(analyticObject, callback);
       }
     });
@@ -79,6 +81,12 @@ const addNewAnalytic = function (analyticObject, callback) {
 const getAnalytics = function (hub,view, callback) {
   AnalyzedModel.find({hub: hub})
     .then((hubObject) => {
+
+      if(hubObject.length === 0) {
+        callback(false);
+        return;
+      }
+
       if(view) {
         callback(hubObject[0][view]);
       } else {
