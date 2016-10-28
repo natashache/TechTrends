@@ -4,146 +4,22 @@ const async = require('async');
 const cheerio = require('cheerio');
 const keysMethods = require('./keys.js');
 const promise = require('bluebird');
+const utilities = require('./utilities.js');
 
 // TODO's:
 // * make fetch content / pipe to DS one operation, combine methods
 // * cleaner, less-suspicious request header
-
-const hrSingle = '-----------------------------------------------------------------------------------';
-const hrDouble = '===================================================================================';
+// * salary info, title
 
 // TODO: change this hard-coding when web server goes live
 const api = 'http://localhost:8000/raw-postings';
 
-inquirer.prompt([{
-  type: 'confirm',
-  name: 'confirm',
-  message: 'Start the scrape? This process can take several hours. Begin:'
-}])
-  .then((answers) => {
-    if (answers.confirm) {
-
-      const queries = keysMethods.getQueries(), scrapeId = queries[0].date;
-
-      console.log(hrDouble);
-      console.log('beginning big scrape with batch id', scrapeId);
-      console.log(hrDouble);
-      
-      const queue = queries.map((query) => {
-        return (done) => {
-          
-          console.log(hrSingle);
-          console.log('beginning scrape of', query.hub, 'at', query.start);
-          console.log(hrSingle);
-
-          const source = keysMethods.getSource(query.source);
-
-          var pageCount = 1;
-            
-          const parseUrls = (url) => {
-            
-            request.get(url, (err, response, html) => {
-              if (err) {
-                
-                // TODO: error handling
-              
-              } else if (response.statusCode === 200) {
-
-                console.log('fetching record urls from ' + url, '...',  response.statusCode);
-              
-                const $ = cheerio.load(html);
-                
-                const urls = $('body').find(source.elemRecordLink);
-                
-                const fetches = Object.keys(urls).map((listing) => {
-                  return (complete) => {
-                    if (urls[listing].attribs !== undefined) {
-                      
-                      var record = {
-                        date: query.date,
-                        country: query.country,
-                        state: query.state,
-                        hub: query.hub,
-                        source: query.source,
-                        term: query.term,
-                        url: '',
-                        text: ''
-                      };
-                      
-                      record.url = urls[listing].attribs.href;
-                      record.url = source.urlRoot + record.url.split('?')[0];
-                      
-                      request
-                        .get(record.url)
-                        .on('error', function(err) {
-                          console.log('[X] error fetching record', err);
-                        })
-                        .on('response', function(response) {
-                          console.log('[ ] record fetched successfully');
-                          const $ = cheerio.load(html);
-                          record.text = $('body').find(source.elemRecordBody).text().toLowerCase();
-                          request({
-                            url: api,
-                            method: 'POST',
-                            json: record
-                          }, (error, response, body) => {
-                            if (error) {
-                              complete('[X] error writing record', record.url, 'to database, error info:', error);
-                            } else {
-                              console.log('[ ] record written for url', record.url, 'in hub', record.hub, 'to database');
-                              // setTimeout(() => { done(); }, 2000);
-                            }
-                          });
-                        });
-
-                    }
-                  };
-                
-                });
-
-                pageCount++;
-                parseUrls(query.start + source.urlPage + pageCount)
-                
-              } else if (response.statusCode === 404) {
-                
-                console.log(hrSingle);
-                console.log('finished scrape of', query.hub, 'at', query.start);
-                console.log(hrSingle);
-              
-              }
-            });
-          };
-
-          parseUrls(query.start + source.urlPage + pageCount);
-        
-        };
-      });
-
-      async.series(queue, (err) => {
-        if (err) { console.log(err); } else {
-          console.log(hrDouble);
-          console.log('finished big scrape, id', scrapeId, '-- have a great day!');
-          console.log(hrDouble);
-        }
-      });
-
-    } else {
-      console.log('scrape aborted -- careerbuilder appreciates it <3');
-    }
-  });
-
-
-////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-
-const doAllTheThings = (query) => {
+const fetchRecordUrls = (query) => {
   return new Promise((resolve, reject) => {
 
-    console.log(hrSingle);
-    console.log('beginning surface scrape of', query.hub, 'at', query.start);
-    console.log(hrSingle);
+    utilities.announce(`beginning surface scrape of ${query.hub} at ${query.start}`, {type: 'start', importance: 2});
+
+    var records = [];
 
     const source = keysMethods.getSource(query.source);
 
@@ -156,7 +32,7 @@ const doAllTheThings = (query) => {
 
           if (response.statusCode === 200) {
 
-            console.log('fetching record urls from ' + url, '...',  response.statusCode);
+            utilities.announce(`fetching record urls from ${url}`, {type: 'start'});
           
             const $ = cheerio.load(html);
             
@@ -179,29 +55,7 @@ const doAllTheThings = (query) => {
                 record.url = urls[listing].attribs.href;
                 record.url = source.urlRoot + record.url.split('?')[0];
                 
-                request
-                  .get(record.url)
-                  .on('error', function(err) {
-                    console.log('[X] could not fetch record', err);
-                  })
-                  .on('response', function(response) {
-                    const $ = cheerio.load(html);
-                    record.text = $('body').find(obj.source.elemRecordBody).text().toLowerCase();
-                    request({
-                      url: api,
-                      method: 'POST',
-                      json: record
-                    }, (error, response, body) => {
-                      if (!error) {
-                        console.log('record written for url', record.url, 'in hub', record.hub, 'to database');
-                        // setTimeout(() => { done(); }, 2000);
-                      } else {
-                        console.log('error writing record to database, record at`', record.url, error);
-                        // setTimeout(() => { done(); }, 2000);
-                      }
-                    });
-                  });
-
+                records.push(record);
               }
             });
 
@@ -211,9 +65,7 @@ const doAllTheThings = (query) => {
             }, 2000);
           
           } else {
-            console.log(hrSingle);
-            console.log('finished surface scrape of', records[0].hub);
-            console.log(hrSingle);
+            utilities.announce(`finished surface scrape of ${records[0].hub}`, {type: 'success', importance: 1});
             resolve({records: records, source: source});
           }
         } else {
@@ -227,46 +79,39 @@ const doAllTheThings = (query) => {
   });
 };
 
-const fetchAndStoreRecordContent = (obj) => {
-
-  request
-    .get(obj.record.url)
-    .on('error', function(err) {
-      console.log('[X] could not fetch record', err);
-    })
-    .on('response', function(response) {
-      const $ = cheerio.load(html);
-      obj.record.text = $('body').find(obj.source.elemRecordBody).text().toLowerCase();
-      request({
-        url: api,
-        method: 'POST',
-        json: obj.record
-      }, (error, response, body) => {
-        if (!error) {
-          console.log('record written for url', obj.record.url, 'in hub', record.hub, 'to database');
-          // setTimeout(() => { done(); }, 2000);
-        } else {
-          console.log('error writing record to database, record at`', record.url, error);
-          // setTimeout(() => { done(); }, 2000);
-        }
-      });
-    });
-};
-
-const fetchRecordContent = (obj) => {
+const processRecords = (obj) => {
 
   return new Promise((resolve, reject) => {
 
     const fetches = obj.records.map((record) => {
-      return (done) => {
-        request.get(record.url, (error, response, html) => {
-          if (!error) {
-            const $ = cheerio.load(html);
-            record.text = $('body').find(obj.source.elemRecordBody).text().toLowerCase();
-            setTimeout(() => { done(); }, 2000);
-          } else {
+      return (complete) => {
+        
+        // scrape the record content
+        request.get(record.url, (err, res, html) => {
+          if (err) {
+            utilities.announce(`failed to scrape record content for ${record.url}, ${error}`, {type: 'error'});
             reject(error);
-            setTimeout(() => { done(); }, 2000);
+          } else {
+            // select the page body content
+            const $ = cheerio.load(html);
+            //scrub out html
+            record.text = $('body').find(obj.source.elemRecordBody).text().toLowerCase();
+            
+            // store scraped and scrubbed content in raw db
+            request({
+              url: api,
+              method: 'POST',
+              json: record
+            }, (err) => {
+              if (err) {
+                utilities.announce(`error writing record to raw db, record at ${record.url}, ${error}`, {type: 'error'});
+                setTimeout(() => { complete(err); }, 1000);
+              } else {
+                utilities.announce(`record scraped and written to raw db for url ${record.url} in ${record.hub}`, {type: 'success'});
+                setTimeout(() => { complete(null); }, 1000);
+              }
+                
+            });
           }
         });
       };
@@ -274,17 +119,13 @@ const fetchRecordContent = (obj) => {
 
     const thisHub = obj.records[0].hub;
     
-    console.log(hrSingle);
-    console.log('beginning deep scrape of', thisHub);
-    console.log(hrSingle);
+    utilities.announce(`beginning deep scrape of ${thisHub}`, {type: 'start', importance: 2});
 
-    async.series(fetches, (err, results) => {
+    async.series(fetches, (err) => {
       if (err) {
         reject(err);
       } else {
-        console.log(hrSingle);
-        console.log('finished deep scrape of', thisHub)
-        console.log(hrSingle);
+        utilities.announce(`finished deep scrape of ${thisHub}`, {type: 'success', importance: 2});
         resolve(obj.records);
       }
     });
@@ -292,33 +133,33 @@ const fetchRecordContent = (obj) => {
   });
 };
 
-const storeRecords = (records) => {
+inquirer.prompt([{
+  type: 'confirm',
+  name: 'confirm',
+  message: 'Start the scrape? This process can take several hours. Begin:'
+}])
+  .then((answers) => {
+    if (answers.confirm) {
 
-  const writes = records.map((record) => {
-    return (done) => {
-      request({
-        url: api,
-        method: 'POST',
-        json: record
-      }, (error, response, body) => {
-        if (!error) {
-          console.log('record written for url', record.url, 'in hub', record.hub, 'to database');
-          setTimeout(() => { done(); }, 500);
-        } else {
-          console.log('error writing record to database, record at`', record.url, error);
-          setTimeout(() => { done(); }, 500);
+      const queries = keysMethods.getQueries(), scrapeId = queries[0].date;
+
+      utilities.announce(`beginning big scrape with date id ${scrapeId}`, {type: 'start', importance: 1});
+      
+      const queue = queries.map((query) => {
+        return (done) => {
+          fetchRecordUrls(query)
+            .then(processRecords)
+            .then(done);
+        };
+      });
+
+      async.series(queue, (err) => {
+        if (err) { console.log(err); } else {
+          utilities.announce(`finished big scrape ${scrapeId} -- have a great day!`, {type: 'success', importance: 1});
         }
-      }); 
-    };
-  });
+      });
 
-  async.series(writes, (err) => {
-    if (err) {
-      console.log('error writing records to database', err);
-      reject(err);
+    } else {
+      utilities.announce(`scrape aborted`, {type: 'note'});
     }
-  }, () => {
-    resolve('');
   });
-
-};
