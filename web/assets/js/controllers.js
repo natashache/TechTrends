@@ -9,33 +9,28 @@ angular.module('app.controllers', [
   //   $scope.currentCities = Object.keys($scope.country[$scope.selectedState]);
   // }
 })
-.controller('chartController', ['$scope', 'queryService', 'chartService', function($scope, queryService, chartService) {
-  
-  init();
-  $scope.view = 'javascriptFrameworks';
+.controller('chartController', ['$scope', 'queryService', 'chartService',function($scope, queryService, chartService) {
   $scope.chartOptions = {};
 
-  function init(){
+  fill();
+  var hubData = null;
+
+  $scope.hub = 'San Francisco';
+  
+  //methods used by external buttons/menus
+  $scope.fill = fill; 
+  $scope.view = 'serverLanguages';
+
+  //query and change the options
+  function fill(){
     var qs = '/analyzed-data?hub=San%20Francisco';
     queryService.getDataFromServer(qs,function(data){
       var chartData = chartService.formatResponseData(data);
-      setOptions(chartData);
+      //these sets trigger watch on the chart directive
+      $scope.chartOptions.series = chartData[$scope.view].data;
+      $scope.chartOptions.dates = chartData[$scope.view].dates;
     });
   }
-
-  function setOptions(data){
-      $scope.chartOptions = {
-      title: {
-        text: `JS Framework Popularity for xxx` //template string add in hub location
-      },
-      xAxis: {
-        type: 'datetime',
-        catagories: data[$scope.view].dates
-      },
-      series: data[$scope.view].data
-    }
-  }
- 
 }])
 .directive('hcChart', function() {
   return {
@@ -48,8 +43,23 @@ angular.module('app.controllers', [
       
       scope.$watch('options', function(newValue, oldValue) {
           if (newValue)
-            Highcharts.chart(element[0], scope.options);
+            var options = getOptions(scope);
+            Highcharts.chart(element[0], options);
       }, true);
+
+      function getOptions(scope){
+        var obj = {
+            title: {
+              text: `JS Framework Popularity for xxx` //template string add in hub location
+            },
+            xAxis: {
+              type: 'datetime',
+              categories: scope.options.dates
+            },
+            series: scope.options.series
+          }
+        return obj;
+      }
     }
   };
 })
