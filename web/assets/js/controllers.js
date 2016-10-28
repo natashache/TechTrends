@@ -14,7 +14,7 @@ angular.module('app.controllers', [
   init();
   
   function init(){
-    var qs = `/analyzed-data?hub=San%20Francisco&viewName=javascriptFrameworks'`;
+    var qs = '/analyzed-data?hub=San%20Francisco&viewName=javascriptFrameworks';
     queryService.getDataFromServer(qs,function(data){
       var chartData = chartService.formatResponseData(data);
       setOptions(response);
