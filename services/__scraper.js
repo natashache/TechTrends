@@ -151,9 +151,9 @@ const storeRecords = (records) => {
       if (err) {
         console.log('error writing records to database', err);
         reject(err);
+      } else {
+        resolve('');
       }
-    }, () => {
-      resolve('');
     });
   
   });
@@ -192,6 +192,6 @@ inquirer.prompt([{
       });
 
     } else {
-      console.log('scrape aborted -- careerbuilder appreciates it <3');
+      console.log('scrape aborted');
     }
   });
