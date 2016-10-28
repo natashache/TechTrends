@@ -31,7 +31,8 @@ angular.module('app.services', [
 })
 .factory('chartService',function(){
   
-  function createCatagories(hubDataPoints){
+  function createCategories(hubDataPoints){
+    //each databpoint is a list of techs and numbers
     let keys = Object.keys(hubDataPoints[0]);
     let result = [];
 
@@ -48,14 +49,14 @@ angular.module('app.services', [
     return result;
   }
 
-  function extractDates(hubData){
-    return hubData.map((data) => {
-      return moment.unix(data[0].date).format('MMMM DD'); //change format later
+  function extractDates(dateList){
+    return dateList.map((data) => {
+      return moment.unix(data.date).format('MMMM DD'); //change format later
     });
   }
 
-  function extractDataPoints(hubData){
-    return hubData.map((data) => {
+  function extractDataPoints(dataList){
+    return dataList.map((data) => {
       return data.data;
     });
   }
@@ -64,21 +65,28 @@ angular.module('app.services', [
     let result = {};
 
     result.dates = extractDates(data);
-    result.data = createCatagories(extractDataPoints(data));
+    //result for particular view
+
+    result.data = createCategories(extractDataPoints(data));
 
     return result; 
   }
-
-  function formatResponseData(data){
+  //aray of objects with name and data
+  //iterate over the views
+  function formatViews(data){
     var obj = {};
-    for(let key in data) {
-        obj[key] = highChartsFormat(data[key]);
+    for(let key in data) { //each individual view
+      //skip unfilled views
+        if(data[key].length > 0){
+          obj[key] = highChartsFormat(data[key]);
+        }
       }
     return obj;
+
   }
 
   return {
-    formatResponseData: formatResponseData,
+    formatResponseData: formatViews,
     highChartsFormat: highChartsFormat,
     // extractDataPoints: extractDataPoints,
     // createCatagories: createCatagories,
