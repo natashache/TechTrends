@@ -16,9 +16,11 @@ var AnalyzedSchema = new mongoose.Schema(
 
 //todo: error handling for non-existent views
 AnalyzedSchema.methods.addAnalytic = function (newAnalytic,view, cb) {
+  console.log(`called on the ${this.hub} ${view} view`);
   this[view].push(newAnalytic);
   this.save()
     .then( (saved) => {
+      console.log("saved view array", saved);
       cb(saved);
     });
 };

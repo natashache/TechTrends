@@ -75,8 +75,6 @@ app.get("/analyzed-data", (req, res) => {
   let view = req.query.viewName;
 
   analyzedHelpers.getAnalytics(hub, view, (viewArray) => {
-    //console.log(`found ${view} view data for ${hub}`);
-    //console.log("data array", viewArray);
 
     if(!viewArray) {
       res.status(404).send("data not found");
@@ -88,11 +86,14 @@ app.get("/analyzed-data", (req, res) => {
 });
 
 app.post("/analyzed-data", (req, res) => {
-  //console.log('post endpoint');
-  analyzedHelpers.addNewAnalytic(req.body, (hubObject) => {
-    //console.log("saved hub object", hubObject);
-    res.status(201).send(hubObject);
+
+  req.body.forEach((hubObject) => {
+    analyzedHelpers.addNewAnalytic(hubObject, (obj) => {
+      console.log(`wrote ${obj} to the database`);
+    });
   });
+
+  res.status(200).send("OK");
 });
 
 app.get("/analyzed-data/views", (req, res) => {
