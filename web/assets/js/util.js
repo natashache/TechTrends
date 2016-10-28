@@ -36,25 +36,7 @@ function highChartsFormat(data){
   return result; 
 }
 
-function getDataFromServer(hubName, callback){
-  function success(response){
-    let returnObj = {};
 
-    for(let key in response.data) {
-      returnObj[key] = highChartsFormat(response.data[key]);
-    }
-
-    console.log("formated object", returnObj);
-    callback(returnObj);
-  }
-
-  function error(err){
-    console.log("error geting from database ==>", error);
-  }
-
-  $http.get(`/analyzed-data?hub=${hubName}`)
-    .then((success, error))
-}
 
 //getDataFromServer should return data in this format
 // {

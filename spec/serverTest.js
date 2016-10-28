@@ -340,14 +340,16 @@ describe('analyzed',function(){
     return rp.post(server+'/raw-postings',{json: ascendingHubv2[0]});
   }
 
-    beforeEach(function(done){
-      //console.log('deleting analyzed');
-      deleteallAnalyzed().then(res=>{
-        done();
-      });
-    })
+    
 
     describe('analyzed-data post request',function(){
+
+      beforeEach(function(done){
+        //console.log('deleting analyzed');
+        deleteallAnalyzed().then(res=>{
+          done();
+        });
+      })
 
       it('posts with statusCode of 201',function(done){
           postAnalyzedA0()
@@ -394,17 +396,23 @@ describe('analyzed',function(){
           .catch(done);
         });
 
-        xit('adds all testdata to the database',function(done){
-          for(var i = 0; i<ascendingHub.length; i++){
+        it('adds all testdata to the database',function(done){
+          deleteallAnalyzed().then(function(){
+            for(var i = 0; i<ascendingHub.length; i++){
             rp.post(server+'/analyzed-data',{json: ascendingHub[i]});
+            console.log('wrote',ascendingHub[i]);
             //rp.post(server+'/analyzed-data',{json: descendingHub[i]});
-          }
-          done();
+            }
+          })
+          .then(done)
+          .catch(done);
         });
 
     });
  
-  
+ 
 
 });
+
+
 
