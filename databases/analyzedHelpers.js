@@ -81,7 +81,6 @@ const addNewAnalytic = function (analyticObject, callback) {
 const getAnalytics = function (hub,view, callback) {
   AnalyzedModel.find({hub: hub})
     .then((hubObject) => {
-      console.log("found hubObject", hubObject);
 
       if(hubObject.length === 0) {
         callback(false);
@@ -99,7 +98,6 @@ const getAnalytics = function (hub,view, callback) {
           }
         });
 
-        console.log("return obj", returnObj);
         callback(returnObj);
       }
     });
