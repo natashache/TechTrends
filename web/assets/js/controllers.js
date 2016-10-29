@@ -27,6 +27,7 @@ angular.module('app.controllers', [
     queryService.getDataFromServer(qs,function(data){
       var chartData = chartService.formatResponseData(data);
       //these sets trigger watch on the chart directive
+      
       $scope.chartOptions.series = chartData[$scope.view].data;
       $scope.chartOptions.dates = chartData[$scope.view].dates;
       $scope.chartOptions.view = $scope.view; 
@@ -45,8 +46,10 @@ angular.module('app.controllers', [
       
       scope.$watch('options', function(newValue, oldValue) {
           if (newValue)
-            var options = getOptions(scope);
-            Highcharts.chart(element[0], options);
+            if(T.match(scope.options,'chartOptions')){
+              var options = getOptions(scope);
+              Highcharts.chart(element[0], options);
+            }
       }, true);
 
       function getOptions(scope){
