@@ -108,7 +108,7 @@ const processRecords = (obj) => {
           } else {
             // select the page body content
             const $ = cheerio.load(html);
-            //scrub out html
+            //scrub out html and save text to record property; record is now complete
             record.text = $('body').find(obj.source.elemRecordBody).text().toLowerCase();
             
             // store scraped and scrubbed content in raw db
@@ -135,7 +135,6 @@ const processRecords = (obj) => {
     const thisHub = obj.records[0].hub;
     
     utilities.announce(`beginning deep scrape of ${thisHub}`, {type: 'start', importance: 2});
-
     async.series(fetches, (err) => {
       if (err) {
         reject(err);

@@ -203,13 +203,12 @@ const cruncher = (dateId) => {
         };
       });
       
-      // series loop to crunch all dates
       async.series(dates, (err) => {
         if (err) {
           utilities.announce(`failed crunch ${err}`, {type: 'error', importance: 1});
         } else {
 
-          // convert results data into preferred prod db format
+          // convert results data into prod db format
           var converted = [];
           for (const hub in crunched) {
             var thisHub = {};
@@ -230,30 +229,22 @@ const cruncher = (dateId) => {
 
           // save converted results to database
           utilities.announce(`saving results to prod database`, {type: 'start'});
-
-          // TODO remove this after the cruncher works well
-          fs.writeFile(path.join(__dirname + '/archive/' + dateId + '.json'), JSON.stringify(converted), (err) => {
+          request({
+              url: apiEndpointPostResults,
+              method: 'POST',
+              json: converted
+            }, (err) => {
             if (err) {
-              utilities.announce(`failed to write to file`, {type: 'error'});
-            } else {
-              utilities.announce(`results written to file`, {type: 'success'});
-              utilities.announce(`crunch complete!`, {type: 'success', importance: 1});
-            }
-          });
-          
-          request.post('apiEndpointPostResults', JSON.stringify(converted), (err, res) => {
-            if (err) {
-              // if write to db fails, save results to local disk to save time
+              // if write to db fails, save results to local disk as a backup
               utilities.announce(`failed to save results to prod database, attempting to write to disk`, {type: 'error', importance: 1});
-              // // remove big scrape functionality for now
-              // fs.writeFile(path.join(__dirname + '/archive/' + new Date().getTime() + '.json'), JSON.stringify(converted), (err) => {
-              //   if (err) {
-              //     utilities.announce(`failed to write to file`, {type: 'error'});
-              //   } else {
-              //     utilities.announce(`results written to file`, {type: 'success'});
-              //     utilities.announce(`crunch complete!`, {type: 'success', importance: 1});
-              //   }
-              // });
+              fs.writeFile(path.join(__dirname + '/archive/' + dateId + '.json'), JSON.stringify(converted), (err) => {
+                if (err) {
+                  utilities.announce(`failed to write to file`, {type: 'error'});
+                } else {
+                  utilities.announce(`results written to file`, {type: 'success'});
+                  utilities.announce(`crunch complete!`, {type: 'success', importance: 1});
+                }
+              });
 
             } else {
               utilities.announce(`results saved to database`, {type: 'success'});
