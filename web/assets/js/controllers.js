@@ -16,11 +16,11 @@ angular.module('app.controllers', [
   var hubData = null;
 
   $scope.hub = 'San Francisco';
-  
+
   //methods used by external buttons/menus
   $scope.fill = fill; 
   $scope.view = 'serverLanguages';
-
+  
   //query and change the options
   function fill(){
     var qs = '/analyzed-data?hub=San%20Francisco';
@@ -29,6 +29,8 @@ angular.module('app.controllers', [
       //these sets trigger watch on the chart directive
       $scope.chartOptions.series = chartData[$scope.view].data;
       $scope.chartOptions.dates = chartData[$scope.view].dates;
+      $scope.chartOptions.view = $scope.view; 
+      $scope.chartOptions.hub = $scope.hub; 
     });
   }
 }])
@@ -50,7 +52,7 @@ angular.module('app.controllers', [
       function getOptions(scope){
         var obj = {
             title: {
-              text: `JS Framework Popularity for xxx` //template string add in hub location
+              text: `${scope.options.view} Popularity for ${scope.options.hub}` //template string add in hub location
             },
             xAxis: {
               type: 'datetime',
