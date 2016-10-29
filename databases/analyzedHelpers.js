@@ -3,16 +3,15 @@ const _ = require("underscore");
 
 //creates a new date/hub collections, and extends its analytics object with passed analytic
 const createAnalyticCollection = function (analyticObject, callback) {
+
   AnalyzedModel.create({hub: analyticObject.hubName})
     .then( (created) => {
       created.save()
         .then(  (saved) => {
-          analyticObject.views.forEach((view) => {
-            created.addAnalytic(view.item, view.viewName, (obj) => {
-              console.log("saved", obj);
-            });
-          });
-      })
+          saved.updateViews(analyticObject.views, (updatedHub) => {
+            callback(updatedHub);
+          })
+      });
     });
 };
 
@@ -58,20 +57,14 @@ const addNewAnalytic = function (analyticObject, callback) {
   AnalyzedModel.findOne({hub: analyticObject.hubName})
     .then((analytic) => {
       if(analytic){
-
         console.log(`hub ${analyticObject.hubName} exists, adding datapoints to views`);
 
-        analyticObject.views.forEach((view) => {
-          analytic.addAnalytic(view.item, view.viewName, (obj) => {
-            console.log("saved", obj);
-          });
+        analytic.updateViews(analyticObject.views, (updatedHub) => {
+          callback(updatedHub);
         });
-
-        callback(analytic);
         
       } else {
-        //console.log("creating new hub");
-        console.log(`hub ${analyticObject.hubName} does not exiss, creating hub record`);
+        console.log(`hub ${analyticObject.hubName} does not exiss, creating new hub record`);
         createAnalyticCollection(analyticObject, callback);
       }
     });
