@@ -23,7 +23,7 @@ angular.module('app.controllers', [
   
   //query and change the options
   function fill(){
-    var qs = '/analyzed-data?hub=San%20Francisco';
+    var qs = '/analyzed-data?hub=san_francisco';
     queryService.getDataFromServer(qs,function(data){
       var chartData = chartService.formatResponseData(data);
       //these sets trigger watch on the chart directive
