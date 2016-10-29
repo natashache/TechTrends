@@ -85,7 +85,8 @@ app.get("/analyzed-data", (req, res) => {
 });
 
 app.post("/analyzed-data", (req, res) => {
-
+  console.log("post request");
+  
   req.body.forEach((hubObject) => {
     analyzedHelpers.addNewAnalytic(hubObject, (obj) => {
       console.log(`wrote ${obj} to the database`);
