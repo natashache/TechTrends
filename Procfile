@@ -1,1 +1,1 @@
-web: node connections/mlabTestConfig.js
+web: node connections/mlabProdConfig.js
