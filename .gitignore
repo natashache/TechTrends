@@ -10,3 +10,4 @@ connections/connections.json
 # services #
 services/keys.js
 services/archive/*.json
+/.vscode/launch.json
