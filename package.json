@@ -9,7 +9,9 @@
   },
   "scripts": {
     "test": "mocha spec/ServerSpec.js",
-    "start": "node --debug devConfig.js",
+    "start": "node connections/mlabProdConfig.js",
+    "start:localhost": "node connections/localhostConfig.js",
+    "start:test": "node connections/mlabTestConfig.js",
     "postinstall": "bower install"
   },
   "author": "Justin Roche <jproche5@gmail.com>",
