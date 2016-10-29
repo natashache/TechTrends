@@ -16,19 +16,22 @@ angular.module('app.controllers', [
   var hubData = null;
 
   $scope.hub = 'San Francisco';
-  
+
   //methods used by external buttons/menus
   $scope.fill = fill; 
   $scope.view = 'serverLanguages';
-
+  
   //query and change the options
   function fill(){
     var qs = '/analyzed-data?hub=San%20Francisco';
     queryService.getDataFromServer(qs,function(data){
       var chartData = chartService.formatResponseData(data);
       //these sets trigger watch on the chart directive
+      
       $scope.chartOptions.series = chartData[$scope.view].data;
       $scope.chartOptions.dates = chartData[$scope.view].dates;
+      $scope.chartOptions.view = $scope.view; 
+      $scope.chartOptions.hub = $scope.hub; 
     });
   }
 }])
@@ -43,14 +46,16 @@ angular.module('app.controllers', [
       
       scope.$watch('options', function(newValue, oldValue) {
           if (newValue)
-            var options = getOptions(scope);
-            Highcharts.chart(element[0], options);
+            if(T.match(scope.options,'chartOptions')){
+              var options = getOptions(scope);
+              Highcharts.chart(element[0], options);
+            }
       }, true);
 
       function getOptions(scope){
         var obj = {
             title: {
-              text: `JS Framework Popularity for xxx` //template string add in hub location
+              text: `${scope.options.view} Popularity for ${scope.options.hub}` //template string add in hub location
             },
             xAxis: {
               type: 'datetime',
