@@ -121,7 +121,7 @@ const processRecords = (obj) => {
                 utilities.announce(`error writing record to raw db, record at ${record.url} in ${record.hub}, ${error}`, {type: 'error'});
                 setTimeout(() => { complete(err); }, throttle);
               } else {
-                utilities.announce(`record scraped and written to raw db; ${record.hub}`, {type: 'success'});
+                utilities.announce(`record scraped and written to raw db; ${record.url}`, {type: 'success'});
                 recordCount++;
                 setTimeout(() => { complete(null); }, throttle);
               }
