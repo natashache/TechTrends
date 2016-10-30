@@ -138,7 +138,7 @@ const cruncher = (dateId) => {
       const dates = dateIds.map((date) => {
         return (done) => {
 
-          utilities.announce(`beginning fetch and parse for date ${date}, ${new Date(date)}`, {type: 'start', importance: 2});
+          utilities.announce(`beginning fetch and parse for date id ${date}, ${new Date(date)}`, {type: 'start', importance: 2});
 
           // add a container to each view for this date then add initialized tech counts to this container
           for (const hub in crunched) {

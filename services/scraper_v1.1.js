@@ -103,8 +103,8 @@ const processRecords = (obj) => {
         // scrape the record content
         request.get(record.url, (err, res, html) => {
           if (err) {
-            utilities.announce(`failed to scrape record content for ${record.url}, ${error}`, {type: 'error'});
-            reject(error);
+            utilities.announce(`failed to scrape record content for ${record.url}, ${err}`, {type: 'error'});
+            reject(err);
           } else {
             // select the page body content
             const $ = cheerio.load(html);
@@ -118,7 +118,7 @@ const processRecords = (obj) => {
               json: record
             }, (err) => {
               if (err) {
-                utilities.announce(`error writing record to raw db, record at ${record.url} in ${record.hub}, ${error}`, {type: 'error'});
+                utilities.announce(`failed to write record to raw db, record at ${record.url} in ${record.hub}, ${err}`, {type: 'error'});
                 setTimeout(() => { complete(err); }, throttle);
               } else {
                 utilities.announce(`record scraped and written to raw db; ${record.url}`, {type: 'success'});
