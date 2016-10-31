@@ -33,6 +33,10 @@ app.get('/css/styles', (req, res) => {
   res.sendFile(path.join(__dirname + '/web/public/css/styles.css'));
 });
 
+app.get('/js/vendor', (req, res) => {
+  res.sendFile(path.join(__dirname + '/web/public/js/vendor.min.js'));
+});
+
 app.get('/js/scripts', (req, res) => {
   res.sendFile(path.join(__dirname + '/web/public/js/scripts.min.js'));
 });
