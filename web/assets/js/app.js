@@ -4,7 +4,7 @@ $(function() {
   var $sidebar   = $("#chart_nav"), 
     $window    = $(window),
     offset     = $sidebar.offset(),
-    topPadding = 132;
+    topPadding = 192;
 
   $window.scroll(() => {
     if ($window.scrollTop() > offset.top) {

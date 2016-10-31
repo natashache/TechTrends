@@ -18,6 +18,7 @@ const apiEndpointPostResults = apiRoot + '/analyzed-data';
 const throttle = 0;
 
 // TODO insert user-friendly tech names into tech keys file
+// TODO total number of jobs per hub
 
 //============= example output =============
 //==========================================
