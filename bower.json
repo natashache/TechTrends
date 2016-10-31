@@ -19,6 +19,7 @@
     "angular-mocks": "^1.5.8",
     "bootstrap": "^3.3.7",
     "angular-route": "^1.5.8",
-    "moment": "^2.15.2"
+    "moment": "^2.15.2",
+    "highcharts": "^5.0.2"
   }
 }
