@@ -61,7 +61,10 @@ angular.module('app.controllers', [
 
       scope.$watch('options', function(newValue, oldValue) {
           if (newValue)
-            if(T.match(scope.options,'chartOptions')){
+            if(scope.options.view &&
+              scope.options.dates &&
+              scope.options.hub &&
+              scope.options.series)){
               var options = getOptions(scope);
               Highcharts.chart(element[0], options);
             }
