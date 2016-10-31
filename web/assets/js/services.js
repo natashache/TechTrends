@@ -21,7 +21,6 @@ angular.module('app.services', [
   }
 
 
-
 })
 .factory('navService', function($http) {
 
