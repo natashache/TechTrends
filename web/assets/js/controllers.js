@@ -93,7 +93,6 @@ angular.module('app.controllers', [
           spyObj.in();
         }
         $scope.spyElems[spyObj.id] = $('#' + spyObj.id);
-        //spyElems = $scope.spyElems;
       };
     },
     link: function (scope, elem, attrs) {
@@ -118,6 +117,8 @@ angular.module('app.controllers', [
       // };
 
       $($window).scroll(function () {
+        var OFFSETTRIGGER = 400;
+
         var highlightSpy, pos, spy, _i, _len, _ref;
         highlightSpy = null;
         _ref = scope.spies;
@@ -131,10 +132,7 @@ angular.module('app.controllers', [
           // if (scope.spyElems[spy.id].offset() === undefined) {
           //   continue;
           // }
-          console.log(spy.id, 'top offset', elem.offset.top);
-          console.log('scrollY', $window.scrollY);
-          if ((pos = elem.offset().top) - $window.scrollY <= 400) {
-            console.log('scrolled past top');
+          if ((pos = elem.offset().top) - $window.scrollY <= OFFSETTRIGGER) {
             // the window has been scrolled past the top of a spy element
             spy.pos = pos;
 
