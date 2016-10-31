@@ -32,7 +32,7 @@ angular.module('app.controllers', [
   $scope.fill = fill;
 
   function fill(){
-    var qs = `/analyzed-data?hub=${navService.formatHubForQuery($scope.hub)}`;
+    var qs = '/analyzed-data?hub='+navService.formatHubForQuery($scope.hub);
     queryService.getDataFromServer(qs,function(data){
       var chartData = chartService.formatResponseData(data);
       //these sets trigger watch on the chart directive
@@ -86,13 +86,13 @@ angular.module('app.controllers', [
     restrict: 'A',
     controller: function ($scope) {
       $scope.spies = [];
-      $scope.spyElems = [];
+      //$scope.spyElems = [];
       this.addSpy = function (spyObj) {
         $scope.spies.push(spyObj);
-        if($scope.spies.length === 1){
-          spyObj.in();
-        }
-        $scope.spyElems[spyObj.id] = $('#' + spyObj.id);
+        // if($scope.spies.length === 1){
+        //   spyObj.in();
+        // }
+        //$scope.spyElems[spyObj.id] = $('#' + spyObj.id);
       };
     },
     link: function (scope, elem, attrs) {
@@ -117,7 +117,7 @@ angular.module('app.controllers', [
       // };
 
       $($window).scroll(function () {
-        var OFFSETTRIGGER = 400;
+        var OFFSETTRIGGER = 500;
 
         var highlightSpy, pos, spy, _i, _len, _ref;
         highlightSpy = null;

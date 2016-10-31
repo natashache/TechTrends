@@ -33,7 +33,7 @@
           <div ng-controller="navController" >
             <select class="hub-selector" ng-model="selectedHub" ng-options="hub for hub in hubs" ng-change="logChange()"></select>
           </div>
-          <div class="chart-container" ng-controller="chartController" ng-repeat="view in viewList">
+          <div id="{{view}}" class="chart-container" ng-controller="chartController" ng-repeat="view in viewList">
             <hc-chart options="chartOptions" ></hc-chart>
           </div>
         </div>
