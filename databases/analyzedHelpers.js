@@ -19,7 +19,6 @@ const createAnalyticCollection = function (analyticObject, callback) {
 const getHubs = function(callback){ 
   AnalyzedModel.find()
     .then((arrayOfHubs) => {
-      console.log("list of hubs", arrayOfHubs.map( hub => hub.hub));
       callback(arrayOfHubs.map( hub => hub.hub));
     });
 };

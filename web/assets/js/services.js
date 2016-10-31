@@ -20,17 +20,49 @@ angular.module('app.services', [
       .then(success, error)
   }
 
+
+
 })
-.factory('navService', function() {
+.factory('navService', function($http) {
   //var country = keys.collections.geo.united_states;
   // country.states = Object.keys(keys.collections.geo.united_states);
   // country.states.unshift('Select State:');
+
   return {
-    rootLocations: ['San Francisco', 'Kansas City']
+    getHubsFromServer: getHubsFromServer,
+    getViewsFromServer: getViewsFromServer,
+    selectedHub: "san_francisco",
+  };
+
+  function getHubsFromServer(callback) {
+
+    function success(response){
+      callback(response.data);
+    }
+
+    function error(err){
+      console.log("error fetching hubs ==>", err)
+    }
+
+     $http.get('/analyzed-data/hubs')
+      .then(success, error);
   }
+
+  function getViewsFromServer(callback){
+    function success(response){
+      callback(response.data);
+    }
+    function error(err){
+      console.log("error getting view list from database ==>", err);
+    }
+
+    $http.get("/analyzed-data/views")
+      .then(success, error);
+  }
+
 })
 .factory('chartService',function(){
-  
+
   function createCategories(hubDataPoints){
     //each databpoint is a list of techs and numbers
     let keys = Object.keys(hubDataPoints[0]);
@@ -69,7 +101,7 @@ angular.module('app.services', [
 
     result.data = createCategories(extractDataPoints(data));
 
-    return result; 
+    return result;
   }
   //aray of objects with name and data
   //iterate over the views

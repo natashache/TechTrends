@@ -6,12 +6,12 @@
     <link rel="stylesheet" type="text/css" href="../public/css/styles.css">
     <!-- <link rel="stylesheet" type="text/css" href="../bower_components/bootstrap/dist/css/bootstrap.css"> -->
     <script src="../bower_components/jquery/dist/jquery.js"></script>
-    
+
     <!-- <script src="../bower_components/bootstrap/dist/js/bootstrap.js"></script> -->
     <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lato:100,300,400">
     <!-- APP & Angular & HIGHCHARTS -->
     <script src="bower_components/moment/moment.js"></script>
-    
+
     <script src="bower_components/angular/angular.js"></script>
     <script src="bower_components/angular-route/angular-route.js"></script>
     <script src="bower_components/angular-mocks/angular-mocks.js"></script>
@@ -31,28 +31,16 @@
         <span>Tech Trends</span>
       </div>
 
-  <!--  <ul class="nav" ng-controller="navController">
-        </ul>-->
-         <!--<li><a href="#home">Home</a></li>
+      <ul class="nav" ng-controller="navController" >
+        <li><a href="#home">Home</a></li>
         <li><a href="#news">About</a></li>
-        <li class="dropdown">
-          <select ng-model="selectedState" required ng-options="state for state in states" ng-change="populateDrop()">
-            <option selected="Select State:" ng-selected="true">Select State:</option>-->
-            <!--<option ng-repeat="state in states" ng-model="model" ng-change="populateDrop()" value="{{ state }}">{{ state }}</option> -->-->
-          <!--</select>
-        </li>
         <li class="dropdown city">
-          <select>
-            <option selected="Select State:">Select City:</option>
-            <option ng-repeat="city in currentCities" value="{{ city }}">{{ city }}</option>
-          </select>
+          <select ng-model="selectedHub" ng-options="hub for hub in hubs" ng-change="logChange()"></select>
         </li>
-      </ul> -->
-      
-      <div class="main" ng-controller="chartController">
-        <button ng-click="view='javascriptFrameworks'; fill();">jsFrameworks</button>
-        <button ng-click="view='serverLanguages'; fill();">server Languages</button>
-        <hc-chart options="chartOptions"></hc-chart>
+      </ul>
+
+      <div class="main" ng-controller="chartController" ng-repeat="view in viewList">
+        <hc-chart options="chartOptions" ></hc-chart>
       </div>
 
       <footer>
