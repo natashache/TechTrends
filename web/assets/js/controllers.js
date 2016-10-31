@@ -8,8 +8,7 @@ angular.module('app.controllers', [
   const fillHubs = function() {
     navService.getHubsFromServer((responseData) => {
       $scope.hubs = navService.formatHubsForDisplay(responseData);
-      $scope.hubs.unshift("Select a Tech Hub");
-      $scope.selectedHub = $scope.hubs[0];
+      $scope.selectedHub = $scope.hubs[$scope.hubs.indexOf("San Francisco")];
     });
   };
 
@@ -41,7 +40,7 @@ angular.module('app.controllers', [
       $scope.chartOptions.series = chartData[$scope.view].data;
       $scope.chartOptions.dates = chartData[$scope.view].dates;
       $scope.chartOptions.view = $scope.view;
-      $scope.chartOptions.hub = $scope.hub || "San Francisco";
+      $scope.chartOptions.hub = $scope.hub;
     });
   }
 

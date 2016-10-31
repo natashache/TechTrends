@@ -36,7 +36,7 @@ angular.module('app.services', [
   function getHubsFromServer(callback) {
 
     function success(response){
-      callback(response.data);
+      callback(response.data.sort());
     }
 
     function error(err){
