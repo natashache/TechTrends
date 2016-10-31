@@ -40735,20 +40735,19 @@ angular.module('app.services', [
 
 })
 .factory('navService', function($http) {
-  //var country = keys.collections.geo.united_states;
-  // country.states = Object.keys(keys.collections.geo.united_states);
-  // country.states.unshift('Select State:');
 
   return {
     getHubsFromServer: getHubsFromServer,
     getViewsFromServer: getViewsFromServer,
     selectedHub: "san_francisco",
+    formatHubsForDisplay: formatHubsForDisplay,
+    formatHubForQuery: formatHubForQuery
   };
 
   function getHubsFromServer(callback) {
 
     function success(response){
-      callback(response.data);
+      callback(response.data.sort());
     }
 
     function error(err){
@@ -40769,6 +40768,35 @@ angular.module('app.services', [
 
     $http.get("/analyzed-data/views")
       .then(success, error);
+  }
+
+  function formatHubsForDisplay(hubsList){
+    return hubsList.map((hubString) => {
+      if(hubString.includes("_")){
+       let formated = hubString.split("_")
+          .map((word) =>{
+            let upperCase = word.charAt(0).toUpperCase() + word.slice(1)
+            return upperCase;
+          }).join(" ");
+        return formated;
+      } else {
+          let formated = hubString.charAt(0).toUpperCase() + hubString.slice(1);
+          return formated;
+      }
+    });
+  }
+
+  function formatHubForQuery(hubString){
+    if(hubString.includes(" ")){
+      return hubString.split(" ")
+        .map((word) => {
+          let lowerCase = word.charAt(0).toLowerCase() + word.slice(1);
+          return lowerCase;
+        }).join("_");
+    } else {
+      let lowerCase = hubString.charAt(0).toLowerCase() + hubString.slice(1);
+      return lowerCase;
+    }
   }
 
 })
@@ -40794,7 +40822,7 @@ angular.module('app.services', [
 
   function extractDates(dateList){
     return dateList.map((data) => {
-      return moment.unix(data.date).format('MMMM DD'); //change format later
+      return moment(data.date, "x").format('MMMM DD'); //change format later
     });
   }
 
@@ -40804,13 +40832,26 @@ angular.module('app.services', [
     });
   }
 
+  function sortData(dataList){
+    return dataList.sort((a, b) => {
+      if(a.date > b.date){
+        return 1;
+      }
+      if( a.date < b.date){
+        return -1
+      }
+      return 0
+    });
+  }
+
   function highChartsFormat(data){
+    let sortedData = sortData(data);
     let result = {};
 
-    result.dates = extractDates(data);
+    result.dates = extractDates(sortedData);
     //result for particular view
 
-    result.data = createCategories(extractDataPoints(data));
+    result.data = createCategories(extractDataPoints(sortedData));
 
     return result;
   }
@@ -40828,9 +40869,10 @@ angular.module('app.services', [
 
   }
 
+
   return {
     formatResponseData: formatViews,
-    highChartsFormat: highChartsFormat,
+    highChartsFormat: highChartsFormat
     // extractDataPoints: extractDataPoints,
     // createCatagories: createCatagories,
     // extractDates: extractDates,
@@ -40847,41 +40889,32 @@ angular.module('app.controllers', [
 
   const fillHubs = function() {
     navService.getHubsFromServer((responseData) => {
-      $scope.hubs = responseData;
-      $scope.hubs.unshift("Select a Tech Hub");
-      $scope.selectedHub = $scope.hubs[0];
+      $scope.hubs = navService.formatHubsForDisplay(responseData);
+      $scope.selectedHub = $scope.hubs[$scope.hubs.indexOf("San Francisco")];
     });
   };
 
   const logChange = function() {
-    navService.selectedHub = $scope.selectedHub;
     $rootScope.hub = $scope.selectedHub;
   };
 
   navService.getViewsFromServer((viewList) => {
     $rootScope.viewList = viewList;
-    console.log("root view list", $rootScope.viewList);
   });
 
   fillHubs();
+  $rootScope.hub = "San Francisco";
   $scope.logChange = logChange;
 }])
 .controller('chartController', ['$scope', '$rootScope', 'navService', 'queryService', 'chartService',function($scope, $rootScope, navService, queryService, chartService) {
   $scope.chartOptions = {};
 
-
   fill();
   var hubData = null;
-
-  //$scope.hub = 'San Francisco';
-
-  //methods used by external buttons/menus
   $scope.fill = fill;
-  //$scope.view = 'serverLanguages';
 
-  //query and change the options
   function fill(){
-    var qs = `/analyzed-data?hub=${navService.selectedHub}`;
+    var qs = `/analyzed-data?hub=${navService.formatHubForQuery($scope.hub)}`;
     queryService.getDataFromServer(qs,function(data){
       var chartData = chartService.formatResponseData(data);
       //these sets trigger watch on the chart directive
@@ -40889,7 +40922,7 @@ angular.module('app.controllers', [
       $scope.chartOptions.series = chartData[$scope.view].data;
       $scope.chartOptions.dates = chartData[$scope.view].dates;
       $scope.chartOptions.view = $scope.view;
-      $scope.chartOptions.hub = $scope.hub || "San Francisco";
+      $scope.chartOptions.hub = $scope.hub;
     });
   }
 

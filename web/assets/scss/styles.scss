@@ -42,13 +42,39 @@ div.center {
 header {
   background: $grey255;
   border-bottom: 1px solid $grey200;
-  line-height: 48px;
-  font-size: 24px;
+  line-height: 60px;
+  font-size: 26px;
+  a, a:visited {
+    letter-spacing: -1px;
+    color: $grey25;
+  }
 }
 
 div.sector-splash {
   height: 300px;
   background: $grey25;
+}
+
+div.sector-main-nav {
+  background: $grey255;
+  border-bottom: 1px solid $grey230;
+}
+
+ul.main-nav {
+  li {
+    display: block;
+    float: left;
+    width: 75px;
+    text-align: left;
+  }
+  a {
+    line-height: 60px;
+    font-size: 18px;
+    color: $grey25;
+    &:hover {
+      font-weight: 600;
+    }
+  }
 }
 
 div.col-left {
