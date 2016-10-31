@@ -83,7 +83,7 @@ angular.module('app.services', [
 
   function extractDates(dateList){
     return dateList.map((data) => {
-      return moment.unix(data.date).format('MMMM DD'); //change format later
+      return moment(data.date, "x").format('MMMM DD'); //change format later
     });
   }
 
