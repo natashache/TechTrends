@@ -136,9 +136,6 @@ angular.module('app.controllers', [
           //   continue;
           // }
           if ((pos = elem.offset().top) - $window.scrollY <= OFFSETTRIGGER) {
-            console.log(elem.offset().top);
-            console.log($window.scrollY);
-            console.log('dif',(elem.offset().top) - $window.scrollY);
             // the window has been scrolled past the top of a spy element
             spy.pos = pos;
 
