@@ -1,19 +1,14 @@
+
 var app = require('../server.js');
 var inquirer = require('inquirer');
 process.env.dev = false;
 const port = 8000;
 const mongoose = require('mongoose');
 
-const POSTINGSURI = require('./connections.json').production;
+const POSTINGSURI = process.env.dburl || require('./connections.json').production;
 mongoose.connect(POSTINGSURI);
+console.log('running production config');
 console.log('URI:', POSTINGSURI);
-
-// inquirer.prompt({type: 'confirm', message: 'connect to remote db?'}).then(
-//   function(answer){
-//     mongoose.connect(POSTINGSURI);
-//   }
-// );
-
 
 //------------------server listen------------------------------
 //-------------------------------------------------------------

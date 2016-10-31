@@ -1,4 +1,3 @@
-
 var request = require('request');
 var rp = require('request-promise');
 var server = null;
@@ -352,7 +351,7 @@ describe('analyzed',function(){
       //   });
       // })
 
-      it('posts with statusCode of 201',function(done){
+      xit('posts with statusCode of 201',function(done){
           postAnalyzedA0()
             .on('response',response=>{
               expect(response.statusCode).to.equal(201);
@@ -360,7 +359,7 @@ describe('analyzed',function(){
             });
         });
 
-      it('gets with statusCode of 200',function(done){
+      xit('gets with statusCode of 200',function(done){
           postAnalyzedA0()
           .then(function(){
             getoneAnalyzed()
@@ -371,7 +370,7 @@ describe('analyzed',function(){
         });
       });
 
-      it('returns an array of date/hub data points on a get request',function(done){
+      xit('returns an array of date/hub data points on a get request',function(done){
           postAnalyzedA0()
           .then(postAnalyzedA1)
           .then(getoneAnalyzed)
@@ -383,7 +382,7 @@ describe('analyzed',function(){
           .catch(done);
         });
 
-        it('returns a list of views',function(done){
+        xit('returns a list of views',function(done){
           postAnalyzedA0()
           .then(postAnalyzedA0V2)
           .then(getviews)
@@ -397,7 +396,7 @@ describe('analyzed',function(){
           .catch(done);
         });
 
-        it.only('adds all testdata to the database',function(done){
+        xit('adds all testdata to the database',function(done){
           this.timeout(300000);
           
           //deleteallAnalyzed().then(function(){
@@ -423,6 +422,3 @@ describe('analyzed',function(){
  
 
 });
-
-
-
