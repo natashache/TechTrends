@@ -5,6 +5,9 @@ web/node_modules
 ./node_modules
 node_modules
 bower_components
+web/bower_components
 connections/connections.json
 # services #
 services/keys.js
+services/archive/*.json
+/.vscode/launch.json

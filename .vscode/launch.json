@@ -5,20 +5,20 @@
             "name": "Launch",
             "type": "node",
             "request": "launch",
-            "program": "${workspaceRoot}/spec/scraperTest.js",
+            "program": "${workspaceRoot}/web/assets/js/typey.js",
             "stopOnEntry": false,
             "args": [],
             "cwd": "${workspaceRoot}",
             "preLaunchTask": null,
             "runtimeExecutable": null,
             "runtimeArgs": [
-                "--nolazy"
+                //"--nolazy"
             ],
             "env": {
                 "NODE_ENV": "development"
             },
             "console": "internalConsole",
-            "sourceMaps": false,
+            "sourceMaps": true,
             "outFiles": []
         },
         {

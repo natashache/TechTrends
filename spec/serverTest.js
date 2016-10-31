@@ -1,10 +1,10 @@
-
 var request = require('request');
 var rp = require('request-promise');
 var server = null;
 var chai = require('chai');
 var expect = chai.expect;
 var Promise = require('bluebird');
+var _ = require('underscore');
 
 //if debug is true the tests are run after starting the server, so vscode can attach to the server
 if(!process.env.debug && !process.env.heroku){
@@ -306,30 +306,28 @@ describe('raw-postings database behavior',function(){
 
 describe('analyzed',function(){
 
+  console.log('server is',server);
   var deleteallAnalyzed = function(){return rp.delete(server+'/analyzed-data/?hub=0')};
 
   var analytics = require('./testAnalytics.json');
   var ascendingHub = analytics[0];
   var descendingHub = analytics[1];
+  var ascendingHubv2 = analytics[2];
 
-  var getoneAnalyzed = function(){return rp.get(server+'/analyzed-data?hub=San%20Francisco&viewName=javaScriptFrameWorks');};
+  var getoneAnalyzed = function(){return rp.get(server+'/analyzed-data?hub=San%20Francisco&viewName=javascriptFrameworks');};
+  
+  var getviews = function(){
+    return rp.get(server+'/analyzed-data/views');
+  };
 
   var postAnalyzedA0 = function(){
     return rp.post(server+'/analyzed-data',{json: ascendingHub[0]});
   }
 
-  // var postAllA = function*(){
-  //   var arr = []; 
-  //   for(var i = 0; i<ascendingHub.length; i++){
-  //     arr.push(rp.post(server+'/analyzed-data',{json: ascendingHub[i]}));
-  //   }
-  //   return arr;
-  // }
-
   var postAnalyzedA1 = function(){
     return rp.post(server+'/analyzed-data',{json: ascendingHub[1]});
   }
-
+  
   var postAnalyzedD0= function(){
     return rp.post(server+'/raw-postings',{json: descendingHub[0]});
   }
@@ -338,18 +336,22 @@ describe('analyzed',function(){
     return rp.post(server+'/raw-postings',{json: descendingHub[1]});
   }
 
+  var postAnalyzedA0V2= function(){
+    return rp.post(server+'/raw-postings',{json: ascendingHubv2[0]});
+  }
 
-
-    beforeEach(function(done){
-      //console.log('deleting analyzed');
-      deleteallAnalyzed().then(res=>{
-        done();
-      });
-    })
+    
 
     describe('analyzed-data post request',function(){
+      
+      // beforeEach(function(done){
+      //   //console.log('deleting analyzed');
+      //   deleteallAnalyzed().then(res=>{
+      //     done();
+      //   });
+      // })
 
-      it('posts with statusCode of 201',function(done){
+      xit('posts with statusCode of 201',function(done){
           postAnalyzedA0()
             .on('response',response=>{
               expect(response.statusCode).to.equal(201);
@@ -357,7 +359,7 @@ describe('analyzed',function(){
             });
         });
 
-      it('gets with statusCode of 200',function(done){
+      xit('gets with statusCode of 200',function(done){
           postAnalyzedA0()
           .then(function(){
             getoneAnalyzed()
@@ -368,7 +370,7 @@ describe('analyzed',function(){
         });
       });
 
-      it('returns an array of date/hub data points on a get request',function(done){
+      xit('returns an array of date/hub data points on a get request',function(done){
           postAnalyzedA0()
           .then(postAnalyzedA1)
           .then(getoneAnalyzed)
@@ -380,17 +382,43 @@ describe('analyzed',function(){
           .catch(done);
         });
 
+        xit('returns a list of views',function(done){
+          postAnalyzedA0()
+          .then(postAnalyzedA0V2)
+          .then(getviews)
+          .then(function(response){
+            var res = JSON.parse(response);
+            expect(res.length).to.equal(7);
+            expect(res[0]).to.equal('javascriptFrameworks');
+            expect(res[1]).to.equal('serverLanguages');
+          })
+          .then(done)
+          .catch(done);
+        });
+
         xit('adds all testdata to the database',function(done){
-          for(var i = 0; i<ascendingHub.length; i++){
-            rp.post(server+'/analyzed-data',{json: ascendingHub[i]});
-            //rp.post(server+'/analyzed-data',{json: descendingHub[i]});
-          }
-          done();
+          this.timeout(300000);
+          
+          //deleteallAnalyzed().then(function(){
+            for(var i = 0; i<ascendingHub.length; i++){
+              var delay = i * 1000;
+              console.log('i',i)
+              setTimeout(function (ii){
+                console.log('ii',ii);
+                rp.post(server+'/analyzed-data',{json: ascendingHub[ii]});
+                console.log('wrote',ascendingHub[ii]);
+              }.bind(null,i),delay);
+              if(i === ascendingHub.length){
+                done();
+              }
+            }
+              //rp.post(server+'/analyzed-data',{json: descendingHub[i]});
+            //}
+          //})
         });
 
     });
  
-  
+ 
 
 });
-

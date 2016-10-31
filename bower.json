@@ -1,17 +1,25 @@
 {
-  "name": "tech-trends-dbs",
-  "description": "Compelling technology trend data by hub.",
-  "main": "",
-  "authors": [],
+  "name": "tech-trends-web",
+  "description": "displays tech trends by city",
+  "main": "index.js",
+  "authors": [
+    "Aaron Stevens"
+  ],
   "license": "ISC",
-  "homepage": "",
+  "homepage": "https://github.com/astev89/TechTrends",
   "ignore": [
+    "**/.*",
     "node_modules",
-    "bower_components"
+    "bower_components",
+    "test",
+    "tests"
   ],
   "dependencies": {
-    "jquery": "^3.1.1",
-    "underscore": "^1.8.3",
-    "moment": "^2.15.2"
+    "angular": "^1.5.8",
+    "angular-mocks": "^1.5.8",
+    "bootstrap": "^3.3.7",
+    "angular-route": "^1.5.8",
+    "moment": "^2.15.2",
+    "highcharts": "^5.0.2"
   }
 }

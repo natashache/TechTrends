@@ -1,6 +1,7 @@
 const postingsHelpers = require('./databases/postingsHelpers.js');
 const analyzedHelpers = require('./databases/analyzedHelpers.js');
 const bodyParser = require('body-parser');
+var express = require('express');
 const app = require('express')();
 const port = 8000;
 const mongoose = require('mongoose');
@@ -14,6 +15,8 @@ app.use(bodyParser.json());
 app.use((req, res, next) => {
   next();
 });
+
+app.use(express.static('web'));
 //console.log('debug env',process.env.debug);
 //---------------------base route------------------------------
 //-------------------------------------------------------------
@@ -21,6 +24,14 @@ app.use((req, res, next) => {
 app.get('/', (req, res) => {
   //console.log('getting index');
   res.status(200).sendFile(path.join(__dirname + '/web/public/index.html'));
+});
+
+app.get('/css/styles', (req, res) => {
+  res.sendFile(path.join(__dirname + '/web/public/css/styles.css'));
+});
+
+app.get('/js/scripts', (req, res) => {
+  res.sendFile(path.join(__dirname + '/web/public/js/scripts.min.js'));
 });
 
 //----------routes for the raw postings database---------------
@@ -71,8 +82,6 @@ app.get("/analyzed-data", (req, res) => {
   let view = req.query.viewName;
 
   analyzedHelpers.getAnalytics(hub, view, (viewArray) => {
-    //console.log(`found ${view} view data for ${hub}`);
-    //console.log("data array", viewArray);
 
     if(!viewArray) {
       res.status(404).send("data not found");
@@ -84,16 +93,25 @@ app.get("/analyzed-data", (req, res) => {
 });
 
 app.post("/analyzed-data", (req, res) => {
-  //console.log('post endpoint');
-  analyzedHelpers.addNewAnalytic(req.body, (hubObject) => {
-    //console.log("saved hub object", hubObject);
-    res.status(201).send(hubObject);
+  console.log("post request");
+  
+  req.body.forEach((hubObject) => {
+    analyzedHelpers.addNewAnalytic(hubObject, (obj) => {
+      console.log(`wrote ${obj} to the database`);
+    });
+  });
+
+  res.status(200).send("OK");
+});
+
+app.get("/analyzed-data/views", (req, res) => {
+  analyzedHelpers.getViewsList((viewsArray) => {
+    res.status(200).send(viewsArray);
   });
 });
 
 app.get("/analyzed-data/hubs", (req, res) => {
   analyzedHelpers.getHubs((list) => {
-    console.log("sent", list);
     res.status(200).send(list);
   });
 });

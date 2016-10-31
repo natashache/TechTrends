@@ -1,5 +1,5 @@
-const _hrSingle = '-----------------------------------------------------------------------------------\n';
-const _hrDouble = '===================================================================================\n';
+const _hrSingle = '\n-----------------------------------------------------------------------------------\n';
+const _hrDouble = '\n===================================================================================\n';
 
 var utilities = {};
 
@@ -11,8 +11,8 @@ utilities.announce = (message, options) => {
   if (options.type && options.type === 'start') { type = '[?] '; message += '...'; }
   if (options.type && options.type === 'success') type = '[+] ';
   if (options.type && options.type === 'error') type = '[!] ';
-  if (options.importance && options.importance === 1) { hr = _hrDouble; message += '\n' }
-  if (options.importance && options.importance === 2) { hr = _hrSingle; message += '\n' }
+  if (options.importance && options.importance === 1) hr = _hrDouble;
+  if (options.importance && options.importance === 2) hr = _hrSingle;
   console.log(hr + type + message + hr);
 };
 

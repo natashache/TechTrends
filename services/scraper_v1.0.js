@@ -2,15 +2,14 @@ const inquirer = require('inquirer');
 const request = require('request');
 const async = require('async');
 const cheerio = require('cheerio');
+const keysMethods = require('./keys.js');
 const promise = require('bluebird');
-const utilities = require('./utilities');
-
-var keysMethods = null;
+const utilities = require('./utilities.js');
 
 // TODO's:
 // * make fetch content / pipe to DS one operation, combine methods
 // * cleaner, less-suspicious request header
-// * salary info
+// * salary info, title
 
 // TODO: change this hard-coding when web server goes live
 const api = 'http://localhost:8000/raw-postings';
@@ -66,12 +65,11 @@ const fetchRecordUrls = (query) => {
             }, 2000);
           
           } else {
-            utilities.announce(`finished surface scrape of ${records[0].hub}`, {type: 'success', importance: 2});
+            utilities.announce(`finished surface scrape of ${records[0].hub}`, {type: 'success', importance: 1});
             resolve({records: records, source: source});
           }
         } else {
-          utilities.announce(`error fetching surface scrape date, ${err}`, {type: 'error'});
-          reject();
+          reject(console.log(err));
         }
       });
     };
@@ -144,8 +142,6 @@ const storeRecords = (records) => {
         utilities.announce(`error writing records to database ${err}`, {type: 'error'});
         reject(err);
       } else {
-        utilities.announce(`records written to database`, {type: 'success'});
-        // TODO figure out what's going on here...
         resolve('');
       }
     });
@@ -154,47 +150,34 @@ const storeRecords = (records) => {
 
 };
 
-const setKeys = (keys) => {
-  keysMethods = keys;
-};
+inquirer.prompt([{
+  type: 'confirm',
+  name: 'confirm',
+  message: 'Start the scrape? This process can take several hours. Begin:'
+}])
+  .then((answers) => {
+    if (answers.confirm) {
 
-const run = (next) => {
-  const queries = keysMethods.getQueries(), scrapeId = queries[0].date;
-  
-  const queue = queries.map((query) => {
-    
-    return (done) => {
-      fetchRecordUrls(query)
-        .then(fetchRecordContent)
-        .then(storeRecords)
-        .then(done);
-    };
-  
-  });
-  
-  //execute the queries in series to avoid simultaneous requests
-  async.series(queue, (err) => {
-    if (err) {
-      utilities.announce(`error executing queries ${err}`, {type: 'error'});
+      const queries = keysMethods.getQueries(), scrapeId = queries[0].date;
+
+      utilities.announce(`beginning big scrape with date id ${scrapeId}`, {type: 'start', importance: 1});
+      
+      const queue = queries.map((query) => {
+        return (done) => {
+          fetchRecordUrls(query)
+            .then(fetchRecordContent)
+            .then(storeRecords)
+            .then(done);
+        };
+      });
+
+      async.series(queue, (err) => {
+        if (err) { console.log(err); } else {
+          utilities.announce(`finished big scrape ${scrapeId} -- have a great day!`, {type: 'success', importance: 1});
+        }
+      });
+
     } else {
-      utilities.announce(`finished big scrape for date ${scrapeId} -- have a great day!`, {type: 'success', importance: 1});
-      next();
+      utilities.announce(`scrape aborted`, {type: 'note'});
     }
   });
-
-};
-
-const runAsPromise = () => {
-  return new Promise((resolve, reject) => {
-    run(() => {
-      resolve();
-    });
-  });
-}
-
-module.exports.fetchRecordUrls = fetchRecordUrls;
-module.exports.fetchRecordContent = fetchRecordContent;
-module.exports.storeRecords = storeRecords;
-module.exports.setKeys = setKeys;
-module.exports.run = run;
-module.exports.runAsPromise = runAsPromise;

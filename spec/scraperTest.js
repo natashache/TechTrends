@@ -13,7 +13,6 @@ var check = require('check-types');
 var now = 1477411263456;
 var getall = function(){return rp.get(server+'/raw-postings?date=1477411263456');};
 var postingType = {
-      text: check.string,
       url: check.string,
       term: check.string,
       source: check.string,

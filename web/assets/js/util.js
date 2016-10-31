@@ -17,7 +17,7 @@ function createCatagories(hubDataPoints){
 
 function extractDates(hubData){
   return hubData.map((data) => {
-    return moment.unix(data.date).format('MMMM DD'); //change format later
+    return moment.unix(data[0].date).format('MMMM DD'); //change format later
   });
 }
 
@@ -36,57 +36,40 @@ function highChartsFormat(data){
   return result; 
 }
 
-function getDataFromServer(hubName, callback){
-  function success(response){
-    let returnObj = {};
 
-    for(let key in response.data) {
-      returnObj[key] = highChartsFormat(response.data[key]);
-    }
-
-    console.log("formated object", returnObj);
-    callback(returnObj);
-  }
-
-  function error(err){
-    console.log("error geting from database ==>", error);
-  }
-
-  $http.get(`/analyzed-data?hub=${hubName}`)
-    .then((success, error))
-}
 
 //getDataFromServer should return data in this format
 // {
 //   javascriptFrameworks: {
 //     date: Array,
 //     data: Array
-//   },
+//   }
 //   serverLanguages: {
 //     date: Array,
 //     data: Array
-//   },,
+//   }
 //   databaseLanguages: {
 //     date: Array,
 //     data: Array
-//   },,
+//   }
 //   contentManagementSystems: {
 //     date: Array,
 //     data: Array
-//   },,
+//   }
 //   upAndComingLanguages: {
 //     date: Array,
 //     data: Array
-//   },,
+//   }
 //   javascriptMarkup: {
 //     date: Array,
 //     data: Array
-//   },,
+//   }
 //   versionControlSystems: {
 //     date: Array,
 //     data: Array
-//   },
+//   }
 // }
+
 
 
 
