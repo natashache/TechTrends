@@ -17,6 +17,8 @@ angular.module('app.controllers', [
   };
 
   navService.getViewsFromServer((viewList) => {
+    console.log("formated view list", navService.formatViewsForDisplay(viewList));
+    $rootScope.formatedViews = navService.formatViewsForDisplay(viewList);
     $rootScope.viewList = viewList;
   });
 
@@ -39,7 +41,7 @@ angular.module('app.controllers', [
 
       $scope.chartOptions.series = chartData[$scope.view].data;
       $scope.chartOptions.dates = chartData[$scope.view].dates;
-      $scope.chartOptions.view = $scope.view;
+      $scope.chartOptions.view = navService.formatSingleView($scope.view);
       $scope.chartOptions.hub = $scope.hub;
     });
   }
@@ -68,7 +70,7 @@ angular.module('app.controllers', [
       function getOptions(scope){
         var obj = {
             title: {
-              text: `${scope.options.view} Popularity for ${scope.options.hub}`
+              text: `Popular ${scope.options.view} in ${scope.options.hub}`
             },
             xAxis: {
               type: 'datetime',
