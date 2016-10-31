@@ -24,20 +24,19 @@ angular.module('app.services', [
 
 })
 .factory('navService', function($http) {
-  //var country = keys.collections.geo.united_states;
-  // country.states = Object.keys(keys.collections.geo.united_states);
-  // country.states.unshift('Select State:');
 
   return {
     getHubsFromServer: getHubsFromServer,
     getViewsFromServer: getViewsFromServer,
     selectedHub: "san_francisco",
+    formatHubsForDisplay: formatHubsForDisplay,
+    formatHubForQuery: formatHubForQuery
   };
 
   function getHubsFromServer(callback) {
 
     function success(response){
-      callback(response.data);
+      callback(response.data.sort());
     }
 
     function error(err){
@@ -58,6 +57,35 @@ angular.module('app.services', [
 
     $http.get("/analyzed-data/views")
       .then(success, error);
+  }
+
+  function formatHubsForDisplay(hubsList){
+    return hubsList.map((hubString) => {
+      if(hubString.includes("_")){
+       let formated = hubString.split("_")
+          .map((word) =>{
+            let upperCase = word.charAt(0).toUpperCase() + word.slice(1)
+            return upperCase;
+          }).join(" ");
+        return formated;
+      } else {
+          let formated = hubString.charAt(0).toUpperCase() + hubString.slice(1);
+          return formated;
+      }
+    });
+  }
+
+  function formatHubForQuery(hubString){
+    if(hubString.includes(" ")){
+      return hubString.split(" ")
+        .map((word) => {
+          let lowerCase = word.charAt(0).toLowerCase() + word.slice(1);
+          return lowerCase;
+        }).join("_");
+    } else {
+      let lowerCase = hubString.charAt(0).toLowerCase() + hubString.slice(1);
+      return lowerCase;
+    }
   }
 
 })
@@ -83,7 +111,7 @@ angular.module('app.services', [
 
   function extractDates(dateList){
     return dateList.map((data) => {
-      return moment.unix(data.date).format('MMMM DD'); //change format later
+      return moment(data.date, "x").format('MMMM DD'); //change format later
     });
   }
 
@@ -93,13 +121,26 @@ angular.module('app.services', [
     });
   }
 
+  function sortData(dataList){
+    return dataList.sort((a, b) => {
+      if(a.date > b.date){
+        return 1;
+      }
+      if( a.date < b.date){
+        return -1
+      }
+      return 0
+    });
+  }
+
   function highChartsFormat(data){
+    let sortedData = sortData(data);
     let result = {};
 
-    result.dates = extractDates(data);
+    result.dates = extractDates(sortedData);
     //result for particular view
 
-    result.data = createCategories(extractDataPoints(data));
+    result.data = createCategories(extractDataPoints(sortedData));
 
     return result;
   }
@@ -117,9 +158,10 @@ angular.module('app.services', [
 
   }
 
+
   return {
     formatResponseData: formatViews,
-    highChartsFormat: highChartsFormat,
+    highChartsFormat: highChartsFormat
     // extractDataPoints: extractDataPoints,
     // createCatagories: createCatagories,
     // extractDates: extractDates,
