@@ -22,8 +22,11 @@ app.use(express.static('web'));
 //-------------------------------------------------------------
 
 app.get('/', (req, res) => {
-  //console.log('getting index');
   res.status(200).sendFile(path.join(__dirname + '/web/public/index.html'));
+});
+
+app.get('/about', (req, res) => {
+  res.status(200).sendFile(path.join(__dirname + '/web/public/about.html'));
 });
 
 app.get('/css/styles', (req, res) => {

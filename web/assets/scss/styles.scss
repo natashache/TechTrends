@@ -1,21 +1,11 @@
-$grey255: rgb(255, 255, 255);
-$grey250: rgb(250, 250, 250);
-$grey245: rgb(245, 245, 245);
-$grey240: rgb(240, 240, 240);
-$grey230: rgb(230, 230, 230);
-$grey200: rgb(200, 200, 200);
-$grey150: rgb(150, 150, 150);
-$grey100: rgb(100, 100, 100);
-$grey75: rgb(75, 75, 75);
-$grey50: rgb(50, 50, 50);
-$grey25: rgb(25, 25, 25);
+@import 'variables';
 
 html, body {
   margin: 0;
 }
 
 body {
-  background: $grey245;
+  background: $grey240;
   font-family: 'Open Sans', sans-serif;
   color: $grey25;
 }
@@ -141,3 +131,5 @@ div.col-right {
   float: right; // float right due to loading jump
   width: 260px;
 }
+
+@import 'about';
