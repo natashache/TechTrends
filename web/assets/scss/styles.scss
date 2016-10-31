@@ -96,14 +96,15 @@ select.hub-selector {
   cursor: pointer;
 }
 
-.chart-container {
-  margin: 0 0 24px 0;
+.chart-container, hc-chart {
+  width: 753px;
+  height: 480px;
 }
 
-hc-chart {
-  overflow: hidden;
-  width: 760px;
-  height: 480px;
+.chart-container {
+  margin: 0 3px 48px 0;
+  box-shadow: 5px 5px 3px $grey240;
+  border: 1px solid $grey230;
 }
 
 ul.chart-nav {
