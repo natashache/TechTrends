@@ -64,7 +64,7 @@ angular.module('app.controllers', [
             if(scope.options.view &&
               scope.options.dates &&
               scope.options.hub &&
-              scope.options.series)){
+              scope.options.series){
               var options = getOptions(scope);
               Highcharts.chart(element[0], options);
             }
