@@ -117,8 +117,8 @@ angular.module('app.controllers', [
       // };
 
       $($window).scroll(function () {
-        var OFFSETTRIGGER = 500;
-
+        var OFFSETTRIGGER = 270; //higher numbers trigger an earlier change to the next element
+        var DEFAULTMARGIN = 500;
         var highlightSpy, pos, spy, _i, _len, _ref;
         highlightSpy = null;
         _ref = scope.spies;
@@ -126,13 +126,19 @@ angular.module('app.controllers', [
         // cycle through `spy` elements to find which to highlight
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           spy = _ref[_i];
-          spy.out();
+          if($window.scrollY > DEFAULTMARGIN){
+            spy.out();
+          }
+          
           var elem = $('#' + spy.id)
           // catch case where a `spy` does not have an associated `id` anchor
           // if (scope.spyElems[spy.id].offset() === undefined) {
           //   continue;
           // }
           if ((pos = elem.offset().top) - $window.scrollY <= OFFSETTRIGGER) {
+            console.log(elem.offset().top);
+            console.log($window.scrollY);
+            console.log('dif',(elem.offset().top) - $window.scrollY);
             // the window has been scrolled past the top of a spy element
             spy.pos = pos;
 
