@@ -68,7 +68,7 @@ angular.module('app.controllers', [
       function getOptions(scope){
         var obj = {
             title: {
-              text: `${scope.options.view} Popularity for ${scope.options.hub}` //template string add in hub location
+              text: 'hi'//`${scope.options.view} Popularity for ${scope.options.hub}` //template string add in hub location
             },
             xAxis: {
               type: 'datetime',
@@ -81,62 +81,102 @@ angular.module('app.controllers', [
     }
   };
 })
-.directive ('scrollSpy', function($window){
+.directive('scrollSpy', function ($window) {
   return {
     restrict: 'A',
-    controller: function($scope){
+    controller: function ($scope) {
       $scope.spies = [];
-      addSpy = function(spyObj){
-      $scope.spies.push(spyObj);
+      $scope.spyElems = [];
+      this.addSpy = function (spyObj) {
+        $scope.spies.push(spyObj);
+        if($scope.spies.length === 1){
+          spyObj.in();
+        }
+        $scope.spyElems[spyObj.id] = $('#' + spyObj.id);
+        //spyElems = $scope.spyElems;
       };
     },
-    link: function(scope, elem, attrs){
+    link: function (scope, elem, attrs) {
+      var spyElems;
       spyElems = [];
-
-      scope.$watch('spies', function(spies){
-        for (var spy in spies){
-          if(!spyElems[spy.id]){
-            spyElems[spy.id] = elem.find('#'+spy.id);
-          }     
-        }
-      });
+      // getElements();
+      // scope.$watch('spies', getElements);
       
-      $($window).scroll = function(){
+      // function getElements(spies) {
+      //   //the elements to the spy elements array
+      //   var spy, _i, _len, _results;
+      //   _results = [];
+
+      //   for (_i = 0, _len = spies.length; _i < _len; _i++) {
+      //     spy = spies[_i];
+
+      //     if (spyElems[spy.id] == null) {
+      //       _results.push(;
+      //     }
+      //   }
+      //   return _results;
+      // };
+
+      $($window).scroll(function () {
+        var highlightSpy, pos, spy, _i, _len, _ref;
         highlightSpy = null;
-        
-        for(var spy in scope.spies){
-          spy.out()
-          if ((pos = spyElems[spy.id].offset().top) - $window.scrollY <= 0){
-            spy.pos = pos
-            highlightSpy = spy
-            if(highlightSpy.pos < spy.pos){
+        _ref = scope.spies;
+        var spyElems = scope.spyElems;
+        // cycle through `spy` elements to find which to highlight
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          spy = _ref[_i];
+          spy.out();
+          var elem = $('#' + spy.id)
+          // catch case where a `spy` does not have an associated `id` anchor
+          // if (scope.spyElems[spy.id].offset() === undefined) {
+          //   continue;
+          // }
+          console.log(spy.id, 'top offset', elem.offset.top);
+          console.log('scrollY', $window.scrollY);
+          if ((pos = elem.offset().top) - $window.scrollY <= 400) {
+            console.log('scrolled past top');
+            // the window has been scrolled past the top of a spy element
+            spy.pos = pos;
+
+            if (highlightSpy == null) {
+              highlightSpy = spy;
+            }
+            if (highlightSpy.pos < spy.pos) {
               highlightSpy = spy;
             }
           }
         }
 
-        highlightSpy.in();
-      };
-      
+        // select the last `spy` if the scrollbar is at the bottom of the page
+        if ($(window).scrollTop() + $(window).height() >= $(document).height()) {
+          spy.pos = pos;
+          highlightSpy = spy;
+        }        
+
+        return highlightSpy != null ? highlightSpy["in"]() : void 0;
+      });
     }
   };
 })
-.directive('spy', function(){
+.directive('spy', function ($location, $anchorScroll) {
   return {
     restrict: "A",
     require: "^scrollSpy",
     link: function(scope, elem, attrs, affix) {
-      return {
-          id: attrs.spy,
-          in: function() {
-            elem.addClass('current');
-          },
-          out: function(){
-            elem.removeClass('current');
+      elem.click(function () {
+        $location.hash(attrs.spy);
+        $anchorScroll();
+      });
+
+      affix.addSpy({
+        id: attrs.spy,
+        in: function() {
+          elem.addClass('active');
         },
-      }
-      
+        out: function() {
+          elem.removeClass('active');
+        }
+      });
     }
-    
   };
 });
