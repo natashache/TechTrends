@@ -1,9 +1,6 @@
 'use strict';
 
-// Include gulp
 var gulp = require('gulp');
-
-// Include Our Plugins
 var jshint = require('gulp-jshint');
 var sass = require('gulp-sass');
 var concat = require('gulp-concat');
@@ -13,42 +10,45 @@ var nodemon = require('gulp-nodemon');
 var mocha = require('gulp-mocha');
 var argv = require('yargs').argv;
 
-// Lint Task
-gulp.task('lint', function() {
+gulp.task('lint', () => {
   return gulp.src('web/assets/js/*.js')
     .pipe(jshint())
     .pipe(jshint.reporter('default'));
 });
 
-// Compile Our Sass
-gulp.task('sass', function() {
+gulp.task('sass', () => {
   return gulp.src('web/assets/scss/*.scss')
     .pipe(sass({outputStyle: 'compressed' }).on('error', sass.logError))
     .pipe(gulp.dest('web/public/css'));
 });
 
-// Concatenate & Minify JS
-gulp.task('scripts', function() {
+gulp.task('scripts', () => {
   return gulp.src([
-    'bower_components/jquery/dist/jquery.min.js',
-    'bower_components/underscore/underscore-min.js',
+    'web/bower_components/jquery/dist/jquery.min.js',
+    'web/bower_components/underscore/underscore-min.js',
+    'web/bower_components/moment/moment.js',
+    'web/bower_components/angular/angular.js',
+    'web/bower_components/angular-route/angular-route.js',
+    'web/bower_components/angular-mocks/angular-mocks.js',
+    'web/bower_components/highcharts/highcharts.js',
+    'web/assets/js/typey.js',
+    'web/assets/js/services.js',
+    'web/assets/js/controllers.js',
     'web/assets/js/app.js'
 ])
   .pipe(concat('scripts.js'))
   .pipe(gulp.dest('web/public/js'))
   .pipe(rename('scripts.min.js'))
-  .pipe(uglify())
+  // .pipe(uglify())
   .pipe(gulp.dest('web/public/js'));
 });
 
-// Watch Files For Changes
-gulp.task('watch', function() {
+gulp.task('watch', () => {
   gulp.watch('web/assets/js/*.js', ['lint', 'scripts']);
   gulp.watch('web/assets/scss/*.scss', ['sass']);
   gulp.watch('./');
 });
 
-//start server with localhost database
 gulp.task('nodemon', (cb) => {
   let started = false;
   return nodemon({
@@ -65,7 +65,7 @@ gulp.task('nodemon', (cb) => {
 
 });
 
-gulp.task('test', function() {
+gulp.task('test', () => {
   var testFile = './spec/serverTest.js';
   if(argv.scraper){
     testFile = './spec/scraperTest.js';
@@ -84,26 +84,25 @@ gulp.task('test', function() {
   }
   return gulp.src(testFile)
     .pipe(mocha({reporter: 'spec' }))  
-    .once('error', function(err) {
+    .once('error', (err) => {
         console.log('error in gulptest',err)
         process.exit(1);
     })
-    .once('end', function() {
+    .once('end', () => {
       process.exit();
     });
 });
 
-// gulp.task('test', function() {
+// gulp.task('test', () => {
 //   return gulp.src('./spec/server-localhost-test.js')
 //     .pipe(mocha({reporter: 'spec' }))  
-//     .once('error', function(err) {
+//     .once('error', (err) => {
 //         console.log('error in gulptest',err)
 //         process.exit(1);
 //     })
-//     .once('end', function() {
+//     .once('end', () => {
 //       process.exit();
 //     });
 // });
 
-// Default Task
 gulp.task('default', ['lint', 'sass', 'scripts', 'watch']);

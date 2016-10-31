@@ -17,6 +17,8 @@ const apiEndpointPostResults = apiRoot + '/analyzed-data';
 // throttle speed in ms
 const throttle = 0;
 
+// TODO insert user-friendly tech names into tech keys file
+
 //============= example output =============
 //==========================================
 

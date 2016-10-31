@@ -2,50 +2,51 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1">
-    <!-- CSS & BOOTSTRAP -->
-    <link rel="stylesheet" type="text/css" href="../public/css/styles.css">
-    <!-- <link rel="stylesheet" type="text/css" href="../bower_components/bootstrap/dist/css/bootstrap.css"> -->
-    <script src="../bower_components/jquery/dist/jquery.js"></script>
-
-    <!-- <script src="../bower_components/bootstrap/dist/js/bootstrap.js"></script> -->
-    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lato:100,300,400">
-    <!-- APP & Angular & HIGHCHARTS -->
-    <script src="bower_components/moment/moment.js"></script>
-
-    <script src="bower_components/angular/angular.js"></script>
-    <script src="bower_components/angular-route/angular-route.js"></script>
-    <script src="bower_components/angular-mocks/angular-mocks.js"></script>
-    <script type="text/javascript" src="https://code.highcharts.com/highcharts.js"></script>
-
-    <script src="assets/js/typey.js"></script>
-    <script src="assets/js/services.js"></script>
-    <script src="assets/js/controllers.js"></script>
-    <script src="assets/js/app.js"></script>
     <title>Tech Trends</title>
+    <link href="/css/styles" rel="stylesheet" type="text/css" >
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,800" rel="stylesheet">
+    <script src="/js/scripts"></script>
   </head>
   <body ng-app = "app">
-    <div class="container-fluid">
 
-      <div class="header">
-        <!-- <h1 align="center">Tech Trends</h1> -->
-        <span>Tech Trends</span>
+    <header>
+      <div class="center">
+        Tech Trends
       </div>
+    </header>
 
-      <ul class="nav" ng-controller="navController" >
-        <li><a href="#home">Home</a></li>
-        <li><a href="#news">About</a></li>
-        <li class="dropdown city">
-          <select ng-model="selectedHub" ng-options="hub for hub in hubs" ng-change="logChange()"></select>
-        </li>
-      </ul>
-
-      <div class="main" ng-controller="chartController" ng-repeat="view in viewList">
-        <hc-chart options="chartOptions" ></hc-chart>
-      </div>
-
-      <footer>
-      </footer>
+    <div class="sector sector-splash">
     </div>
+
+    <div class="sector">
+      <div class="main center">
+
+        <div class="col-left">
+          <div ng-controller="navController" >
+            <select class="hub-selector" ng-model="selectedHub" ng-options="hub for hub in hubs" ng-change="logChange()"></select>
+          </div>
+          <div class="chart-container" ng-controller="chartController" ng-repeat="view in viewList">
+            <hc-chart options="chartOptions" ></hc-chart>
+          </div>
+        </div>
+
+        <div class="col-right">
+          <ul class="chart-nav">
+            <li><a href="">JavaScript Frameworks</a></li>
+            <li><a href="">Server Languages</a></li>
+            <li><a href="">Database Languages</a></li>
+            <li><a href="">Content Management Systems</a></li>
+            <li><a href="">Up and Coming Languages</a></li>
+            <li><a href="">JavaScript Markup Languages</a></li>
+            <li><a href="">Version Control Systems</a></li>
+          </ul>
+        </div>
+      
+      </div>
+    </div>
+
+    <footer>
+    </footer>
   </body>
   </html>
 

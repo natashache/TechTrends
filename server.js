@@ -26,6 +26,14 @@ app.get('/', (req, res) => {
   res.status(200).sendFile(path.join(__dirname + '/web/public/index.html'));
 });
 
+app.get('/css/styles', (req, res) => {
+  res.sendFile(path.join(__dirname + '/web/public/css/styles.css'));
+});
+
+app.get('/js/scripts', (req, res) => {
+  res.sendFile(path.join(__dirname + '/web/public/js/scripts.min.js'));
+});
+
 //----------routes for the raw postings database---------------
 //-------------------------------------------------------------
 
