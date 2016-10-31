@@ -7,41 +7,33 @@ angular.module('app.controllers', [
 
   const fillHubs = function() {
     navService.getHubsFromServer((responseData) => {
-      $scope.hubs = responseData;
+      $scope.hubs = navService.formatHubsForDisplay(responseData);
       $scope.hubs.unshift("Select a Tech Hub");
       $scope.selectedHub = $scope.hubs[0];
     });
   };
 
   const logChange = function() {
-    navService.selectedHub = $scope.selectedHub;
     $rootScope.hub = $scope.selectedHub;
   };
 
   navService.getViewsFromServer((viewList) => {
     $rootScope.viewList = viewList;
-    console.log("root view list", $rootScope.viewList);
   });
 
   fillHubs();
+  $rootScope.hub = "San Francisco";
   $scope.logChange = logChange;
 }])
 .controller('chartController', ['$scope', '$rootScope', 'navService', 'queryService', 'chartService',function($scope, $rootScope, navService, queryService, chartService) {
   $scope.chartOptions = {};
 
-
   fill();
   var hubData = null;
-
-  //$scope.hub = 'San Francisco';
-
-  //methods used by external buttons/menus
   $scope.fill = fill;
-  //$scope.view = 'serverLanguages';
 
-  //query and change the options
   function fill(){
-    var qs = `/analyzed-data?hub=${navService.selectedHub}`;
+    var qs = `/analyzed-data?hub=${navService.formatHubForQuery($scope.hub)}`;
     queryService.getDataFromServer(qs,function(data){
       var chartData = chartService.formatResponseData(data);
       //these sets trigger watch on the chart directive
