@@ -2,6 +2,9 @@ $grey255: rgb(255, 255, 255);
 $grey250: rgb(250, 250, 250);
 $grey245: rgb(245, 245, 245);
 $grey240: rgb(240, 240, 240);
+$grey230: rgb(230, 230, 230);
+$grey200: rgb(200, 200, 200);
+$grey150: rgb(150, 150, 150);
 $grey100: rgb(100, 100, 100);
 $grey75: rgb(75, 75, 75);
 $grey50: rgb(50, 50, 50);
@@ -9,65 +12,107 @@ $grey25: rgb(25, 25, 25);
 
 html, body {
   margin: 0;
-  height: 100%;
-  color: $grey25;
 }
 
 body {
-  font: 300 16px/22px "Lato", "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  background: $grey245;
+  font-family: 'Open Sans', sans-serif;
+  color: $grey25;
 }
 
-h1, h2, h3, h4, h5, h6, header, footer, div {
+h1, h2, h3, h4, h5, h6, header, footer, div, ul, ol, li {
 	overflow: hidden;
   margin: 0;
+  padding: 0;
 }
 
-div.container-fluid {
-  background: white;
-  background: -webkit-linear-gradient(left top, white, black);
-  background: -o-linear-gradient(bottom right, white, black);
-  background: -moz-linear-gradient(bottom right, white, black);
-  background: linear-gradient(to bottom right, white, black);
+ul, ol {
+  list-style: none;
+}
+
+a {
+  text-decoration: none;
+}
+
+div.center {
+  width: 1060px;
+  margin: 0 auto;
 }
 
 header {
-  font: 300 16px/22px "Lato", "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 2em;
-  text-transform: uppercase;
-  margin: 0;
-  text-align: center;
-  padding-top: 20px;
-  padding-bottom: 20px;
-  background: #466368;
-  background: -webkit-linear-gradient(#648880, #293f50);
-  background: -moz-linear-gradient(#648880, #293f50);
-  background: linear-gradient(#aec7ef, #293f50);
-  color: white;
+  background: $grey255;
+  border-bottom: 1px solid $grey200;
+  line-height: 48px;
+  font-size: 24px;
 }
 
-.nav {
-  list-style: none;
-  margin: 0;
+div.sector-splash {
+  height: 300px;
+  background: $grey25;
+}
+
+div.col-left {
+  float: left;
+  width: 760px;
+}
+
+select.hub-selector {
+  width: 760px;
+  margin: 24px 0;
   padding: 0;
-  text-align: center;
-  background-color: #333;
+  background: $grey245;
+  border: 0;
+  outline: 0;
+  line-height: 48px;
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: -1px;
+  cursor: pointer;
+}
+
+.chart-container {
+  margin: 0 0 24px 0;
+}
+
+hc-chart {
+  overflow: hidden;
+  width: 760px;
+  height: 480px;
+}
+
+ul.chart-nav {
+  margin: 84px 0 0 0;
   li {
-    display: inline;
-  }
-  a {
-    display: inline-block;
-    padding: 10px;
-    text-decoration-style: none;
-    text-decoration: none;
-    color: white;
-    &:hover {
-      background-color: #293f50;
+    margin: 0 0 24px 0;
+    &.current-chart {
+      a {
+        border-left: 3px solid $grey100;
+        font-weight: 600;
+      }
+    }
+    a {
+      padding: 0 0 0 12px;
+      line-height: 24px;
+      font-size: 16px;
+      font-weight: 300;
+      border-left: 3px solid $grey245;
+      color: $grey25;
+      cursor: pointer;
+      &:hover {
+        border-left: 3px solid $grey100;
+        font-weight: 600;
+      }
     }
   }
-  .dropdown {
-    padding-left: 5px;
-  }
-  .city {
-    padding-left: 10px;
-  }
+}
+
+div.col-right {
+  float: right; // float right due to loading jump
+  width: 260px;
+}
+
+ul.chart-nav {
+  position: relative;
+  top: 0;
+  right: 0;
 }
