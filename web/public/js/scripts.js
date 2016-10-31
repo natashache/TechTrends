@@ -40950,7 +40950,7 @@ angular.module('app.controllers', [
       function getOptions(scope){
         var obj = {
             title: {
-              text: 'hi'//`${scope.options.view} Popularity for ${scope.options.hub}` //template string add in hub location
+              text: `${scope.options.view} Popularity for ${scope.options.hub}`
             },
             xAxis: {
               type: 'datetime',
@@ -40971,9 +40971,9 @@ angular.module('app.controllers', [
       //$scope.spyElems = [];
       this.addSpy = function (spyObj) {
         $scope.spies.push(spyObj);
-        // if($scope.spies.length === 1){
-        //   spyObj.in();
-        // }
+        if($scope.spies.length === 1){
+          spyObj.in();
+        }
         //$scope.spyElems[spyObj.id] = $('#' + spyObj.id);
       };
     },
@@ -41067,7 +41067,7 @@ $(function() {
   var $sidebar   = $("#chart_nav"), 
     $window    = $(window),
     offset     = $sidebar.offset(),
-    topPadding = 132;
+    topPadding = 192;
 
   $window.scroll(() => {
     if ($window.scrollTop() > offset.top) {
