@@ -93,13 +93,26 @@ angular.module('app.services', [
     });
   }
 
+  function sortData(dataList){
+    return dataList.sort((a, b) => {
+      if(a.date > b.date){
+        return 1;
+      }
+      if( a.date < b.date){
+        return -1
+      }
+      return 0
+    });
+  }
+
   function highChartsFormat(data){
+    let sortedData = sortData(data);
     let result = {};
 
-    result.dates = extractDates(data);
+    result.dates = extractDates(sortedData);
     //result for particular view
 
-    result.data = createCategories(extractDataPoints(data));
+    result.data = createCategories(extractDataPoints(sortedData));
 
     return result;
   }
