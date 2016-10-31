@@ -1,92 +1,92 @@
+'use strict';
 
-(function(){
-    
-    var Typey = function(){
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
-        this.types = { };
+(function () {
 
-        this.schema = function(name,newschema){
+    var Typey = function Typey() {
+
+        this.types = {};
+
+        this.schema = function (name, newschema) {
             this.types[name] = newschema;
-        }
+        };
 
-        this.number = function(target){
+        this.number = function (target) {
             return typeof target === 'number';
-        }
+        };
 
-        this.array = function(schema){
-            return this._array.bind(this,schema);
-        }
+        this.array = function (schema) {
+            return this._array.bind(this, schema);
+        };
 
-        this.object = function(schema){
-            return this._object.bind(this,schema);
-        }
+        this.object = function (schema) {
+            return this._object.bind(this, schema);
+        };
 
-        this.Array = function(target){
+        this.Array = function (target) {
             return Array.isArray(target);
-        }
+        };
 
-        this.Object = function(target){
-            return (!Array.isArray(target) && typeof target === 'object');
-        }
+        this.Object = function (target) {
+            return !Array.isArray(target) && (typeof target === 'undefined' ? 'undefined' : _typeof(target)) === 'object';
+        };
 
-        this.String = function(target){
+        this.String = function (target) {
             return typeof target === 'string';
-        }
+        };
 
-        this.Number = function(target){
+        this.Number = function (target) {
             return typeof target === 'number';
-        }
+        };
 
-        this._object = function(schema,input){
-            if(!this.Object(input)){
+        this._object = function (schema, input) {
+            if (!this.Object(input)) {
                 return false;
             }
-            return this.objectParse(schema,input);
-        }
+            return this.objectParse(schema, input);
+        };
 
-        this._array = function(schema,input){
-            if(!this.Array(input)){
+        this._array = function (schema, input) {
+            if (!this.Array(input)) {
                 return false;
             }
-            return this.objectParse(schema,input);
-        }
+            return this.objectParse(schema, input);
+        };
 
-        this.objectParse = function(schema,input){
+        this.objectParse = function (schema, input) {
             var schemaKeys = Object.keys(schema);
 
-            return schemaKeys.every(function(schemaKey,index){
-              var inputValue = input[schemaKey];
+            return schemaKeys.every(function (schemaKey, index) {
+                var inputValue = input[schemaKey];
 
-              if(schemaKey === '*'){
-                  return Object.keys(input).some(function(inputKey){
-                      return schema[schemaKey].call(this,input[inputKey]); 
-                  });
-              }
-              else if(!inputValue){
-                  return false;
-              } else {
-                  if(typeof schema[schemaKey] === 'function'){
-                      return schema[schemaKey].call(this,inputValue); 
-                  } else {
-                      return schema[schemaKey] === inputValue;
-                  }
-                  
-              }
+                if (schemaKey === '*') {
+                    return Object.keys(input).some(function (inputKey) {
+                        return schema[schemaKey].call(this, input[inputKey]);
+                    });
+                } else if (!inputValue) {
+                    return false;
+                } else {
+                    if (typeof schema[schemaKey] === 'function') {
+                        return schema[schemaKey].call(this, inputValue);
+                    } else {
+                        return schema[schemaKey] === inputValue;
+                    }
+                }
             });
-        }
+        };
 
-        this.deepMatch = function(type, target){
+        this.deepMatch = function (type, target) {
             //return (check.all(check.map(target,this.types[type]))) === true;
-        }
+        };
 
-        this.match = function(input, schema){
-            return this.types[schema].call(this,input); 
-        }
-    }
+        this.match = function (input, schema) {
+            return this.types[schema].call(this, input);
+        };
+    };
 
     T = new Typey();
-
-})()
+})();
 
 // T.schema('array',
 //     T.array({
@@ -109,45 +109,36 @@
 //     })
 // );
 
-T.schema('chartOptions',
-    T.object({
-        series: T.Array,
-        dates: T.Array,
-        view: T.String,
-        hub: T.String,
-    })
-);
+T.schema('chartOptions', T.object({
+    series: T.Array,
+    dates: T.Array,
+    view: T.String,
+    hub: T.String
+}));
 
 //var test = {series: [],dates: [],view:'x', hub:'x'};
 //console.log(T.match(test,'chartOptions'));
 //console.log(T.match(test,'nestedArray'));
+'use strict';
 
-angular.module('app.services', [
-
-])
-.factory('queryService',function($http, chartService){
+angular.module('app.services', []).factory('queryService', function ($http, chartService) {
 
   return {
     getDataFromServer: getDataFromServer
   };
 
-  function getDataFromServer(endpoint, callback){
-    function success(response){
+  function getDataFromServer(endpoint, callback) {
+    function success(response) {
       callback(response.data);
     }
 
-    function error(err){
+    function error(err) {
       console.log("error geting from database ==>", error);
     }
 
-    $http.get(endpoint)
-      .then(success, error)
+    $http.get(endpoint).then(success, error);
   }
-
-
-
-})
-.factory('navService', function($http) {
+}).factory('navService', function ($http) {
 
   return {
     getHubsFromServer: getHubsFromServer,
@@ -161,91 +152,84 @@ angular.module('app.services', [
 
   function getHubsFromServer(callback) {
 
-    function success(response){
+    function success(response) {
       callback(response.data.sort());
     }
 
-    function error(err){
-      console.log("error fetching hubs ==>", err)
+    function error(err) {
+      console.log("error fetching hubs ==>", err);
     }
 
-     $http.get('/analyzed-data/hubs')
-      .then(success, error);
+    $http.get('/analyzed-data/hubs').then(success, error);
   }
 
-  function getViewsFromServer(callback){
-    function success(response){
+  function getViewsFromServer(callback) {
+    function success(response) {
       callback(response.data);
     }
-    function error(err){
+    function error(err) {
       console.log("error getting view list from database ==>", err);
     }
 
-    $http.get("/analyzed-data/views")
-      .then(success, error);
+    $http.get("/analyzed-data/views").then(success, error);
   }
 
-  function formatViewsForDisplay(viewList){
-    return viewList.map((viewString) => {
+  function formatViewsForDisplay(viewList) {
+    return viewList.map(function (viewString) {
       return formatSingleView(viewString);
     });
   }
 
-  function formatSingleView(viewString){
-    return viewString.split(/(?=[A-Z])/)
-      .map((word) => {
-        if(word === "And" || word === "and" || word === "The" || word === "the"){
-          let lowerCase = word.charAt(0).toLowerCase() + word.slice(1);
-          return lowerCase;
-        }
-         let upperCase = word.charAt(0).toUpperCase() + word.slice(1);
-          return upperCase;
-      }).join(" ");
+  function formatSingleView(viewString) {
+    return viewString.split(/(?=[A-Z])/).map(function (word) {
+      if (word === "And" || word === "and" || word === "The" || word === "the") {
+        var lowerCase = word.charAt(0).toLowerCase() + word.slice(1);
+        return lowerCase;
+      }
+      var upperCase = word.charAt(0).toUpperCase() + word.slice(1);
+      return upperCase;
+    }).join(" ");
   }
 
-  function formatHubsForDisplay(hubsList){
-    return hubsList.map((hubString) => {
-      if(hubString.includes("_")){
-       let formated = hubString.split("_")
-          .map((word) =>{
-            let upperCase = word.charAt(0).toUpperCase() + word.slice(1);
-            return upperCase;
-          }).join(" ");
+  function formatHubsForDisplay(hubsList) {
+    return hubsList.map(function (hubString) {
+      if (hubString.includes("_")) {
+        var formated = hubString.split("_").map(function (word) {
+          var upperCase = word.charAt(0).toUpperCase() + word.slice(1);
+          return upperCase;
+        }).join(" ");
         return formated;
       } else {
-          let formated = hubString.charAt(0).toUpperCase() + hubString.slice(1);
-          return formated;
+        var _formated = hubString.charAt(0).toUpperCase() + hubString.slice(1);
+        return _formated;
       }
     });
   }
 
-  function formatHubForQuery(hubString){
-    if(hubString.includes(" ")){
-      return hubString.split(" ")
-        .map((word) => {
-          let lowerCase = word.charAt(0).toLowerCase() + word.slice(1);
-          return lowerCase;
-        }).join("_");
+  function formatHubForQuery(hubString) {
+    if (hubString.includes(" ")) {
+      return hubString.split(" ").map(function (word) {
+        var lowerCase = word.charAt(0).toLowerCase() + word.slice(1);
+        return lowerCase;
+      }).join("_");
     } else {
-      let lowerCase = hubString.charAt(0).toLowerCase() + hubString.slice(1);
+      var lowerCase = hubString.charAt(0).toLowerCase() + hubString.slice(1);
       return lowerCase;
     }
   }
+}).factory('chartService', function () {
 
-})
-.factory('chartService',function(){
-
-  function createCategories(hubDataPoints){
+  function createCategories(hubDataPoints) {
     //each databpoint is a list of techs and numbers
-    let keys = Object.keys(hubDataPoints[0]);
-    let result = [];
+    var keys = Object.keys(hubDataPoints[0]);
+    var result = [];
 
-    keys.forEach( (category) => {
-      let categoryObject = {
+    keys.forEach(function (category) {
+      var categoryObject = {
         name: category,
         data: []
       };
-      hubDataPoints.forEach( (dataPoint) => {
+      hubDataPoints.forEach(function (dataPoint) {
         categoryObject.data.push(dataPoint[category]);
       });
       result.push(categoryObject);
@@ -253,33 +237,33 @@ angular.module('app.services', [
     return result;
   }
 
-  function extractDates(dateList){
-    return dateList.map((data) => {
+  function extractDates(dateList) {
+    return dateList.map(function (data) {
       return moment(data.date, "x").format('MMMM DD'); //change format later
     });
   }
 
-  function extractDataPoints(dataList){
-    return dataList.map((data) => {
+  function extractDataPoints(dataList) {
+    return dataList.map(function (data) {
       return data.data;
     });
   }
 
-  function sortData(dataList){
-    return dataList.sort((a, b) => {
-      if(a.date > b.date){
+  function sortData(dataList) {
+    return dataList.sort(function (a, b) {
+      if (a.date > b.date) {
         return 1;
       }
-      if( a.date < b.date){
-        return -1
+      if (a.date < b.date) {
+        return -1;
       }
-      return 0
+      return 0;
     });
   }
 
-  function highChartsFormat(data){
-    let sortedData = sortData(data);
-    let result = {};
+  function highChartsFormat(data) {
+    var sortedData = sortData(data);
+    var result = {};
 
     result.dates = extractDates(sortedData);
     //result for particular view
@@ -290,18 +274,17 @@ angular.module('app.services', [
   }
   //aray of objects with name and data
   //iterate over the views
-  function formatViews(data){
+  function formatViews(data) {
     var obj = {};
-    for(let key in data) { //each individual view
+    for (var key in data) {
+      //each individual view
       //skip unfilled views
-        if(data[key].length > 0){
-          obj[key] = highChartsFormat(data[key]);
-        }
+      if (data[key].length > 0) {
+        obj[key] = highChartsFormat(data[key]);
       }
+    }
     return obj;
-
   }
-
 
   return {
     formatResponseData: formatViews,
@@ -310,28 +293,25 @@ angular.module('app.services', [
     // createCatagories: createCatagories,
     // extractDates: extractDates,
   };
+});
+'use strict';
 
-})
-
-angular.module('app.controllers', [
-  'app.services'
-])
-.controller('navController', ['$scope','$rootScope', 'navService', function($scope, $rootScope, navService) {
+angular.module('app.controllers', ['app.services']).controller('navController', ['$scope', '$rootScope', 'navService', function ($scope, $rootScope, navService) {
 
   $scope.hubs;
 
-  const fillHubs = function() {
-    navService.getHubsFromServer((responseData) => {
+  var fillHubs = function fillHubs() {
+    navService.getHubsFromServer(function (responseData) {
       $scope.hubs = navService.formatHubsForDisplay(responseData);
       $scope.selectedHub = $scope.hubs[$scope.hubs.indexOf("San Francisco")];
     });
   };
 
-  const logChange = function() {
+  var logChange = function logChange() {
     $rootScope.hub = $scope.selectedHub;
   };
 
-  navService.getViewsFromServer((viewList) => {
+  navService.getViewsFromServer(function (viewList) {
     console.log("formated view list", navService.formatViewsForDisplay(viewList));
     $rootScope.formatedViews = navService.formatViewsForDisplay(viewList);
     $rootScope.viewList = viewList;
@@ -340,17 +320,16 @@ angular.module('app.controllers', [
   fillHubs();
   $rootScope.hub = "San Francisco";
   $scope.logChange = logChange;
-}])
-.controller('chartController', ['$scope', '$rootScope', 'navService', 'queryService', 'chartService',function($scope, $rootScope, navService, queryService, chartService) {
+}]).controller('chartController', ['$scope', '$rootScope', 'navService', 'queryService', 'chartService', function ($scope, $rootScope, navService, queryService, chartService) {
   $scope.chartOptions = {};
 
   fill();
   var hubData = null;
   $scope.fill = fill;
 
-  function fill(){
-    var qs = '/analyzed-data?hub='+navService.formatHubForQuery($scope.hub);
-    queryService.getDataFromServer(qs,function(data){
+  function fill() {
+    var qs = '/analyzed-data?hub=' + navService.formatHubForQuery($scope.hub);
+    queryService.getDataFromServer(qs, function (data) {
       var chartData = chartService.formatResponseData(data);
       //these sets trigger watch on the chart directive
 
@@ -363,61 +342,57 @@ angular.module('app.controllers', [
 
   //watches for hub changes
   $rootScope.$watch('hub', fill, true);
-
-}])
-.directive('hcChart', function() {
+}]).directive('hcChart', function () {
   return {
     restrict: 'E',
     template: '<div></div>',
     scope: {
       options: '='
     },
-    link: function(scope, element) {
+    link: function link(scope, element) {
 
-      scope.$watch('options', function(newValue, oldValue) {
-          if (newValue)
-            if(T.match(scope.options,'chartOptions')){
-              var options = getOptions(scope);
-              Highcharts.chart(element[0], options);
-            }
+      scope.$watch('options', function (newValue, oldValue) {
+        if (newValue) if (T.match(scope.options, 'chartOptions')) {
+          var options = getOptions(scope);
+          Highcharts.chart(element[0], options);
+        }
       }, true);
 
-      function getOptions(scope){
+      function getOptions(scope) {
         var obj = {
-            title: {
-              text: `Popular ${scope.options.view} in ${scope.options.hub}`
-            },
-            xAxis: {
-              type: 'datetime',
-              categories: scope.options.dates
-            },
-            series: scope.options.series
-          }
+          title: {
+            text: 'Popular ' + scope.options.view + ' in ' + scope.options.hub
+          },
+          xAxis: {
+            type: 'datetime',
+            categories: scope.options.dates
+          },
+          series: scope.options.series
+        };
         return obj;
       }
     }
   };
-})
-.directive('scrollSpy', function ($window) {
+}).directive('scrollSpy', function ($window) {
   return {
     restrict: 'A',
-    controller: function ($scope) {
+    controller: function controller($scope) {
       $scope.spies = [];
       //$scope.spyElems = [];
       this.addSpy = function (spyObj) {
         $scope.spies.push(spyObj);
-        if($scope.spies.length === 1){
+        if ($scope.spies.length === 1) {
           spyObj.in();
         }
         //$scope.spyElems[spyObj.id] = $('#' + spyObj.id);
       };
     },
-    link: function (scope, elem, attrs) {
+    link: function link(scope, elem, attrs) {
       var spyElems;
       spyElems = [];
       // getElements();
       // scope.$watch('spies', getElements);
-      
+
       // function getElements(spies) {
       //   //the elements to the spy elements array
       //   var spy, _i, _len, _results;
@@ -443,11 +418,11 @@ angular.module('app.controllers', [
         // cycle through `spy` elements to find which to highlight
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           spy = _ref[_i];
-          if($window.scrollY > DEFAULTMARGIN){
+          if ($window.scrollY > DEFAULTMARGIN) {
             spy.out();
           }
-          
-          var elem = $('#' + spy.id)
+
+          var elem = $('#' + spy.id);
           // catch case where a `spy` does not have an associated `id` anchor
           // if (scope.spyElems[spy.id].offset() === undefined) {
           //   continue;
@@ -469,18 +444,17 @@ angular.module('app.controllers', [
         if ($(window).scrollTop() + $(window).height() >= $(document).height()) {
           spy.pos = pos;
           highlightSpy = spy;
-        }        
+        }
 
         return highlightSpy != null ? highlightSpy["in"]() : void 0;
       });
     }
   };
-})
-.directive('spy', function ($location, $anchorScroll) {
+}).directive('spy', function ($location, $anchorScroll) {
   return {
     restrict: "A",
     require: "^scrollSpy",
-    link: function(scope, elem, attrs, affix) {
+    link: function link(scope, elem, attrs, affix) {
       elem.click(function () {
         $location.hash(attrs.spy);
         $anchorScroll();
@@ -488,34 +462,35 @@ angular.module('app.controllers', [
 
       affix.addSpy({
         id: attrs.spy,
-        in: function() {
+        in: function _in() {
           elem.addClass('active');
         },
-        out: function() {
+        out: function out() {
           elem.removeClass('active');
         }
       });
     }
   };
 });
+'use strict';
 
-angular.module('app',['app.controllers','app.services']);
+angular.module('app', ['app.controllers', 'app.services']);
 
-$(function() {
-  var $sidebar   = $("#chart_nav"), 
-    $window    = $(window),
-    offset     = $sidebar.offset(),
-    topPadding = 192;
+$(function () {
+    var $sidebar = $("#chart_nav"),
+        $window = $(window),
+        offset = $sidebar.offset(),
+        topPadding = 192;
 
-  $window.scroll(() => {
-    if ($window.scrollTop() > offset.top) {
-        $sidebar.stop().animate({
-            marginTop: $window.scrollTop() - offset.top + topPadding
-        });
-    } else {
-        $sidebar.stop().animate({
-            marginTop: 84
-        });
-    }
-  });
+    $window.scroll(function () {
+        if ($window.scrollTop() > offset.top) {
+            $sidebar.stop().animate({
+                marginTop: $window.scrollTop() - offset.top + topPadding
+            });
+        } else {
+            $sidebar.stop().animate({
+                marginTop: 84
+            });
+        }
+    });
 });
