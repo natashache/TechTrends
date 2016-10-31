@@ -81,4 +81,62 @@ angular.module('app.controllers', [
     }
   };
 })
+.directive ('scrollSpy', function($window){
+  return {
+    restrict: 'A',
+    controller: function($scope){
+      $scope.spies = [];
+      addSpy = function(spyObj){
+      $scope.spies.push(spyObj);
+      };
+    },
+    link: function(scope, elem, attrs){
+      spyElems = [];
 
+      scope.$watch('spies', function(spies){
+        for (var spy in spies){
+          if(!spyElems[spy.id]){
+            spyElems[spy.id] = elem.find('#'+spy.id);
+          }     
+        }
+      });
+      
+      $($window).scroll = function(){
+        highlightSpy = null;
+        
+        for(var spy in scope.spies){
+          spy.out()
+          if ((pos = spyElems[spy.id].offset().top) - $window.scrollY <= 0){
+            spy.pos = pos
+            highlightSpy = spy
+            if(highlightSpy.pos < spy.pos){
+              highlightSpy = spy;
+            }
+          }
+        }
+
+        highlightSpy.in();
+      };
+      
+    }
+  };
+})
+.directive('spy', function(){
+  return {
+    restrict: "A",
+    require: "^scrollSpy",
+    link: function(scope, elem, attrs, affix) {
+      return {
+          id: attrs.spy,
+          in: function() {
+            elem.addClass('current');
+          },
+          out: function(){
+            elem.removeClass('current');
+        },
+      }
+      
+    }
+    
+  };
+});
