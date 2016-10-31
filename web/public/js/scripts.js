@@ -154,7 +154,9 @@ angular.module('app.services', [
     getViewsFromServer: getViewsFromServer,
     selectedHub: "san_francisco",
     formatHubsForDisplay: formatHubsForDisplay,
-    formatHubForQuery: formatHubForQuery
+    formatHubForQuery: formatHubForQuery,
+    formatViewsForDisplay: formatViewsForDisplay,
+    formatSingleView: formatSingleView
   };
 
   function getHubsFromServer(callback) {
@@ -183,12 +185,30 @@ angular.module('app.services', [
       .then(success, error);
   }
 
+  function formatViewsForDisplay(viewList){
+    return viewList.map((viewString) => {
+      return formatSingleView(viewString);
+    });
+  }
+
+  function formatSingleView(viewString){
+    return viewString.split(/(?=[A-Z])/)
+      .map((word) => {
+        if(word === "And" || word === "and" || word === "The" || word === "the"){
+          let lowerCase = word.charAt(0).toLowerCase() + word.slice(1);
+          return lowerCase;
+        }
+         let upperCase = word.charAt(0).toUpperCase() + word.slice(1);
+          return upperCase;
+      }).join(" ");
+  }
+
   function formatHubsForDisplay(hubsList){
     return hubsList.map((hubString) => {
       if(hubString.includes("_")){
        let formated = hubString.split("_")
           .map((word) =>{
-            let upperCase = word.charAt(0).toUpperCase() + word.slice(1)
+            let upperCase = word.charAt(0).toUpperCase() + word.slice(1);
             return upperCase;
           }).join(" ");
         return formated;
@@ -312,6 +332,8 @@ angular.module('app.controllers', [
   };
 
   navService.getViewsFromServer((viewList) => {
+    console.log("formated view list", navService.formatViewsForDisplay(viewList));
+    $rootScope.formatedViews = navService.formatViewsForDisplay(viewList);
     $rootScope.viewList = viewList;
   });
 
@@ -334,7 +356,7 @@ angular.module('app.controllers', [
 
       $scope.chartOptions.series = chartData[$scope.view].data;
       $scope.chartOptions.dates = chartData[$scope.view].dates;
-      $scope.chartOptions.view = $scope.view;
+      $scope.chartOptions.view = navService.formatSingleView($scope.view);
       $scope.chartOptions.hub = $scope.hub;
     });
   }
@@ -363,7 +385,7 @@ angular.module('app.controllers', [
       function getOptions(scope){
         var obj = {
             title: {
-              text: `${scope.options.view} Popularity for ${scope.options.hub}`
+              text: `Popular ${scope.options.view} in ${scope.options.hub}`
             },
             xAxis: {
               type: 'datetime',

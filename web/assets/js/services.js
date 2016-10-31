@@ -30,7 +30,9 @@ angular.module('app.services', [
     getViewsFromServer: getViewsFromServer,
     selectedHub: "san_francisco",
     formatHubsForDisplay: formatHubsForDisplay,
-    formatHubForQuery: formatHubForQuery
+    formatHubForQuery: formatHubForQuery,
+    formatViewsForDisplay: formatViewsForDisplay,
+    formatSingleView: formatSingleView
   };
 
   function getHubsFromServer(callback) {
@@ -59,12 +61,30 @@ angular.module('app.services', [
       .then(success, error);
   }
 
+  function formatViewsForDisplay(viewList){
+    return viewList.map((viewString) => {
+      return formatSingleView(viewString);
+    });
+  }
+
+  function formatSingleView(viewString){
+    return viewString.split(/(?=[A-Z])/)
+      .map((word) => {
+        if(word === "And" || word === "and" || word === "The" || word === "the"){
+          let lowerCase = word.charAt(0).toLowerCase() + word.slice(1);
+          return lowerCase;
+        }
+         let upperCase = word.charAt(0).toUpperCase() + word.slice(1);
+          return upperCase;
+      }).join(" ");
+  }
+
   function formatHubsForDisplay(hubsList){
     return hubsList.map((hubString) => {
       if(hubString.includes("_")){
        let formated = hubString.split("_")
           .map((word) =>{
-            let upperCase = word.charAt(0).toUpperCase() + word.slice(1)
+            let upperCase = word.charAt(0).toUpperCase() + word.slice(1);
             return upperCase;
           }).join(" ");
         return formated;
