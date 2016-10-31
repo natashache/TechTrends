@@ -39,7 +39,7 @@ gulp.task('scripts', () => {
   .pipe(concat('scripts.js'))
   .pipe(gulp.dest('web/public/js'))
   .pipe(rename('scripts.min.js'))
-  .pipe(uglify())
+  // .pipe(uglify())
   .pipe(gulp.dest('web/public/js'));
 });
 

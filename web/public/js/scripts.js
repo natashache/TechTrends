@@ -40731,17 +40731,49 @@ angular.module('app.services', [
       .then(success, error)
   }
 
+
+
 })
-.factory('navService', function() {
+.factory('navService', function($http) {
   //var country = keys.collections.geo.united_states;
   // country.states = Object.keys(keys.collections.geo.united_states);
   // country.states.unshift('Select State:');
+
   return {
-    rootLocations: ['San Francisco', 'Kansas City']
+    getHubsFromServer: getHubsFromServer,
+    getViewsFromServer: getViewsFromServer,
+    selectedHub: "san_francisco",
+  };
+
+  function getHubsFromServer(callback) {
+
+    function success(response){
+      callback(response.data);
+    }
+
+    function error(err){
+      console.log("error fetching hubs ==>", err)
+    }
+
+     $http.get('/analyzed-data/hubs')
+      .then(success, error);
   }
+
+  function getViewsFromServer(callback){
+    function success(response){
+      callback(response.data);
+    }
+    function error(err){
+      console.log("error getting view list from database ==>", err);
+    }
+
+    $http.get("/analyzed-data/views")
+      .then(success, error);
+  }
+
 })
 .factory('chartService',function(){
-  
+
   function createCategories(hubDataPoints){
     //each databpoint is a list of techs and numbers
     let keys = Object.keys(hubDataPoints[0]);
@@ -40780,7 +40812,7 @@ angular.module('app.services', [
 
     result.data = createCategories(extractDataPoints(data));
 
-    return result; 
+    return result;
   }
   //aray of objects with name and data
   //iterate over the views
@@ -40809,39 +40841,61 @@ angular.module('app.services', [
 angular.module('app.controllers', [
   'app.services'
 ])
-.controller('navController', function($scope,navService) {
-    $scope.country = navService.rootLocations;
-  // $scope.states = $scope.country.states;
-  // $scope.selectedState = $scope.states[0]
-  // $scope.populateDrop = function() {
-  //   $scope.currentCities = Object.keys($scope.country[$scope.selectedState]);
-  // }
-})
-.controller('chartController', ['$scope', 'queryService', 'chartService',function($scope, queryService, chartService) {
+.controller('navController', ['$scope','$rootScope', 'navService', function($scope, $rootScope, navService) {
+
+  $scope.hubs;
+
+  const fillHubs = function() {
+    navService.getHubsFromServer((responseData) => {
+      $scope.hubs = responseData;
+      $scope.hubs.unshift("Select a Tech Hub");
+      $scope.selectedHub = $scope.hubs[0];
+    });
+  };
+
+  const logChange = function() {
+    navService.selectedHub = $scope.selectedHub;
+    $rootScope.hub = $scope.selectedHub;
+  };
+
+  navService.getViewsFromServer((viewList) => {
+    $rootScope.viewList = viewList;
+    console.log("root view list", $rootScope.viewList);
+  });
+
+  fillHubs();
+  $scope.logChange = logChange;
+}])
+.controller('chartController', ['$scope', '$rootScope', 'navService', 'queryService', 'chartService',function($scope, $rootScope, navService, queryService, chartService) {
   $scope.chartOptions = {};
+
 
   fill();
   var hubData = null;
 
-  $scope.hub = 'San Francisco';
+  //$scope.hub = 'San Francisco';
 
   //methods used by external buttons/menus
-  $scope.fill = fill; 
-  $scope.view = 'serverLanguages';
-  
+  $scope.fill = fill;
+  //$scope.view = 'serverLanguages';
+
   //query and change the options
   function fill(){
-    var qs = '/analyzed-data?hub=san_francisco';
+    var qs = `/analyzed-data?hub=${navService.selectedHub}`;
     queryService.getDataFromServer(qs,function(data){
       var chartData = chartService.formatResponseData(data);
       //these sets trigger watch on the chart directive
-      
+
       $scope.chartOptions.series = chartData[$scope.view].data;
       $scope.chartOptions.dates = chartData[$scope.view].dates;
-      $scope.chartOptions.view = $scope.view; 
-      $scope.chartOptions.hub = $scope.hub; 
+      $scope.chartOptions.view = $scope.view;
+      $scope.chartOptions.hub = $scope.hub || "San Francisco";
     });
   }
+
+  //watches for hub changes
+  $rootScope.$watch('hub', fill, true);
+
 }])
 .directive('hcChart', function() {
   return {
@@ -40851,7 +40905,7 @@ angular.module('app.controllers', [
       options: '='
     },
     link: function(scope, element) {
-      
+
       scope.$watch('options', function(newValue, oldValue) {
           if (newValue)
             if(T.match(scope.options,'chartOptions')){
