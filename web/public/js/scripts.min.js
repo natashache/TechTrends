@@ -40914,7 +40914,7 @@ angular.module('app.controllers', [
   $scope.fill = fill;
 
   function fill(){
-    var qs = `/analyzed-data?hub=${navService.formatHubForQuery($scope.hub)}`;
+    var qs = '/analyzed-data?hub='+navService.formatHubForQuery($scope.hub);
     queryService.getDataFromServer(qs,function(data){
       var chartData = chartService.formatResponseData(data);
       //these sets trigger watch on the chart directive
@@ -40950,7 +40950,7 @@ angular.module('app.controllers', [
       function getOptions(scope){
         var obj = {
             title: {
-              text: `${scope.options.view} Popularity for ${scope.options.hub}` //template string add in hub location
+              text: 'hi'//`${scope.options.view} Popularity for ${scope.options.hub}` //template string add in hub location
             },
             xAxis: {
               type: 'datetime',
@@ -40963,7 +40963,103 @@ angular.module('app.controllers', [
     }
   };
 })
+.directive('scrollSpy', function ($window) {
+  return {
+    restrict: 'A',
+    controller: function ($scope) {
+      $scope.spies = [];
+      //$scope.spyElems = [];
+      this.addSpy = function (spyObj) {
+        $scope.spies.push(spyObj);
+        // if($scope.spies.length === 1){
+        //   spyObj.in();
+        // }
+        //$scope.spyElems[spyObj.id] = $('#' + spyObj.id);
+      };
+    },
+    link: function (scope, elem, attrs) {
+      var spyElems;
+      spyElems = [];
+      // getElements();
+      // scope.$watch('spies', getElements);
+      
+      // function getElements(spies) {
+      //   //the elements to the spy elements array
+      //   var spy, _i, _len, _results;
+      //   _results = [];
 
+      //   for (_i = 0, _len = spies.length; _i < _len; _i++) {
+      //     spy = spies[_i];
+
+      //     if (spyElems[spy.id] == null) {
+      //       _results.push(;
+      //     }
+      //   }
+      //   return _results;
+      // };
+
+      $($window).scroll(function () {
+        var OFFSETTRIGGER = 500;
+
+        var highlightSpy, pos, spy, _i, _len, _ref;
+        highlightSpy = null;
+        _ref = scope.spies;
+        var spyElems = scope.spyElems;
+        // cycle through `spy` elements to find which to highlight
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          spy = _ref[_i];
+          spy.out();
+          var elem = $('#' + spy.id)
+          // catch case where a `spy` does not have an associated `id` anchor
+          // if (scope.spyElems[spy.id].offset() === undefined) {
+          //   continue;
+          // }
+          if ((pos = elem.offset().top) - $window.scrollY <= OFFSETTRIGGER) {
+            // the window has been scrolled past the top of a spy element
+            spy.pos = pos;
+
+            if (highlightSpy == null) {
+              highlightSpy = spy;
+            }
+            if (highlightSpy.pos < spy.pos) {
+              highlightSpy = spy;
+            }
+          }
+        }
+
+        // select the last `spy` if the scrollbar is at the bottom of the page
+        if ($(window).scrollTop() + $(window).height() >= $(document).height()) {
+          spy.pos = pos;
+          highlightSpy = spy;
+        }        
+
+        return highlightSpy != null ? highlightSpy["in"]() : void 0;
+      });
+    }
+  };
+})
+.directive('spy', function ($location, $anchorScroll) {
+  return {
+    restrict: "A",
+    require: "^scrollSpy",
+    link: function(scope, elem, attrs, affix) {
+      elem.click(function () {
+        $location.hash(attrs.spy);
+        $anchorScroll();
+      });
+
+      affix.addSpy({
+        id: attrs.spy,
+        in: function() {
+          elem.addClass('active');
+        },
+        out: function() {
+          elem.removeClass('active');
+        }
+      });
+    }
+  };
+});
 
 angular.module('app',['app.controllers','app.services']);
 

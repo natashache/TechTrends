@@ -107,6 +107,10 @@ select.hub-selector {
   border: 1px solid $grey230;
 }
 
+.active {
+  background: gray;
+}
+
 ul.chart-nav {
   margin: 84px 0 0 0;
   li {
