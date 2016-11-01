@@ -13,12 +13,14 @@ const path = require('path');
 app.use(bodyParser.json());
 
 app.use((req, res, next) => {
+  console.log(`${req.method} REQUEST AT ${req.url}`);
   next();
 });
 
 app.use(express.static('web'));
-//console.log('debug env',process.env.debug);
-//---------------------base route------------------------------
+
+
+//---------------------static routes------------------------------
 //-------------------------------------------------------------
 
 app.get('/', (req, res) => {
@@ -69,14 +71,10 @@ app.post('/raw-postings', (req, res) => {
 });
 
 app.delete('/raw-postings', (req, res) => {
-  //console.log('receiving delete request');
-
   const date = Number(req.query.date);
   const hub = req.query.hub;
 
-  //console.log('date',date);
   postingsHelpers.deletePostings(date, hub, (result) => {
-    //console.log('delete results',result);
     res.status(204).send(result);
   });
 })
@@ -111,12 +109,14 @@ app.post("/analyzed-data", (req, res) => {
   res.status(200).send("OK");
 });
 
+//returns a list of the views
 app.get("/analyzed-data/views", (req, res) => {
   analyzedHelpers.getViewsList((viewsArray) => {
     res.status(200).send(viewsArray);
   });
 });
 
+//returns a list of the hubs
 app.get("/analyzed-data/hubs", (req, res) => {
   analyzedHelpers.getHubs((list) => {
     res.status(200).send(list);
@@ -131,3 +131,4 @@ app.delete('/analyzed-data/', (req, res) => {
 })
 
 module.exports = app;
+

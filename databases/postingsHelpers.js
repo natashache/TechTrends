@@ -7,7 +7,6 @@ const createCollection = function (postingObject, callback) {
     .then( (created) => {
       created.save().then( (saved) => {
           saved.addPosting(postingObject, (newPosting) => {
-            //console.log("added new posting", newPosting);
             callback(newPosting);
           })
         })
@@ -20,15 +19,14 @@ const addNewPosting = function(postingObject, callback) {
   PostingsModel.findOne({date: postingObject.date})
     .then((posting) => {
       if(posting){
-        //console.log("date already exists");
         posting.addPosting(postingObject, callback);
       } else {
-        //console.log("creating new date");
         createCollection(postingObject, callback);
       }
     });
 };
 
+//handles getting the postings at the passed in date, if date is 0 returns all postings
 const getPostings = function(date,callback){
   if(date === '0'){
     PostingsModel.find().then(results =>{
@@ -42,11 +40,11 @@ const getPostings = function(date,callback){
   }
 };
 
+//returns the record the passed index of the postings array in the passed date recod
+//if index is -1 retunrs instead the length of the postings array for future iteration
 const iterateDatelist = function(date,index,callback){
   if(index === '-1'){
     PostingsModel.find({date: date}).then(results =>{
-      //console.log('full results',results);
-      //console.log('datelist postings length',results[0].postings.length);
       callback(results[0].postings.length); 
     });
 
@@ -63,6 +61,7 @@ const iterateDatelist = function(date,index,callback){
 
 };
 
+//returns an array of all date records contained in the DB
 const getAllDates = function(callback){
   PostingsModel.find().then(results=>{
     var dates = results.reduce(function(acc,result){
@@ -73,11 +72,10 @@ const getAllDates = function(callback){
   });
 }
 
+//handles deleting a specific date/hub record
 const deletePostings = function(date, hub, callback){
   if(date === 0){
-    //console.log('removing all...')
     PostingsModel.remove().then(results =>{
-      //console.log('remove results',results);
       callback(results); 
     });
   }
@@ -87,7 +85,6 @@ const deletePostings = function(date, hub, callback){
         callback(results);
       });
     } else {
-      console.log("heard delete in correct conditional")
       PostingsModel.findOne({date:date})
         .then( (dateObject) => {
           var removed = dateObject.postings.filter( (posting) => {

@@ -14,9 +14,8 @@ var AnalyzedSchema = new mongoose.Schema(
   }, {strict:false}
 );
 
-//todo: error handling for non-existent views
+//adds a new analytic to a singular view
 AnalyzedSchema.methods.addAnalytic = function (newAnalytic,view, cb) {
-
   this[view].push(newAnalytic);
   this.save()
     .then( (saved) => {
@@ -24,6 +23,7 @@ AnalyzedSchema.methods.addAnalytic = function (newAnalytic,view, cb) {
     });
 };
 
+//updates every view from array of new analytics
 AnalyzedSchema.methods.updateViews = function (viewsArray, cb) {
   viewsArray.forEach((view) => {
     let viewName = view.viewName;

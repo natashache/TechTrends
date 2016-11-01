@@ -23,6 +23,7 @@ const getHubs = function(callback){
     });
 };
 
+//handles getting view list
 const getViewsList = function(callback){ 
   AnalyzedModel.find()
     .then((arrayOfHubs) => {
