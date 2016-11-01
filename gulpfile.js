@@ -41,9 +41,9 @@ gulp.task('scripts', () => {
     'web/assets/js/controllers.js',
     'web/assets/js/app.js'
   ])
-  // .pipe(babel({
-  //   presets: ['es2015']
-  // }))
+  .pipe(babel({
+    presets: ['es2015']
+  }))
   .pipe(concat('scripts.js'))
   .pipe(gulp.dest('web/public/js'))
   .pipe(rename('scripts.min.js'))
