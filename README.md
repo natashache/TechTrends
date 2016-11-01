@@ -11,7 +11,7 @@ Here is a brief over-view and schematic of Tech Trend's architecture. More inlin
 
 ## Setting Up and Getting Started ##
 To start simply clone your fork of this repo and run `npm install` from the root directory. This will install all of your back-end dependencies and automatically install your front-end
-dependencies in the post-install with bower. Running `gulp` from the root directory with automaticall comile the `scss` files and minify/uglify the front-end javascript files, `gulp` also watches
+dependencies in the post-install with bower. Running `gulp` from the root directory with automatically compile the `scss` files and minify/uglify the front-end javascript files, `gulp` also watches
 your files for changes to make the dev life easier. Once you have your dependencies installed your ready to set up your private files, *it is very important* that these are not made public.
 The server expects the URL to wherever your hosting the database to exist in a file called `connections.json` which lives in the connections folder. This file should hold a JSON object with the following format:
 ````javascript
@@ -20,9 +20,9 @@ The server expects the URL to wherever your hosting the database to exist in a f
   "test":  "yourURL"
 }
 ````
-You Also need to correct a `keys.js` file in the services directory to control the various options for the scrapper and the cruncher. An example template can be found in the services directory.
+You Also need to create a `keys.js` file in the services directory to control the various options for the scrapper and the cruncher. An example template can be found in the services directory.
 
-Now that you are all setup peruse the `package.json` and check out the various NPM scrips we have provided to quickly start the server!
+Now that you are all setup peruse the `package.json` and check out the various NPM scripts we have provided to quickly start the server!
 
 ## Services ##
 
