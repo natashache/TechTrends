@@ -25,7 +25,7 @@ Because there are many moving parts in this application the database design the 
 
 ## Postings Array ##
 The Postings array is where the scrubbed plain text files from the scrapper are stored. It is organized by date, so each record contains all of the plain text scrapped from a specific date (milliseconds since 1970) id. The REST endpoint for the raw DB accepts post request as JSON in this format:
-`[
+````[
   {
     date: query.date,
     country: query.country,
@@ -39,13 +39,13 @@ The Postings array is where the scrubbed plain text files from the scrapper are 
   {},
   {},
   {}
-]`
+]````
 
 where each empty object has the same format as the notated object. Because the date records are extremely large we had to have a way for the cruncher to iterate through them. We achieve this through our REST endpoints, a get request to /raw-postings/dates returns an array of date IDs. The /raw-postings endpoint expects two queries: a date and an index. This allows the cruncher to iterate through the postings array, if the index query is -1 the endpoint will return the length of the postings array.
 
 ## Analyzed Data ##
 The analyzed Database is organized by hub. Each hub record has a property for each view that is an array of datapoints, where each datapoint has a date and a data property. This allows us to, with one get request, display all of the view data for a hub.  The /analyzed-data end point accepts POST requests as JSON in this format.
-`[
+````[
   {
     hubName: "phoenix",
     views: [
@@ -91,6 +91,6 @@ The analyzed Database is organized by hub. Each hub record has a property for ea
     }
   ]
 }
-]`
+]````
 where the data reflects what is needed for the specific view.  A GET request to /analyzed-data expects a hub as a query, and will return an object with keys for each view where the value is an array of the datapoints.
 
