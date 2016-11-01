@@ -1,55 +1,133 @@
-
-
-const postingsHelpers = require('./database/postingsHelpers.js');
+const postingsHelpers = require('./databases/postingsHelpers.js');
+const analyzedHelpers = require('./databases/analyzedHelpers.js');
 const bodyParser = require('body-parser');
-var app = require('express')();
-var mongoose = require("mongoose");
+var express = require('express');
+const app = require('express')();
+const port = 8000;
+const mongoose = require('mongoose');
+const path = require('path');
 
-//mongoose is connected anywhere, it's connection is referenced whenever it is required
+//-------------------middlewares-------------------------------
+//-------------------------------------------------------------
 
-
-const POSTINGSURI = process.env['dev']? 
-      "mongodb://localhost/postings" : 
-      "mongodb://hera:hackreactor19@ds063406.mlab.com:63406/rawpostings";
-
-console.log('URI=========',POSTINGSURI);
-mongoose.connect(POSTINGSURI);
-
-console.log(process.env);
-//middleware
 app.use(bodyParser.json());
+
+app.use((req, res, next) => {
+  next();
+});
+
+app.use(express.static('web'));
+//console.log('debug env',process.env.debug);
+//---------------------base route------------------------------
+//-------------------------------------------------------------
+
+app.get('/', (req, res) => {
+  res.status(200).sendFile(path.join(__dirname + '/web/public/index.html'));
+});
+
+app.get('/about', (req, res) => {
+  res.status(200).sendFile(path.join(__dirname + '/web/public/about.html'));
+});
+
+app.get('/css/styles', (req, res) => {
+  res.sendFile(path.join(__dirname + '/web/public/css/styles.css'));
+});
+
+app.get('/js/vendor', (req, res) => {
+  res.sendFile(path.join(__dirname + '/web/public/js/vendor.min.js'));
+});
+
+app.get('/js/scripts', (req, res) => {
+  res.sendFile(path.join(__dirname + '/web/public/js/scripts.min.js'));
+});
 
 //----------routes for the raw postings database---------------
 //-------------------------------------------------------------
 
-app.post('/raw-postings',function(req,res){
+app.get('/raw-postings', (req, res) => {
+  if(req.query.index){
+    postingsHelpers.iterateDatelist(req.query.date, req.query.index,(result)=>{
+      res.status(202).send(JSON.stringify(result));
+    });
+  } else {
+    postingsHelpers.getPostings(req.query.date, (results) => {
+      res.status(202).send(results);
+    });
+  }
+});
+
+app.get('/raw-postings/dates', (req, res) => {
+    postingsHelpers.getAllDates(result=>{
+      res.status(202).send(JSON.stringify(result));
+    });
+});
+
+app.post('/raw-postings', (req, res) => {
   postingsHelpers.addNewPosting(req.body, (newPosting) => {
-    console.log("added new posting", newPosting);
-    res.status(202).send(newPosting);
+    res.status(202).send(req.body);  
   });
 });
 
+app.delete('/raw-postings', (req, res) => {
+  //console.log('receiving delete request');
 
-app.get('/raw-postings',function(req,res){
-  postingsHelpers.getPostings(req.query.date, function(results){
-    res.status(202).send(results);
-  });
-});
+  const date = Number(req.query.date);
+  const hub = req.query.hub;
 
-app.delete('/raw-postings',function(req,res){
-  postingsHelpers.deletePostings(req.query.date, function(result){
-    console.log('callback called');
+  //console.log('date',date);
+  postingsHelpers.deletePostings(date, hub, (result) => {
+    //console.log('delete results',result);
     res.status(204).send(result);
   });
-  
 })
 
 //----------routes for the analyzed database-------------------
 //-------------------------------------------------------------
 
+app.get("/analyzed-data", (req, res) => {
+  let hub = req.query.hub;
+  let view = req.query.viewName;
 
-//--end routes--
-//server listen
-app.listen(process.env.PORT || 8000);
+  analyzedHelpers.getAnalytics(hub, view, (viewArray) => {
 
-module.exports = app; 
+    if(!viewArray) {
+      res.status(404).send("data not found");
+    } else {
+      res.status(200).send(viewArray);
+    }
+    
+  });
+});
+
+app.post("/analyzed-data", (req, res) => {
+  console.log("post request");
+  
+  req.body.forEach((hubObject) => {
+    analyzedHelpers.addNewAnalytic(hubObject, (obj) => {
+      console.log(`wrote ${obj} to the database`);
+    });
+  });
+
+  res.status(200).send("OK");
+});
+
+app.get("/analyzed-data/views", (req, res) => {
+  analyzedHelpers.getViewsList((viewsArray) => {
+    res.status(200).send(viewsArray);
+  });
+});
+
+app.get("/analyzed-data/hubs", (req, res) => {
+  analyzedHelpers.getHubs((list) => {
+    res.status(200).send(list);
+  });
+});
+
+app.delete('/analyzed-data/', (req, res) => {
+  var hub = req.query.hub;
+  analyzedHelpers.deleteAnalyticCollection(hub, (result) => {
+    res.status(204).send(result);
+  });
+})
+
+module.exports = app;

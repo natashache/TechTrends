@@ -4,7 +4,11 @@ databases/node_modules
 web/node_modules
 ./node_modules
 node_modules
-
+bower_components
+web/bower_components
+connections/connections.json
 # services #
-services/records
 services/keys.js
+services/archive/*.json
+/.vscode/launch.json
+npm-debug.log
