@@ -47,14 +47,14 @@ The raw-postings database is where the scrubbed plain text files from the scrapp
 ````javascript
 [
   {
-    date: query.date,
-    country: query.country,
-    state: query.state,
-    hub: query.hub,
-    source: query.source,
-    term: query.term,
-    url: '',
-    text: ''
+    date: 'someDate',
+    country: 'someCountry',
+    state: 'someState',
+    hub: 'someHub',
+    source: 'someSource',
+    term: 'someTerm',
+    url: 'someURL',
+    text: 'scrubbed plain text from web page'
   },
   {},
   {},
