@@ -41,7 +41,7 @@
 
         <div class="col-right">
           <ul id="chart_nav" class="chart-nav">
-            <li ng-repeat="view in formatedViews" spy="{{view}}">{{view}}</li>
+            <li ng-repeat="view in formatedViews" spy="{{viewList[$index]}}">{{view}}</li>
           </ul>
         </div>
       
