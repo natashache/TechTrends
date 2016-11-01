@@ -6,6 +6,7 @@ $(function() {
     offset     = $sidebar.offset(),
     topPadding = 192;
 
+  //correctly place the sidebar on scroll
   $window.scroll(() => {
     if ($window.scrollTop() > offset.top) {
         $sidebar.stop().animate({
