@@ -14,6 +14,11 @@ angular.module('app.controllers', [
 
   const logChange = function() {
     $rootScope.hub = $scope.selectedHub;
+    // alert('hi')
+    console.log(navService.splashObject);
+    console.log(navService.splashObject[navService.formatHubForQuery($scope.selectedHub)])
+    $('div.sector-splash').css("background", `url(${navService.splashObject[navService.formatHubForQuery($scope.selectedHub)]})`);
+
   };
 
   navService.getViewsFromServer((viewList) => {
@@ -105,7 +110,7 @@ angular.module('app.controllers', [
       spyElems = [];
       // getElements();
       // scope.$watch('spies', getElements);
-      
+
       // function getElements(spies) {
       //   //the elements to the spy elements array
       //   var spy, _i, _len, _results;
@@ -157,7 +162,7 @@ angular.module('app.controllers', [
         if ($(window).scrollTop() + $(window).height() >= $(document).height()) {
           spy.pos = pos;
           highlightSpy = spy;
-        }        
+        }
 
         return highlightSpy != null ? highlightSpy["in"]() : void 0;
       });

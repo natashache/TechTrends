@@ -21,11 +21,40 @@ angular.module('app.services', [
   }
 
 
-
 })
 .factory('navService', function($http) {
 
+  var splashObject = {
+
+    san_francisco: "http://i.imgur.com/3wjTZYu.jpg",
+    san_jose: "http://i.imgur.com/qImaJVB.jpg",
+    san_diego: "http://i.imgur.com/QXMbK3j.jpg",
+    boulder: "http://i.imgur.com/jpuL6qV.jpg",
+    albuquerque: "http://i.imgur.com/iNZ0Jgd.jpg",
+    phoenix: "http://i.imgur.com/KDjIiBd.jpg",
+    boston: "http://i.imgur.com/dz05Y8N.jpg",
+    dallas_fort_worth: "http://i.imgur.com/fiQHv0O.jpg",
+    provo: "http://i.imgur.com/tGfRBfH.jpg",
+    salt_lake_city: "http://i.imgur.com/uFC0ZiV.jpg",
+    washington_dc: "http://i.imgur.com/lKRUEcG.jpg",
+    raleigh: "http://i.imgur.com/epryWOU.jpg",
+    portland: "http://i.imgur.com/V0Hk76j.jpg",
+    pittsburg: "http://i.imgur.com/LGySmxR.jpg",
+    new_york: "http://i.imgur.com/5oquvwn.jpg",
+    seattle: "http://i.imgur.com/BAona8Q.jpg",
+    philadelphia: "http://i.imgur.com/CnuNpeu.jpg",
+    nashville: "http://i.imgur.com/6U99czT.jpg",
+    memphis: "http://i.imgur.com/lj9Zdys.jpg",
+    kansas_city: "http://i.imgur.com/Hl9kuf0.jpg",
+    atlanta: "http://i.imgur.com/mrKRqkt.jpg",
+    austin: "http://i.imgur.com/w61TJNl.jpg",
+    chicago: "http://i.imgur.com/9LhUQ8x.png",
+    los_angeles: "http://i.imgur.com/n28KowY.jpg",
+    houston: "http://i.imgur.com/ThrZVIP.jpg"
+  }
+
   return {
+    splashObject: splashObject,
     getHubsFromServer: getHubsFromServer,
     getViewsFromServer: getViewsFromServer,
     selectedHub: "san_francisco",
