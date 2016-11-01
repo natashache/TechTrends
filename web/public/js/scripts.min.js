@@ -22,7 +22,7 @@ angular.module('app.services', []).factory('queryService', function ($http, char
   var splashObject = {
 
     san_francisco: "http://i.imgur.com/3wjTZYu.jpg",
-    san_jose: "uhttp://i.imgur.com/qImaJVB.jpg",
+    san_jose: "http://i.imgur.com/qImaJVB.jpg",
     san_diego: "http://i.imgur.com/QXMbK3j.jpg",
     boulder: "http://i.imgur.com/jpuL6qV.jpg",
     albuquerque: "http://i.imgur.com/iNZ0Jgd.jpg",
@@ -35,7 +35,7 @@ angular.module('app.services', []).factory('queryService', function ($http, char
     raleigh: "http://i.imgur.com/epryWOU.jpg",
     portland: "http://i.imgur.com/V0Hk76j.jpg",
     pittsburg: "http://i.imgur.com/LGySmxR.jpg",
-    new_york: "uhttp://i.imgur.com/5oquvwn.jpg",
+    new_york: "http://i.imgur.com/5oquvwn.jpg",
     seattle: "http://i.imgur.com/BAona8Q.jpg",
     philadelphia: "http://i.imgur.com/CnuNpeu.jpg",
     nashville: "http://i.imgur.com/6U99czT.jpg",
